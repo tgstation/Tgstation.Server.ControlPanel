@@ -1,18 +1,18 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Logging.Serilog;
+using Tgstation.Server.ControlPanel.ViewModels;
+using Tgstation.Server.ControlPanel.Views;
 
 namespace Tgstation.Server.ControlPanel
 {
-	/// <summary>
-	/// Contains the entrypoint for the application
-	/// </summary>
-	static class Program
-	{
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
-		[STAThread]
-		static void Main()
-		{
-		}
-	}
+    static class Program
+    {
+        static void Main() => BuildAvaloniaApp().Start<MainWindow>(() => new MainWindowViewModel());
+
+        public static AppBuilder BuildAvaloniaApp()
+            => AppBuilder.Configure<App>()
+                .UsePlatformDetect()
+                .UseReactiveUI()
+                .LogToDebug();
+    }
 }
