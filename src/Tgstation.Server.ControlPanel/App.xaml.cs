@@ -5,9 +5,6 @@ namespace Tgstation.Server.ControlPanel
 {
     public class App : Application
     {
-        public override void Initialize()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+        public override void Initialize() => AvaloniaXamlLoaderPortableXaml.Load(this);
     }
 }

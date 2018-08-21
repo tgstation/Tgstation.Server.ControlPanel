@@ -14,9 +14,6 @@ namespace Tgstation.Server.ControlPanel.Views
 #endif
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+        private void InitializeComponent() => AvaloniaXamlLoaderPortableXaml.Load(this);
     }
 }

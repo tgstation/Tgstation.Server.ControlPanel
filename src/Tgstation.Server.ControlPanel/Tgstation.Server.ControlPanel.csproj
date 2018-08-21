@@ -13,11 +13,23 @@
     <EmbeddedResource Include="Assets\*" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Sidebar.xaml" />
+    <None Remove="Views\MainView.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.6.1" />
     <PackageReference Include="Avalonia.Desktop" Version="0.6.1" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.6.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1" />
     <PackageReference Include="Octokit" Version="0.31.0" />
     <PackageReference Include="Tgstation.Server.Client" Version="4.0.0-preview2" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="SideBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\MainView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
