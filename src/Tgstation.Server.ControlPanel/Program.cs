@@ -5,14 +5,14 @@ using Tgstation.Server.ControlPanel.Views;
 
 namespace Tgstation.Server.ControlPanel
 {
-    static class Program
-    {
-        static void Main() => BuildAvaloniaApp().Start<MainWindow>(() => new MainWindowViewModel());
+	static class Program
+	{
+		static void Main() => BuildAvaloniaApp().Start<MainWindow>(() => new MainWindowViewModel());
 
-        public static AppBuilder BuildAvaloniaApp()
-            => AppBuilder.Configure<App>()
-                .UsePlatformDetect()
-                .UseReactiveUI()
-                .LogToDebug();
-    }
+		public static AppBuilder BuildAvaloniaApp()
+			=> AppBuilder.Configure<App>()
+				.UsePlatformDetect()
+				.UseReactiveUI()
+				.LogToDebug();
+	}
 }
