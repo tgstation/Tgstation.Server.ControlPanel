@@ -64,7 +64,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			try
 			{
 				Directory.CreateDirectory(storageDirectory);
-				var json = JsonConvert.SerializeObject(settings);
+				var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
 				await File.WriteAllTextAsync(settingsPath, json).ConfigureAwait(false);
 			}
 			catch (IOException) { }
