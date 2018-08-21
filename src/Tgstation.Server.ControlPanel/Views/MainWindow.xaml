@@ -3,7 +3,7 @@
         xmlns:vm="clr-namespace:Tgstation.Server.ControlPanel.ViewModels;assembly=Tgstation.Server.ControlPanel"
         Icon="resm:Tgstation.Server.ControlPanel.Assets.tgs.ico"
         xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views"
-        Title="{Binding Title}">
+        Title="TGStation 13 Server Control Panel">
 
   <Design.DataContext>
     <vm:MainWindowViewModel/>

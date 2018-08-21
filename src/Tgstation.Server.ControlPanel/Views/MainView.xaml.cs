@@ -1,19 +1,12 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
 namespace Tgstation.Server.ControlPanel.Views
 {
-    public class MainView : UserControl
+    public sealed class MainView : UserControl
     {
-        public MainView()
-        {
-            this.InitializeComponent();
-        }
+        public MainView() => InitializeComponent();
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+		void InitializeComponent() => AvaloniaXamlLoaderPortableXaml.Load(this);
     }
 }

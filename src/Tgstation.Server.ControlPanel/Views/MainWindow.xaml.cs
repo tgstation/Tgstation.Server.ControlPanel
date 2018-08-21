@@ -4,7 +4,7 @@ using Avalonia.Markup.Xaml;
 
 namespace Tgstation.Server.ControlPanel.Views
 {
-    public class MainWindow : Window
+    public sealed class MainWindow : Window
     {
         public MainWindow()
         {
@@ -14,6 +14,6 @@ namespace Tgstation.Server.ControlPanel.Views
 #endif
         }
 
-        private void InitializeComponent() => AvaloniaXamlLoaderPortableXaml.Load(this);
+        void InitializeComponent() => AvaloniaXamlLoaderPortableXaml.Load(this);
     }
 }

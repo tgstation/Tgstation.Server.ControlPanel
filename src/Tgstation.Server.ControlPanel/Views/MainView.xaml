@@ -1,11 +1,21 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:pages="clr-namespace:ControlCatalog.Pages"
+        xmlns:vm="clr-namespace:Tgstation.Server.ControlPanel.ViewModels;assembly=Tgstation.Server.ControlPanel"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <TabControl Classes="sidebar" Name="Sidebar">
-    <TabControl.Transition>
-      <CrossFade Duration="0.25"/>
-    </TabControl.Transition>
-    <TabItem Header="AutoCompleteBox">
-    </TabItem>
-  </TabControl>
+
+  <Design.DataContext>
+    <vm:MainWindowViewModel/>
+  </Design.DataContext>
+
+  <StackPanel Orientation="Vertical">
+    <TextBlock Classes="h1">Servers</TextBlock>
+
+    <TreeView Items="{Binding Connections}" Width="250" Height="350">
+      <TreeView.ItemTemplate>
+        <TreeDataTemplate>
+          <TextBlock Text="{Binding Title}"/>
+        </TreeDataTemplate>
+      </TreeView.ItemTemplate>
+    </TreeView>
+  </StackPanel>
 </UserControl>

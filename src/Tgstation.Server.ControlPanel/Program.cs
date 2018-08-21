@@ -7,7 +7,11 @@ namespace Tgstation.Server.ControlPanel
 {
 	static class Program
 	{
-		static void Main() => BuildAvaloniaApp().Start<MainWindow>(() => new MainWindowViewModel());
+		static void Main()
+		{
+			using (var mwvm = new MainWindowViewModel())
+				BuildAvaloniaApp().Start<MainWindow>(() => mwvm);
+		}
 
 		public static AppBuilder BuildAvaloniaApp()
 			=> AppBuilder.Configure<App>()
