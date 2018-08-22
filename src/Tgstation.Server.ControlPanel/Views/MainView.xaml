@@ -3,8 +3,12 @@
         xmlns:page="clr-namespace:Tgstation.Server.ControlPanel.Views.Pages"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-  <Panel>
-    <Panel.Background>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="20"/>
+    </Grid.RowDefinitions>
+    <Grid.Background>
       <LinearGradientBrush StartPoint="0%,100%" EndPoint="0%,0%">
         <LinearGradientBrush.GradientStops>
           <GradientStop Color="#293955" Offset="0" />
@@ -12,8 +16,8 @@
           <GradientStop Color="#293955" Offset="1" />
         </LinearGradientBrush.GradientStops>
       </LinearGradientBrush>
-    </Panel.Background>
-    <Grid Margin="5">
+    </Grid.Background>
+    <Grid Margin="5" Grid.Row="0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="3*"/>
         <ColumnDefinition Width="Auto"/>
@@ -54,5 +58,9 @@
                     Grid.Column="3"  Width="5" Background="Transparent" />
       <Panel Grid.Column="4"/>
     </Grid>
-  </Panel>
+    <DockPanel Background="#007ACC" Grid.Row="1">
+      <TextBlock Text="{Binding Versions, Mode=OneTime}" Foreground="#FFFFFF" DockPanel.Dock="Left" Margin="5,0,0,0"/>
+      <TextBlock Text="{Binding Meme, Mode=OneTime}" Foreground="#FFFFFF" TextAlignment="Right" DockPanel.Dock="Right" Margin="0,0,5,0"/>
+    </DockPanel>
+  </Grid>
 </UserControl>

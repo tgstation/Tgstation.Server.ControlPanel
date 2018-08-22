@@ -1,12 +1,14 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Tgstation.Server.Api;
 using Tgstation.Server.Client;
 using Tgstation.Server.ControlPanel.Models;
 
@@ -14,6 +16,24 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 {
 	public class MainWindowViewModel : ViewModelBase, IDisposable
 	{
+		public static string Versions => String.Format(CultureInfo.InvariantCulture, "Version: {0}, API Version: {1}", Assembly.GetExecutingAssembly().GetName().Version, ApiHeaders.Version);
+
+		public static string Meme
+		{
+			get
+			{
+				var memes = new List<string>
+				{
+					"Proudly created by Cyberboss",
+					"True Canadian Beer",
+					"Brainlet Resistant",
+					"Need Milk",
+					"Deleting Data Directory..."
+				};
+				return memes[new Random().Next(memes.Count)];
+			}
+		}
+
 		public List<ServerViewModel> Connections { get; }
 
 		readonly IServerClientFactory serverClientFactory;

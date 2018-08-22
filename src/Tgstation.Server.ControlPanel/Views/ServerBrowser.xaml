@@ -1,6 +1,8 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:vm="clr-namespace:Tgstation.Server.ControlPanel.ViewModels;assembly=Tgstation.Server.ControlPanel"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <DockPanel LastChildFill="True" Background ="#CFD6E5">
+  
+  <DockPanel LastChildFill="True" Background="#CFD6E5">
     <TextBlock DockPanel.Dock="Top" Text="Object Explorer" Margin="2" Background="#FFF29D" />
     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2">
       <TextBlock Text="TODO" />
@@ -8,9 +10,12 @@
     <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="#FFFFFF" Margin="3">
       <TreeView Items="{Binding Connections}">
         <TreeView.ItemTemplate>
-          <TreeDataTemplate>
+          <TreeDataTemplate ItemsSource="{Binding Children}">
             <StackPanel Orientation="Horizontal">
-              <Image Source="resm:Tgstation.Server.ControlPanel.Assets.tgs.ico" Width="16" Height="16" />
+              <StackPanel.Resources>
+                <vm:BitmapConverter x:Key="bitmapConverter" />
+              </StackPanel.Resources>
+              <Image Source="{Binding Icon, Converter={StaticResource bitmapConverter}}" Width="16" Height="16" Margin="0,0,5,0" />
               <TextBlock Text="{Binding Title}" />
             </StackPanel>
           </TreeDataTemplate>

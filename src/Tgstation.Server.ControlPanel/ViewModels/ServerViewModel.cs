@@ -1,13 +1,26 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using Tgstation.Server.Client;
 using Tgstation.Server.ControlPanel.Models;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	public class ServerViewModel : IDisposable
+	public class ServerViewModel : IDisposable, ITreeNode
 	{
 		public string Title => connection.Url.ToString();
+
+		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.tgs.ico";
+
+		class BasicNode : ITreeNode
+		{
+			public string Title => "Fake";
+
+			public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.tgs.ico";
+
+			public IReadOnlyList<ITreeNode> Children => null;
+		}
+
+		public IReadOnlyList<ITreeNode> Children => new List<ITreeNode> { new BasicNode() };
 
 		public int TimeoutSeconds
 		{
