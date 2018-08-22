@@ -8,13 +8,14 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Tgstation.Server.Api;
 using Tgstation.Server.Client;
 using Tgstation.Server.ControlPanel.Models;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	public class MainWindowViewModel : ViewModelBase, IDisposable
+	public class MainWindowViewModel : ViewModelBase, IDisposable, ICommand
 	{
 		public static string Versions => String.Format(CultureInfo.InvariantCulture, "Version: {0}, API Version: {1}", Assembly.GetExecutingAssembly().GetName().Version, ApiHeaders.Version);
 
@@ -43,6 +44,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly string storageDirectory;
 		readonly string settingsPath;
+
+		public event EventHandler CanExecuteChanged;
 
 		public MainWindowViewModel()
 		{
@@ -109,6 +112,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			settingsSaveLoopCts.Cancel();
 			settingsSaveLoop.GetAwaiter().GetResult();
 			SaveSettings().GetAwaiter().GetResult();
+		}
+
+		public bool CanExecute(object parameter) => true;
+
+		public void Execute(object parameter)
+		{
+			//add server command
 		}
 	}
 }
