@@ -12,14 +12,14 @@ using Tgstation.Server.ControlPanel.Models;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase, IDisposable
-    {
+	public class MainWindowViewModel : ViewModelBase, IDisposable
+	{
 		public List<ServerViewModel> Connections { get; }
 
 		readonly IServerClientFactory serverClientFactory;
 		readonly CancellationTokenSource settingsSaveLoopCts;
 		readonly Task settingsSaveLoop;
-		readonly Settings settings;
+		readonly UserSettings settings;
 
 		readonly string storageDirectory;
 		readonly string settingsPath;
@@ -41,19 +41,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Connections = new List<ServerViewModel>(settings.Connections.Select(x => new ServerViewModel(serverClientFactory, x)));
 		}
 
-		async Task<Settings> LoadSettings()
+		async Task<UserSettings> LoadSettings()
 		{
-			Settings settings = null;
+			UserSettings settings = null;
 			try
 			{
 				var settingsFile = await File.ReadAllTextAsync(settingsPath).ConfigureAwait(false);
-				settings = JsonConvert.DeserializeObject<Settings>(settingsFile);
+				settings = JsonConvert.DeserializeObject<UserSettings>(settingsFile);
 			}
 			catch (IOException) { }
 			catch (JsonException) { }
 
 			if (settings == null)
-				settings = new Settings();
+				settings = new UserSettings();
 			settings.Connections = settings.Connections ?? new List<Connection>();
 
 			return settings;
@@ -90,5 +90,5 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			settingsSaveLoop.GetAwaiter().GetResult();
 			SaveSettings().GetAwaiter().GetResult();
 		}
-    }
+	}
 }

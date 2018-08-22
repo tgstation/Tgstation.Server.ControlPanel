@@ -1,0 +1,37 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel LastChildFill="True">
+    <DockPanel.Background>
+      <SolidColorBrush Color="#CFD6E5"/>
+    </DockPanel.Background>
+    <TextBlock DockPanel.Dock="Top" Text="Object Explorer">
+      <TextBlock.Background>
+        <SolidColorBrush Color="#FFF29D"/>
+      </TextBlock.Background>
+    </TextBlock>
+    <StackPanel Orientation="Horizontal">
+    </StackPanel>
+    <Border BorderBrush="#828790" BorderThickness="1">
+      <TreeView Items="{Binding Connections}">
+        <TreeView.Background>
+          <SolidColorBrush Color="#FFFFFF"/>
+        </TreeView.Background>
+        <TreeView.ItemTemplate>
+          <TreeDataTemplate>
+            <StackPanel Orientation="Horizontal">
+              <Image Source="resm:Tgstation.Server.ControlPanel.Assets.tgs.ico" Width="16" Height="16" Margin="5" />
+              <TextBlock Text="{Binding Title}" />
+            </StackPanel>
+
+          </TreeDataTemplate>
+        </TreeView.ItemTemplate>
+        <TreeView.ContextMenu>
+          <ContextMenu>
+            <MenuItem Header="Add Server Connection" />
+          </ContextMenu>
+        </TreeView.ContextMenu>
+      </TreeView>
+    </Border>
+  
+  </DockPanel>
+</UserControl>

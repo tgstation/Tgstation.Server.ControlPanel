@@ -18,10 +18,10 @@ namespace Tgstation.Server.ControlPanel.Models
 
 #pragma warning disable CA1819 // Properties should not return arrays
 		public byte[] CipherText { get; set; }
-#pragma warning restore CA1819 // Properties should not return arrays
 
 		public byte[] Entropy { get; set; }
-		
+#pragma warning restore CA1819 // Properties should not return arrays
+
 		void Encrypt(string cleartext)
 		{
 			var clearTextBytes = Encoding.UTF8.GetBytes(cleartext);

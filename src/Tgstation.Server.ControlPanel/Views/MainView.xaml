@@ -1,5 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
-        xmlns:pages="clr-namespace:ControlCatalog.Pages"
+        xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views"
+        xmlns:page="clr-namespace:Tgstation.Server.ControlPanel.Views.Pages"
         xmlns:vm="clr-namespace:Tgstation.Server.ControlPanel.ViewModels;assembly=Tgstation.Server.ControlPanel"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
@@ -7,15 +8,23 @@
     <vm:MainWindowViewModel/>
   </Design.DataContext>
 
-  <StackPanel Orientation="Vertical">
-    <TextBlock Classes="h1">Servers</TextBlock>
-
-    <TreeView Items="{Binding Connections}" Width="250" Height="350">
-      <TreeView.ItemTemplate>
-        <TreeDataTemplate>
-          <TextBlock Text="{Binding Title}"/>
-        </TreeDataTemplate>
-      </TreeView.ItemTemplate>
-    </TreeView>
+  <StackPanel Orientation="Horizontal">
+    <local:ServerBrowser/>
+    <StackPanel Orientation="Vertical">
+      <Panel>
+        <page:AddServer/>
+        <page:Administration/>
+        <page:UserManager/>
+        <page:InstanceManager/>
+        <page:InstanceUser/>
+        <page:Repository/>
+        <page:StaticFiles/>
+        <page:Watchdog/>
+        <page:ChatBot/>
+        <page:DreamMaker/>
+        <page:Byond/>
+      </Panel>
+      <local:Console/>
+    </StackPanel>
   </StackPanel>
 </UserControl>

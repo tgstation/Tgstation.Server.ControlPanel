@@ -26,8 +26,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly Connection connection;
 		readonly IServerClientFactory serverClientFactory;
-
-		Task connectingTask;
+		
 		IServerClient serverClient;
 
 		public ServerViewModel(IServerClientFactory serverClientFactory, Connection connection)
@@ -41,7 +40,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		async void BeginConnect()
 		{
-			if (connectingTask != null)
+			if (Connecting)
 				throw new InvalidOperationException("Already connecting!");
 
 			Connecting = true;

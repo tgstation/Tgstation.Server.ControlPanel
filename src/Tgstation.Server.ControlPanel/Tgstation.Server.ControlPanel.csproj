@@ -5,9 +5,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <LangVersion>7.1</LangVersion>
+    <NoWarn>1701;1702;1705;CA1816;CA1063</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <LangVersion>7.1</LangVersion>
+    <NoWarn>1701;1702;1705;CA1816;CA1063</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="**\*.xaml.cs">
@@ -19,8 +21,20 @@
     <EmbeddedResource Include="Assets\*" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Sidebar.xaml" />
-    <None Remove="Views\MainView.xaml" />
+    <None Remove="StyleDefinitions.xaml" />
+    <None Remove="Views\Console.xaml" />
+    <None Remove="Views\Pages\AddServer.xaml" />
+    <None Remove="Views\Pages\Administration.xaml" />
+    <None Remove="Views\Pages\Byond.xaml" />
+    <None Remove="Views\Pages\ChatBot.xaml" />
+    <None Remove="Views\Pages\DreamMaker.xaml" />
+    <None Remove="Views\Pages\InstanceManager.xaml" />
+    <None Remove="Views\Pages\InstanceUser.xaml" />
+    <None Remove="Views\Pages\Repository.xaml" />
+    <None Remove="Views\Pages\StaticFiles.xaml" />
+    <None Remove="Views\Pages\UserManager.xaml" />
+    <None Remove="Views\Pages\Watchdog.xaml" />
+    <None Remove="Views\ServerBrowser.xaml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.6.1" />
@@ -31,10 +45,51 @@
     <PackageReference Include="Tgstation.Server.Client" Version="4.0.0-preview3" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="SideBar.xaml">
+    <Compile Update="Views\Pages\UserManager.xaml.cs">
+      <DependentUpon>UserManager.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="StyleDefinitions.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Update="Views\MainView.xaml">
+    <EmbeddedResource Update="Views\Console.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\AddServer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\Administration.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\Byond.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\ChatBot.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\DreamMaker.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\InstanceManager.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\InstanceUser.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\Repository.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\StaticFiles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\UserManager.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\Watchdog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\ServerBrowser.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>
