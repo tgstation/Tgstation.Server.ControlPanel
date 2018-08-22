@@ -1,28 +1,18 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <DockPanel LastChildFill="True">
-    <DockPanel.Background>
-      <SolidColorBrush Color="#CFD6E5"/>
-    </DockPanel.Background>
-    <TextBlock DockPanel.Dock="Top" Text="Object Explorer">
-      <TextBlock.Background>
-        <SolidColorBrush Color="#FFF29D"/>
-      </TextBlock.Background>
-    </TextBlock>
-    <StackPanel Orientation="Horizontal">
+  <DockPanel LastChildFill="True" Background ="#CFD6E5">
+    <TextBlock DockPanel.Dock="Top" Text="Object Explorer" Margin="2" Background="#FFF29D" />
+    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2">
+      <TextBlock Text="TODO" />
     </StackPanel>
-    <Border BorderBrush="#828790" BorderThickness="1">
+    <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="#FFFFFF" Margin="3">
       <TreeView Items="{Binding Connections}">
-        <TreeView.Background>
-          <SolidColorBrush Color="#FFFFFF"/>
-        </TreeView.Background>
         <TreeView.ItemTemplate>
           <TreeDataTemplate>
             <StackPanel Orientation="Horizontal">
-              <Image Source="resm:Tgstation.Server.ControlPanel.Assets.tgs.ico" Width="16" Height="16" Margin="5" />
+              <Image Source="resm:Tgstation.Server.ControlPanel.Assets.tgs.ico" Width="16" Height="16" />
               <TextBlock Text="{Binding Title}" />
             </StackPanel>
-
           </TreeDataTemplate>
         </TreeView.ItemTemplate>
         <TreeView.ContextMenu>
@@ -31,7 +21,6 @@
           </ContextMenu>
         </TreeView.ContextMenu>
       </TreeView>
-    </Border>
-  
+    </ScrollViewer>
   </DockPanel>
 </UserControl>

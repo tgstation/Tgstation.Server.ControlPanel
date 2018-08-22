@@ -8,7 +8,7 @@
       <Setter Property="FontSize" Value="20"/>
       <Setter Property="FontWeight" Value="Medium"/>
     </Style>
-
+  
     <Style Selector="TextBlock.h2">
       <Setter Property="Foreground" Value="#727272"/>
       <Setter Property="FontSize" Value="13"/>
