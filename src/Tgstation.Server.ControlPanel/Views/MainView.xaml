@@ -56,7 +56,7 @@
       <GridSplitter HorizontalAlignment="Right"
                     VerticalAlignment="Stretch"
                     Grid.Column="3"  Width="5" Background="Transparent" />
-      <Panel Grid.Column="4"/>
+      <local:JobViewer Grid.Column="4"/>
     </Grid>
     <DockPanel Background="#007ACC" Grid.Row="1">
       <TextBlock Text="{Binding Versions, Mode=OneTime}" Foreground="#FFFFFF" DockPanel.Dock="Left" Margin="5,0,0,0"/>

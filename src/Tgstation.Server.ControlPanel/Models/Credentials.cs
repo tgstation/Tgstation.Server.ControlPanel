@@ -24,6 +24,12 @@ namespace Tgstation.Server.ControlPanel.Models
 
 		void Encrypt(string cleartext)
 		{
+			if (cleartext == null)
+			{
+				CipherText = null;
+				Entropy = null;
+				return;
+			}
 			var clearTextBytes = Encoding.UTF8.GetBytes(cleartext);
 			try
 			{
@@ -43,6 +49,8 @@ namespace Tgstation.Server.ControlPanel.Models
 		
 		public string Decrypt()
 		{
+			if (CipherText == null)
+				return null;
 			byte[] clearTextBytes;
 			try
 			{

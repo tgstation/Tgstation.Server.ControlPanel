@@ -1,3 +1,24 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel LastChildFill="True" Background="#CFD6E5">
+    <DockPanel DockPanel.Dock="Top" Background="#4D6082" Margin="1">
+      <TextBlock DockPanel.Dock="Left" Text="Connection Manager" Margin="3" Foreground="White"/>
+    </DockPanel>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#CFD6E5" Margin="3">
+      <StackPanel Orientation="Vertical">
+        <DockPanel>
+          <TextBlock DockPanel.Dock="Left" Text="Server Address:" Margin="0,5,0,0" />
+          <TextBox DockPanel.Dock="Right"/>
+        </DockPanel>
+        <DockPanel>
+          <TextBlock DockPanel.Dock="Left" Text="Username:" Margin="0,5,0,0" />
+          <TextBox DockPanel.Dock="Right"/>
+        </DockPanel>
+        <DockPanel>
+          <TextBlock DockPanel.Dock="Left" Text="Password:" Margin="0,5,0,0" />
+          <TextBox DockPanel.Dock="Right" PasswordChar="*"/>
+        </DockPanel>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
 </UserControl>

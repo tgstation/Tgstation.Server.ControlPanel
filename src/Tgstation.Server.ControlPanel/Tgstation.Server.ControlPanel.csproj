@@ -23,6 +23,7 @@
   <ItemGroup>
     <None Remove="StyleDefinitions.xaml" />
     <None Remove="Views\Console.xaml" />
+    <None Remove="Views\JobViewer.xaml" />
     <None Remove="Views\Pages\AddServer.xaml" />
     <None Remove="Views\Pages\Administration.xaml" />
     <None Remove="Views\Pages\Byond.xaml" />
@@ -54,6 +55,9 @@
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\Console.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\JobViewer.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\Pages\AddServer.xaml">

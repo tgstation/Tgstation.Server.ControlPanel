@@ -1,26 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Tgstation.Server.Client;
 using Tgstation.Server.ControlPanel.Models;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	public class ServerViewModel : IDisposable, ITreeNode
+	public class ServerViewModel : ViewModelBase, IDisposable, ITreeNode
 	{
+		const string LoadingGif = "resm:Tgstation.Server.ControlPanel.Assets.loading.gif";
+		const string ErrorIcon = "resm:Tgstation.Server.ControlPanel.Assets.error.png";
+
 		public string Title => connection.Url.ToString();
 
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.tgs.ico";
 
-		class BasicNode : ITreeNode
-		{
-			public string Title => "Fake";
-
-			public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.tgs.ico";
-
-			public IReadOnlyList<ITreeNode> Children => null;
-		}
-
-		public IReadOnlyList<ITreeNode> Children => new List<ITreeNode> { new BasicNode() };
+		public IReadOnlyList<ITreeNode> Children { get; private set; }
 
 		public int TimeoutSeconds
 		{
@@ -39,16 +34,72 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly Connection connection;
 		readonly IServerClientFactory serverClientFactory;
-		
+		readonly IRequestLogger requestLogger;
+
+		sealed class BasicNode : ViewModelBase, ITreeNode
+		{
+			public string Title { get; set; }
+
+			public string Icon { get; set; }
+
+			public IReadOnlyList<ITreeNode> Children => null;
+		}
+
 		IServerClient serverClient;
 
-		public ServerViewModel(IServerClientFactory serverClientFactory, Connection connection)
+
+		public ServerViewModel(IServerClientFactory serverClientFactory, Connection connection, IRequestLogger requestLogger)
 		{
 			this.serverClientFactory = serverClientFactory ?? throw new ArgumentNullException(nameof(serverClientFactory));
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
+			this.requestLogger = requestLogger ?? throw new ArgumentNullException(nameof(requestLogger));
 
 			if (connection.LastToken?.ExpiresAt.HasValue == true && connection.LastToken.ExpiresAt.Value < DateTimeOffset.Now)
+			{
 				serverClient = serverClientFactory.CreateServerClient(connection.Url, connection.LastToken, connection.Timeout);
+				serverClient.AddRequestLogger(requestLogger);
+				PostConnect();
+			}
+		}
+
+		void PostConnect()
+		{
+			var versionNode = new BasicNode
+			{
+				Title = "Version",
+				Icon = LoadingGif
+			};
+
+			var apiVersionNode = new BasicNode
+			{
+				Title = "API Version",
+				Icon = LoadingGif
+			};
+
+			async void GetServerVersion()
+			{
+				try
+				{
+					var serverInfo = await serverClient.Version(default).ConfigureAwait(false);
+					versionNode.Title = String.Format(CultureInfo.InvariantCulture, "Version: {0}", serverInfo.Version);
+					apiVersionNode.Title = String.Format(CultureInfo.InvariantCulture, "API Version: {0}", serverInfo.Version);
+					apiVersionNode.Icon = null;
+					versionNode.Icon = null;
+				}
+				catch
+				{
+					versionNode.Icon = ErrorIcon;
+					apiVersionNode.Icon = ErrorIcon;
+				}
+			}
+
+			List<ITreeNode> childNodes = new List<ITreeNode>
+			{
+				versionNode,
+				apiVersionNode
+			};
+			Children = childNodes;
+			GetServerVersion();
 		}
 
 		async void BeginConnect()
@@ -62,6 +113,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			try
 			{
 				serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Credentials.Username, connection.Credentials.Password, connection.Timeout).ConfigureAwait(false);
+				serverClient.AddRequestLogger(requestLogger);
+				PostConnect();
 			}
 			catch (UnauthorizedException)
 			{
@@ -80,6 +133,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public void Dispose()
 		{
+			Children = null;
 			serverClient?.Dispose();
 			serverClient = null;
 		}
