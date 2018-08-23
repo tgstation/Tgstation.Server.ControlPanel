@@ -3,10 +3,10 @@ using Avalonia.Markup.Xaml;
 
 namespace Tgstation.Server.ControlPanel.Views
 {
-    public sealed class MainView : UserControl
-    {
-        public MainView() => InitializeComponent();
+	public sealed class MainView : UserControl
+	{
+		public MainView() => InitializeComponent();
 
-		void InitializeComponent() => AvaloniaXamlLoaderPortableXaml.Load(this);
-    }
+		void InitializeComponent() => AvaloniaXamlLoader.Load(this);
+	}
 }

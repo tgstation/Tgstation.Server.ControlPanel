@@ -4,7 +4,7 @@
     <Panel DockPanel.Dock="Top" Background="#4D6082" Margin="1">
       <TextBlock DockPanel.Dock="Top" Text="Console" Margin="3" Foreground="White"/>
     </Panel>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Background="#FFFFFF" Margin="3">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible" Background="#FFFFFF" Margin="3">
       <TextBox TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" Text="{Binding ConsoleContent}"/>
     </ScrollViewer>
   </DockPanel>
