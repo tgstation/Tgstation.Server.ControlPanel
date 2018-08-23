@@ -7,26 +7,25 @@
       <TextBlock DockPanel.Dock="Top" Text="Object Explorer" Margin="3" Foreground="White"/>
     </Panel>
     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="2">
-      <Button Content="Add Server Connection" Padding="5,2" Background="#CFD6E5" Command="{Binding}"/>
+      <Button Content="Add Server Connection" Padding="5,2" Background="#CFD6E5" Command="{Binding AddServerCommand}"/>
     </StackPanel>
     <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="#FFFFFF" Margin="3">
       <TreeView Items="{Binding Connections}">
         <TreeView.ItemTemplate>
           <TreeDataTemplate ItemsSource="{Binding Children}">
             <StackPanel Orientation="Horizontal">
+              <StackPanel.EventTrigger EventName="DoubleTapped">
+                <TreeDataTemplate.InvokeCommandAction Command="{Binding DoubleClick}" />
+              </StackPanel.EventTrigger>
               <StackPanel.Resources>
                 <vm:BitmapConverter x:Key="bitmapConverter" />
               </StackPanel.Resources>
               <Image Source="{Binding Icon, Converter={StaticResource bitmapConverter}}" Width="16" Height="16" Margin="0,0,5,0" />
               <TextBlock Text="{Binding Title}" />
             </StackPanel>
+          
           </TreeDataTemplate>
         </TreeView.ItemTemplate>
-        <TreeView.ContextMenu>
-          <ContextMenu>
-            <MenuItem Header="Add Server Connection" Command="{Binding}" />
-          </ContextMenu>
-        </TreeView.ContextMenu>
       </TreeView>
     </ScrollViewer>
   </DockPanel>

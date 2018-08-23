@@ -1,5 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views"
+        xmlns:vms="clr-namespace:Tgstation.Server.ControlPanel.ViewModels"
         xmlns:page="clr-namespace:Tgstation.Server.ControlPanel.Views.Pages"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
@@ -36,7 +37,10 @@
           <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <Panel Grid.Row="0">
-          <page:AddServer/>
+          <Panel.Resources>
+            <vms:IsNotNullConverter x:Key="isNotNullConverter"/>
+          </Panel.Resources>
+          <page:AddServer IsVisible="{Binding ConnectionManager, Converter={StaticResource isNotNullConverter}}" IsEnabled="{Binding ConnectionManager, Converter={StaticResource isNotNullConverter}}"/>
           <page:Administration/>
           <page:UserManager/>
           <page:InstanceManager/>

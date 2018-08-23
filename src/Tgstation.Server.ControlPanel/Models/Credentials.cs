@@ -10,6 +10,9 @@ namespace Tgstation.Server.ControlPanel.Models
 		public string Username { get; set; }
 
 		[JsonIgnore]
+		public bool AllowSavingPassword { get; set; }
+
+		[JsonIgnore]
 		public string Password
 		{
 			get => Decrypt();
@@ -17,10 +20,16 @@ namespace Tgstation.Server.ControlPanel.Models
 		}
 
 #pragma warning disable CA1819 // Properties should not return arrays
-		public byte[] CipherText { get; set; }
+		public byte[] CipherText
+		{
+			get => AllowSavingPassword ? cipherText : null;
+			set => cipherText = value;
+		}
 
 		public byte[] Entropy { get; set; }
 #pragma warning restore CA1819 // Properties should not return arrays
+
+		byte[] cipherText;
 
 		void Encrypt(string cleartext)
 		{
@@ -49,16 +58,16 @@ namespace Tgstation.Server.ControlPanel.Models
 		
 		public string Decrypt()
 		{
-			if (CipherText == null)
+			if (cipherText == null)
 				return null;
 			byte[] clearTextBytes;
 			try
 			{
-				clearTextBytes = ProtectedData.Unprotect(CipherText, Entropy, DataProtectionScope.CurrentUser);
+				clearTextBytes = ProtectedData.Unprotect(cipherText, Entropy, DataProtectionScope.CurrentUser);
 			}
 			catch (PlatformNotSupportedException)
 			{
-				clearTextBytes = CipherText;
+				clearTextBytes = cipherText;
 			}
 			return Encoding.UTF8.GetString(clearTextBytes);
 		}

@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Avalonia.Interactivity;
+using Newtonsoft.Json;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -16,8 +18,13 @@ using Tgstation.Server.ControlPanel.Models;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	public class MainWindowViewModel : ViewModelBase, IDisposable, ICommand, IRequestLogger
+	public class MainWindowViewModel : ViewModelBase, IDisposable, ICommandReceiver<MainWindowViewModel.MainWindowCommand>, IRequestLogger
 	{
+		public enum MainWindowCommand
+		{
+			NewServerConnection
+		}
+
 		public static string Versions => String.Format(CultureInfo.InvariantCulture, "Version: {0}, API Version: {1}", Assembly.GetExecutingAssembly().GetName().Version, ApiHeaders.Version);
 
 		public static string Meme
@@ -37,7 +44,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public string ConsoleContent { get; private set; }
+		public string ConsoleContent
+		{
+			get => consoleContent;
+			set => this.RaiseAndSetIfChanged(ref consoleContent, value);
+		}
+
+		public ICommand AddServerCommand { get; }
+
+		public ConnectionManagerViewModel ConnectionManager
+		{
+			get => connectionManager;
+			set => this.RaiseAndSetIfChanged(ref connectionManager, value);
+		}
 
 		public List<ServerViewModel> Connections { get; }
 
@@ -49,7 +68,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly string storageDirectory;
 		readonly string settingsPath;
 
-		public event EventHandler CanExecuteChanged;
+		string consoleContent;
+		ConnectionManagerViewModel connectionManager;
 
 		public MainWindowViewModel()
 		{
@@ -67,6 +87,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			Connections = new List<ServerViewModel>(settings.Connections.Select(x => new ServerViewModel(serverClientFactory, x, this)));
 			ConsoleContent = "Request details will be shown here...";
+
+			AddServerCommand = new EnumCommand<MainWindowCommand>(MainWindowCommand.NewServerConnection, this);
 		}
 
 		async Task<UserSettings> LoadSettings()
@@ -85,7 +107,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			settings.Connections = settings.Connections ?? new List<Connection>();
 
 #if DEBUG
-			if(settings.Connections.Count == 0)
+			if (settings.Connections.Count == 0)
 				//load default localhost admin
 				settings.Connections.Add(new Connection
 				{
@@ -134,13 +156,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			SaveSettings().GetAwaiter().GetResult();
 		}
 
-		public bool CanExecute(object parameter) => true;
-
-		public void Execute(object parameter)
-		{
-			//add server command
-		}
-
 		public Task LogRequest(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
 		{
 			lock (this)
@@ -153,6 +168,53 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			lock (this)
 				ConsoleContent = String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", ConsoleContent, Environment.NewLine, responseMessage);
 			return Task.CompletedTask;
+		}
+
+		public bool CanRunCommand(MainWindowCommand command)
+		{
+			switch (command)
+			{
+				case MainWindowCommand.NewServerConnection:
+					return true;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
+			}
+		}
+
+		public Task RunCommand(MainWindowCommand command, CancellationToken cancellationToken)
+		{
+			switch (command)
+			{
+				case MainWindowCommand.NewServerConnection:
+					var newConnection = new Connection
+					{
+						Credentials = new Credentials
+						{
+							Username = String.Empty,
+							Password = String.Empty
+						},
+						Timeout = TimeSpan.FromSeconds(15),
+						Url = new Uri("https://localhost:5000")
+					};
+
+					settings.Connections.Add(newConnection);
+					using (DelayChangeNotifications())
+					{
+						ConnectionManager = new ConnectionManagerViewModel(newConnection, () =>
+						{
+							settings.Connections.Remove(newConnection);
+							ConnectionManager = null;
+						});
+						this.RaisePropertyChanged(nameof(Connections));
+					}
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
+			}
+			return Task.CompletedTask;
+		}
+		public void OnTreeNodeDoubleClick(object sender, RoutedEventArgs mouseEvtArgs)
+		{
 		}
 	}
 }
