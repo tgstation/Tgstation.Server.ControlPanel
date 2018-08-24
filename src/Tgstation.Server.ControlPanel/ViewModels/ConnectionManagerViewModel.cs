@@ -11,23 +11,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 {
 	public sealed class ConnectionManagerViewModel : ViewModelBase, ICommandReceiver<ConnectionManagerViewModel.ConnectionManagerCommand>, ITreeNode, IDisposable
 	{
-		sealed class BasicNode : ViewModelBase, ITreeNode
-		{
-			public string Title { get; set; }
-
-			public string Icon
-			{
-				get => icon;
-				set => this.RaiseAndSetIfChanged(ref icon, value);
-			}
-
-			string icon;
-
-			public List<ITreeNode> Children => null;
-
-			public Task HandleDoubleClick(CancellationToken cancellationToken) => Task.CompletedTask;
-		}
-
 		public enum ConnectionManagerCommand
 		{
 			Connect,
@@ -45,7 +28,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.tgs.ico";
 
-		public List<ITreeNode> Children => children;
+		public IReadOnlyList<ITreeNode> Children
+		{
+			get => children;
+			set => this.RaiseAndSetIfChanged(ref children, value);
+		}
 
 		public int TimeoutSeconds
 		{
@@ -83,9 +70,24 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public string ConnectionWord => "Connect";
+		public string ConnectionWord
+		{
+			get
+			{
+				if (Connected)
+					return "Refresh";
+				if (Connecting)
+				{
+					var baseString = "Connecting";
+					for (var I = 0; I < (DateTimeOffset.Now - startedConnectingAt.Value).TotalSeconds; ++I)
+						baseString += '.';
+					return baseString;
+				}
+				return "Connect";
+			}
+		}
 
-		public string DeleteWord => confirmingDelete ? "Delete" : "Confirm?";
+		public string DeleteWord => !confirmingDelete ? "Delete" : "Confirm?";
 
 		public bool UsingHttp {
 			get => usingHttp;
@@ -151,17 +153,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IServerClientFactory serverClientFactory;
 		readonly IRequestLogger requestLogger;
 
-		readonly Action<ConnectionManagerViewModel> requestActivation;
+		readonly Action requestActivation;
 		readonly Action<bool> closeOrDelete;
 
-		List<ITreeNode> children;
+		IReadOnlyList<ITreeNode> children;
 
 		IServerClient serverClient;
+
+		DateTimeOffset? startedConnectingAt;
 
 		bool usingHttp;
 		bool confirmingDelete;
 
-		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, Action<ConnectionManagerViewModel> requestActivation, Action<bool> closeOrDelete)
+		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, Action requestActivation, Action<bool> closeOrDelete)
 		{
 			this.serverClientFactory = serverClientFactory ?? throw new ArgumentNullException(nameof(serverClientFactory));
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -235,6 +239,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			if (Connecting)
 				throw new InvalidOperationException("Already connecting!");
 
+			startedConnectingAt = DateTimeOffset.Now;
 			Connecting = true;
 			InvalidCredentials = false;
 			AccountLocked = false;
@@ -266,7 +271,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public async Task HandleDoubleClick(CancellationToken cancellationToken)
 		{
 			if (Connected || Connecting || !connection.Valid)
-				requestActivation(this);
+				requestActivation();
 			else
 				await BeginConnect().ConfigureAwait(false);
 		}

@@ -91,19 +91,24 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			AddServerCommand = new EnumCommand<MainWindowCommand>(MainWindowCommand.NewServerConnection, this);
 		}
 
-		ConnectionManagerViewModel CreateConnection(Connection connection) => new ConnectionManagerViewModel(serverClientFactory,  this, connection, manager =>
+		ConnectionManagerViewModel CreateConnection(Connection connection)
 		{
-			if (ConnectionManager != manager)
-				ConnectionManager = manager;
-		}, delete =>
-		{
-			if (delete)
-				settings.Connections.Remove(connection);
-			ConnectionManager = null;
-		});
-
-		void CloseConnection(Connection connection, bool delete)
-		{
+			ConnectionManagerViewModel newManager = null;
+			newManager = new ConnectionManagerViewModel(serverClientFactory, this, connection, () =>
+			{
+				if (ConnectionManager != newManager)
+					ConnectionManager = newManager;
+			}, delete =>
+			{
+				if (delete)
+				{
+					settings.Connections.Remove(connection);
+					Connections.Remove(newManager);
+					this.RaisePropertyChanged(nameof(Connections));
+				}
+				ConnectionManager = null;
+			});
+			return newManager;
 		}
 
 		async Task<UserSettings> LoadSettings()

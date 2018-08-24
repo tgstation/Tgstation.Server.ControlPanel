@@ -9,7 +9,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string Title { get; }
 
 		string Icon { get; }
-		List<ITreeNode> Children { get; }
+		IReadOnlyList<ITreeNode> Children { get; }
 
 		Task HandleDoubleClick(CancellationToken cancellationToken);
 	}
