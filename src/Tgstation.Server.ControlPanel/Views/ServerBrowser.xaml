@@ -10,7 +10,7 @@
       <Button Content="Add Server Connection" Padding="5,2" Background="#CFD6E5" Command="{Binding AddServerCommand}"/>
     </StackPanel>
     <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="#FFFFFF" Margin="3">
-      <TreeView Items="{Binding Connections}">
+      <TreeView Items="{Binding Connections, Mode=OneWay}">
         <TreeView.ItemTemplate>
           <TreeDataTemplate ItemsSource="{Binding Children}">
             <local:ObjectBrowserItem />

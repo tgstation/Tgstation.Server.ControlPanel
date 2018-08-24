@@ -58,7 +58,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref connectionManager, value);
 		}
 
-		public List<ConnectionManagerViewModel> Connections { get; }
+		public List<ConnectionManagerViewModel> Connections
+		{
+			get => connections;
+			set => this.RaiseAndSetIfChanged(ref connections, value);
+		}
 
 		readonly IServerClientFactory serverClientFactory;
 		readonly CancellationTokenSource settingsSaveLoopCts;
@@ -67,6 +71,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly string storageDirectory;
 		readonly string settingsPath;
+
+		List<ConnectionManagerViewModel> connections;
 
 		string consoleContent;
 		ConnectionManagerViewModel connectionManager;
@@ -96,17 +102,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			ConnectionManagerViewModel newManager = null;
 			newManager = new ConnectionManagerViewModel(serverClientFactory, this, connection, () =>
 			{
-				if (ConnectionManager != newManager)
-					ConnectionManager = newManager;
+				ConnectionManager = newManager;
 			}, delete =>
 			{
-				if (delete)
+				using (DelayChangeNotifications())
 				{
-					settings.Connections.Remove(connection);
-					Connections.Remove(newManager);
-					this.RaisePropertyChanged(nameof(Connections));
+					if (delete)
+					{
+						settings.Connections.Remove(connection);
+						Connections = new List<ConnectionManagerViewModel>(Connections.Where(x => x != newManager));
+					}
+					ConnectionManager = null;
 				}
-				ConnectionManager = null;
 			});
 			return newManager;
 		}
@@ -222,8 +229,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						var newCm = CreateConnection(newConnection);
 						ConnectionManager = newCm;
-						Connections.Add(newCm);
-						this.RaisePropertyChanged(nameof(Connections));
+						var newConnections = new List<ConnectionManagerViewModel>(Connections);
+						newConnections.Add(newCm);
+						Connections = newConnections;
 					}
 					break;
 				default:

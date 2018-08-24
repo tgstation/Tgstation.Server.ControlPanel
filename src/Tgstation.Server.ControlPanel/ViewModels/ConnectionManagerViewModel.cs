@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Client;
@@ -258,6 +259,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				AccountLocked = true;
 			}
 			catch (ClientException)
+			{
+				ConnectionFailed = true;
+			}
+			catch (HttpRequestException)
 			{
 				ConnectionFailed = true;
 			}
