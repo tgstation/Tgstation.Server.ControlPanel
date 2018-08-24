@@ -13,8 +13,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 {
 	public sealed class ConnectionManagerViewModel : ViewModelBase, ICommandReceiver<ConnectionManagerViewModel.ConnectionManagerCommand>, ITreeNode, IDisposable
 	{
-		const string DefaultTextBoxColour = "#FFFFFF";
-
 		public enum ConnectionManagerCommand
 		{
 			Connect,
@@ -22,8 +20,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Close
 		}
 
-		const string LoadingGif = "resm:Tgstation.Server.ControlPanel.Assets.loading.gif";
+		const string LoadingGif = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png";
 		const string ErrorIcon = "resm:Tgstation.Server.ControlPanel.Assets.error.png";
+		const string InfoIcon = "resm:Tgstation.Server.ControlPanel.Assets.info.png";
 		const string HttpPrefix = "http://";
 		const string HttpsPrefix = "https://";
 
@@ -100,7 +99,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string DeleteWord => !confirmingDelete ? "Delete" : "Confirm?";
 
-		public bool UsingHttp {
+		public bool UsingHttp
+		{
 			get => usingHttp;
 			set
 			{
@@ -252,10 +252,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				try
 				{
 					var serverInfo = await serverClient.Version(default).ConfigureAwait(false);
-					versionNode.Title = String.Format(CultureInfo.InvariantCulture, "Version: {0}", serverInfo.Version);
-					apiVersionNode.Title = String.Format(CultureInfo.InvariantCulture, "API Version: {0}", serverInfo.Version);
-					apiVersionNode.Icon = null;
-					versionNode.Icon = null;
+					versionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", versionNode.Title, serverInfo.Version);
+					apiVersionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", apiVersionNode.Title, serverInfo.ApiVersion);
+					versionNode.Icon = InfoIcon;
+					apiVersionNode.Icon = InfoIcon;
 				}
 				catch
 				{
@@ -327,7 +327,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case ConnectionManagerCommand.Close:
 					return true;
 				case ConnectionManagerCommand.Connect:
-					return connection.Valid;
+					return connection.Valid && serverClient != null;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
