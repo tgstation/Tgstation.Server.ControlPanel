@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
@@ -7,6 +9,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string Title { get; }
 
 		string Icon { get; }
-		IReadOnlyList<ITreeNode> Children { get; }
+		List<ITreeNode> Children { get; }
+
+		Task HandleDoubleClick(CancellationToken cancellationToken);
 	}
 }

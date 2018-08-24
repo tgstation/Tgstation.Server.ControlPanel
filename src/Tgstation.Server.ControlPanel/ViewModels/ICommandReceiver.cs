@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	interface ICommandReceiver<TCommand> where TCommand : Enum
+	public interface ICommandReceiver<TCommand> where TCommand : Enum
 	{
 		bool CanRunCommand(TCommand command);
 		Task RunCommand(TCommand command, CancellationToken cancellationToken);

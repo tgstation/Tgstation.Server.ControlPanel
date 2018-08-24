@@ -1,5 +1,5 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:vm="clr-namespace:Tgstation.Server.ControlPanel.ViewModels;assembly=Tgstation.Server.ControlPanel"
+             xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   
   <DockPanel LastChildFill="True" Background="#CFD6E5">
@@ -13,17 +13,7 @@
       <TreeView Items="{Binding Connections}">
         <TreeView.ItemTemplate>
           <TreeDataTemplate ItemsSource="{Binding Children}">
-            <StackPanel Orientation="Horizontal">
-              <StackPanel.EventTrigger EventName="DoubleTapped">
-                <TreeDataTemplate.InvokeCommandAction Command="{Binding DoubleClick}" />
-              </StackPanel.EventTrigger>
-              <StackPanel.Resources>
-                <vm:BitmapConverter x:Key="bitmapConverter" />
-              </StackPanel.Resources>
-              <Image Source="{Binding Icon, Converter={StaticResource bitmapConverter}}" Width="16" Height="16" Margin="0,0,5,0" />
-              <TextBlock Text="{Binding Title}" />
-            </StackPanel>
-          
+            <local:ObjectBrowserItem />
           </TreeDataTemplate>
         </TreeView.ItemTemplate>
       </TreeView>

@@ -58,7 +58,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref connectionManager, value);
 		}
 
-		public List<ServerViewModel> Connections { get; }
+		public List<ConnectionManagerViewModel> Connections { get; }
 
 		readonly IServerClientFactory serverClientFactory;
 		readonly CancellationTokenSource settingsSaveLoopCts;
@@ -85,10 +85,25 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			settingsSaveLoopCts = new CancellationTokenSource();
 			settingsSaveLoop = SettingsSaveLoop(settingsSaveLoopCts.Token);
 
-			Connections = new List<ServerViewModel>(settings.Connections.Select(x => new ServerViewModel(serverClientFactory, x, this)));
+			Connections = new List<ConnectionManagerViewModel>(settings.Connections.Select(x => CreateConnection(x)));
 			ConsoleContent = "Request details will be shown here...";
 
 			AddServerCommand = new EnumCommand<MainWindowCommand>(MainWindowCommand.NewServerConnection, this);
+		}
+
+		ConnectionManagerViewModel CreateConnection(Connection connection) => new ConnectionManagerViewModel(serverClientFactory,  this, connection, manager =>
+		{
+			if (ConnectionManager != manager)
+				ConnectionManager = manager;
+		}, delete =>
+		{
+			if (delete)
+				settings.Connections.Remove(connection);
+			ConnectionManager = null;
+		});
+
+		void CloseConnection(Connection connection, bool delete)
+		{
 		}
 
 		async Task<UserSettings> LoadSettings()
@@ -200,11 +215,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					settings.Connections.Add(newConnection);
 					using (DelayChangeNotifications())
 					{
-						ConnectionManager = new ConnectionManagerViewModel(newConnection, () =>
-						{
-							settings.Connections.Remove(newConnection);
-							ConnectionManager = null;
-						});
+						var newCm = CreateConnection(newConnection);
+						ConnectionManager = newCm;
+						Connections.Add(newCm);
 						this.RaisePropertyChanged(nameof(Connections));
 					}
 					break;
