@@ -61,7 +61,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public List<ConnectionManagerViewModel> Connections
 		{
 			get => connections;
-			set => this.RaiseAndSetIfChanged(ref connections, value);
+			private set => this.RaiseAndSetIfChanged(ref connections, value);
 		}
 
 		readonly IServerClientFactory serverClientFactory;
@@ -132,22 +132,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			if (settings == null)
 				settings = new UserSettings();
 			settings.Connections = settings.Connections ?? new List<Connection>();
-
-#if DEBUG
-			if (settings.Connections.Count == 0)
-				//load default localhost admin
-				settings.Connections.Add(new Connection
-				{
-					Credentials = new Credentials
-					{
-						Username = Api.Models.User.AdminName,
-						Password = Api.Models.User.DefaultAdminPassword
-					},
-					Timeout = TimeSpan.FromSeconds(10),
-					Url = new Uri("http://localhost:5000")
-				});
-#endif
-
 			return settings;
 		}
 

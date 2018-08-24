@@ -11,6 +11,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
+			if (value == null)
+				return null;
 			var uri = new Uri((string)value, UriKind.RelativeOrAbsolute);
 			var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
 			var asset = assets.Open(uri);

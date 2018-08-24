@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
 using Tgstation.Server.ControlPanel.Models;
 
@@ -12,13 +13,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 {
 	public sealed class ConnectionManagerViewModel : ViewModelBase, ICommandReceiver<ConnectionManagerViewModel.ConnectionManagerCommand>, ITreeNode, IDisposable
 	{
+		const string DefaultTextBoxColour = "#FFFFFF";
+
 		public enum ConnectionManagerCommand
 		{
 			Connect,
 			Delete,
 			Close
 		}
-
 
 		const string LoadingGif = "resm:Tgstation.Server.ControlPanel.Assets.loading.gif";
 		const string ErrorIcon = "resm:Tgstation.Server.ControlPanel.Assets.error.png";
@@ -56,15 +58,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool InvalidCredentials { get; private set; }
 		public bool AccountLocked { get; private set; }
 		public bool ConnectionFailed { get; set; }
-		public string ServerAddress {
+		public string ServerAddress
+		{
 			get => connection.Url.ToString();
 			set
 			{
 				if (!value.StartsWith(usingHttp ? HttpPrefix : HttpsPrefix, StringComparison.OrdinalIgnoreCase))
+				{
+					var oldUrl = connection.Url;
+					connection.Url = null;
+					Connect.Recheck();
+					connection.Url = oldUrl;
 					return;
+				}
 				try
 				{
 					connection.Url = new Uri(value);
+					this.RaisePropertyChanged(nameof(ServerAddress));
 					Connect.Recheck();
 				}
 				catch (UriFormatException) { }
@@ -119,12 +129,36 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public bool UsingDefaultCredentials
+		{
+			get => usingDefaultCredentials;
+			set
+			{
+				using (DelayChangeNotifications())
+				{
+					var changed = usingDefaultCredentials != this.RaiseAndSetIfChanged(ref usingDefaultCredentials, value);
+					if (changed)
+					{
+						if (value)
+						{
+							Username = User.AdminName;
+							Password = User.DefaultAdminPassword;
+						}
+						else
+							Password = String.Empty;
+						Connect.Recheck();
+					}
+				}
+			}
+		}
+
 		public string Password
 		{
 			get => connection.Credentials.Password;
 			set
 			{
 				connection.Credentials.Password = value;
+				this.RaisePropertyChanged();
 				Connect.Recheck();
 			}
 		}
@@ -135,6 +169,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set
 			{
 				connection.Credentials.Username = value;
+				this.RaisePropertyChanged();
 				Connect.Recheck();
 			}
 		}
@@ -165,6 +200,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		bool usingHttp;
 		bool confirmingDelete;
+		bool usingDefaultCredentials;
 
 		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, Action requestActivation, Action<bool> closeOrDelete)
 		{
@@ -174,7 +210,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.closeOrDelete = closeOrDelete ?? throw new ArgumentNullException(nameof(closeOrDelete));
 			this.requestActivation = requestActivation ?? throw new ArgumentNullException(nameof(requestActivation));
 
-			if (connection.LastToken?.ExpiresAt.HasValue == true && connection.LastToken.ExpiresAt.Value < DateTimeOffset.Now)
+			usingHttp = !connection.Url.ToString().StartsWith(HttpsPrefix, StringComparison.OrdinalIgnoreCase);
+			if (connection.Credentials.Password != null)
+				AllowSavingPassword = true;
+
+			if (connection.LastToken?.ExpiresAt != null && connection.LastToken.ExpiresAt.Value > DateTimeOffset.Now)
 			{
 				serverClient = serverClientFactory.CreateServerClient(connection.Url, connection.LastToken, connection.Timeout);
 				serverClient.AddRequestLogger(requestLogger);
@@ -235,7 +275,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			GetServerVersion();
 		}
 
-		async Task BeginConnect()
+		async Task BeginConnect(CancellationToken cancellationToken)
 		{
 			if (Connecting)
 				throw new InvalidOperationException("Already connecting!");
@@ -246,7 +286,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			AccountLocked = false;
 			try
 			{
-				serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Credentials.Username, connection.Credentials.Password, connection.Timeout).ConfigureAwait(false);
+				serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Credentials.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(false);
 				serverClient.AddRequestLogger(requestLogger);
 				PostConnect();
 			}
@@ -273,12 +313,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			connection.LastToken = serverClient.Token;
 		}
 
-		public async Task HandleDoubleClick(CancellationToken cancellationToken)
+		public Task HandleDoubleClick(CancellationToken cancellationToken)
 		{
-			if (Connected || Connecting || !connection.Valid)
-				requestActivation();
-			else
-				await BeginConnect().ConfigureAwait(false);
+			requestActivation();
+			return Task.CompletedTask;
 		}
 
 		public bool CanRunCommand(ConnectionManagerCommand command)
@@ -295,7 +333,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public Task RunCommand(ConnectionManagerCommand command, CancellationToken cancellationToken)
+		public async Task RunCommand(ConnectionManagerCommand command, CancellationToken cancellationToken)
 		{
 			switch (command)
 			{
@@ -319,10 +357,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					closeOrDelete(false);
 					break;
 				case ConnectionManagerCommand.Connect:
+					await BeginConnect(cancellationToken).ConfigureAwait(false);
+					return;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
-			return Task.CompletedTask;
 		}
 	}
 }

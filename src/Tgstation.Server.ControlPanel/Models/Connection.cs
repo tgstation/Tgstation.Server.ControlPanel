@@ -7,7 +7,7 @@ namespace Tgstation.Server.ControlPanel.Models
 	public sealed class Connection
 	{
 		[JsonIgnore]
-		public bool Valid => Url?.Host != null && !String.IsNullOrWhiteSpace(Credentials.Username) && Credentials.Password != null;
+		public bool Valid => Url?.Host != null && !String.IsNullOrWhiteSpace(Credentials.Username) && !String.IsNullOrEmpty(Credentials.Password);
 
 
 		public Uri Url { get; set; }

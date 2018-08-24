@@ -10,7 +10,7 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <TextBlock DockPanel.Dock="Left" Text="Connection Manager" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <TextBlock DockPanel.Dock="Left" Text="{Binding ConnectionManager.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
       <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding ConnectionManager.Close}" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
@@ -27,7 +27,7 @@
             </LinearGradientBrush>
           </Rectangle.Fill>
         </Rectangle>
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="{Binding !ConnectionManager.Connecting}">
           <Grid> 
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
@@ -41,25 +41,28 @@
             <TextBlock Text="Server Address:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
             <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding ConnectionManager.ServerAddress, Mode=TwoWay}" />
             <TextBlock Text="Username:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1"/>
-            <TextBox Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" Text="{Binding ConnectionManager.Username, Mode=TwoWay}"/>
+            <TextBox Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" IsEnabled="{Binding !ConnectionManager.UsingDefaultCredentials, Mode=OneWay}" Text="{Binding ConnectionManager.Username, Mode=TwoWay}"/>
             <TextBlock Text="Password:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="2" />
-            <TextBox PasswordChar="*" Grid.Column="1" Grid.Row="2" Margin="50,0,0,5" Text="{Binding ConnectionManager.Password, Mode=TwoWay}"/>
+            <TextBox PasswordChar="*" Grid.Column="1" Grid.Row="2" Margin="50,0,0,5" IsEnabled="{Binding !ConnectionManager.UsingDefaultCredentials}" Text="{Binding ConnectionManager.Password, Mode=TwoWay}"/>
           </Grid>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
 
           <Grid Margin="0,0,0,5">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="20*"/>
-              <ColumnDefinition Width="55*"/>
-              <ColumnDefinition Width="10*"/>
-              <ColumnDefinition Width="75*"/>
+              <ColumnDefinition Width="25*"/>
+              <ColumnDefinition Width="30*"/>
+              <ColumnDefinition Width="49*"/>
             </Grid.ColumnDefinitions>
-            <DockPanel Grid.Column="1">
+            <DockPanel Grid.Column="0">
               <CheckBox Background="White" IsChecked="{Binding ConnectionManager.UsingHttp, Mode=TwoWay}"/>
-              <TextBlock DockPanel.Dock="Right" Text="Use Plain HTTP (Unsecure)" Margin="5,4,0,0" />
+              <TextBlock DockPanel.Dock="Right" Text="Use Plain HTTP" Margin="5,4,0,0" />
             </DockPanel>
-            <DockPanel Grid.Column="3">
+            <DockPanel Grid.Column="1">
+              <CheckBox Background="White" IsChecked="{Binding ConnectionManager.UsingDefaultCredentials, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Default Credentials" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="2">
               <TextBlock DockPanel.Dock="Left" Text="Connection Timeout (ms):" Margin="0,4,5,0" />
               <NumericUpDown DockPanel.Dock="Right" Width="75" Height="25" Value="{Binding ConnectionManager.TimeoutMs, Mode=TwoWay}"/>
             </DockPanel>
