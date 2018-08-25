@@ -10,8 +10,8 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <TextBlock DockPanel.Dock="Left" Text="{Binding ConnectionManager.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
-      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding ConnectionManager.Close}" />
+      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
       <StackPanel Orientation="Vertical">
@@ -27,7 +27,7 @@
             </LinearGradientBrush>
           </Rectangle.Fill>
         </Rectangle>
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="{Binding !ConnectionManager.Connecting}">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="{Binding !PageContext.ActiveObject.Connecting}">
           <Grid> 
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
@@ -39,11 +39,11 @@
               <ColumnDefinition Width="400"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Server Address:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
-            <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding ConnectionManager.ServerAddress, Mode=TwoWay}" />
+            <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.ServerAddress, Mode=TwoWay}" />
             <TextBlock Text="Username:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1"/>
-            <TextBox Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" IsEnabled="{Binding !ConnectionManager.UsingDefaultCredentials, Mode=OneWay}" Text="{Binding ConnectionManager.Username, Mode=TwoWay}"/>
+            <TextBox Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" IsEnabled="{Binding !PageContext.ActiveObject.UsingDefaultCredentials, Mode=OneWay}" Text="{Binding PageContext.ActiveObject.Username, Mode=TwoWay}"/>
             <TextBlock Text="Password:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="2" />
-            <TextBox PasswordChar="*" Grid.Column="1" Grid.Row="2" Margin="50,0,0,5" IsEnabled="{Binding !ConnectionManager.UsingDefaultCredentials}" Text="{Binding ConnectionManager.Password, Mode=TwoWay}"/>
+            <TextBox PasswordChar="*" Grid.Column="1" Grid.Row="2" Margin="50,0,0,5" IsEnabled="{Binding !PageContext.ActiveObject.UsingDefaultCredentials}" Text="{Binding PageContext.ActiveObject.Password, Mode=TwoWay}"/>
           </Grid>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -55,16 +55,16 @@
               <ColumnDefinition Width="49*"/>
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Column="0">
-              <CheckBox Background="White" IsChecked="{Binding ConnectionManager.UsingHttp, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UsingHttp, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Use Plain HTTP" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="1">
-              <CheckBox Background="White" IsChecked="{Binding ConnectionManager.UsingDefaultCredentials, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UsingDefaultCredentials, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Default Credentials" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="2">
               <TextBlock DockPanel.Dock="Left" Text="Connection Timeout (ms):" Margin="0,4,5,0" />
-              <NumericUpDown DockPanel.Dock="Right" Width="75" Height="25" Value="{Binding ConnectionManager.TimeoutMs, Mode=TwoWay}"/>
+              <NumericUpDown DockPanel.Dock="Right" Width="75" Height="25" Value="{Binding PageContext.ActiveObject.TimeoutMs, Mode=TwoWay}"/>
             </DockPanel>
           </Grid>
           
@@ -80,11 +80,11 @@
               <ColumnDefinition Width="10*"/>
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Column="1">
-              <CheckBox DockPanel.Dock="Left" Background="White" IsChecked="{Binding ConnectionManager.AllowSavingPassword, Mode=TwoWay}"/>
+              <CheckBox DockPanel.Dock="Left" Background="White" IsChecked="{Binding PageContext.ActiveObject.AllowSavingPassword, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Save Password" Margin="5,5,0,0" />
             </DockPanel>
-            <Button Content="{Binding ConnectionManager.ConnectionWord}" Grid.Column="2" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding ConnectionManager.Connect}"/>
-            <Button Content="{Binding ConnectionManager.DeleteWord}" Grid.Column="4" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding ConnectionManager.Delete}"/> 
+            <Button Content="{Binding PageContext.ActiveObject.ConnectionWord}" Grid.Column="2" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding PageContext.ActiveObject.Connect}"/>
+            <Button Content="{Binding PageContext.ActiveObject.DeleteWord}" Grid.Column="4" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding PageContext.ActiveObject.Delete}"/> 
           </Grid>
         </StackPanel>
       </StackPanel>

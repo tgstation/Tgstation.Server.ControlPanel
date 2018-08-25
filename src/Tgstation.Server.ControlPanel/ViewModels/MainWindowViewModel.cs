@@ -52,11 +52,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public ICommand AddServerCommand { get; }
 
-		public ConnectionManagerViewModel ConnectionManager
-		{
-			get => connectionManager;
-			set => this.RaiseAndSetIfChanged(ref connectionManager, value);
-		}
+		public PageContextViewModel PageContext { get; }
 
 		public List<ConnectionManagerViewModel> Connections
 		{
@@ -75,7 +71,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		List<ConnectionManagerViewModel> connections;
 
 		string consoleContent;
-		ConnectionManagerViewModel connectionManager;
 
 		public MainWindowViewModel()
 		{
@@ -91,29 +86,21 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			settingsSaveLoopCts = new CancellationTokenSource();
 			settingsSaveLoop = SettingsSaveLoop(settingsSaveLoopCts.Token);
 
+			PageContext = new PageContextViewModel();
 			Connections = new List<ConnectionManagerViewModel>(settings.Connections.Select(x => CreateConnection(x)));
 			ConsoleContent = "Request details will be shown here...";
 
 			AddServerCommand = new EnumCommand<MainWindowCommand>(MainWindowCommand.NewServerConnection, this);
+
 		}
 
 		ConnectionManagerViewModel CreateConnection(Connection connection)
 		{
 			ConnectionManagerViewModel newManager = null;
-			newManager = new ConnectionManagerViewModel(serverClientFactory, this, connection, () =>
+			newManager = new ConnectionManagerViewModel(serverClientFactory, this, connection, PageContext, () =>
 			{
-				ConnectionManager = newManager;
-			}, delete =>
-			{
-				using (DelayChangeNotifications())
-				{
-					if (delete)
-					{
-						settings.Connections.Remove(connection);
-						Connections = new List<ConnectionManagerViewModel>(Connections.Where(x => x != newManager));
-					}
-					ConnectionManager = null;
-				}
+				settings.Connections.Remove(connection);
+				Connections = new List<ConnectionManagerViewModel>(Connections.Where(x => x != newManager));
 			});
 			return newManager;
 		}
@@ -167,18 +154,31 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			SaveSettings().GetAwaiter().GetResult();
 		}
 
-		public Task LogRequest(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
+		public async Task LogRequest(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
 		{
+			var instancePart = String.Empty;
+			if (requestMessage.Headers.TryGetValues("Instance", out var values))
+				instancePart = String.Format(CultureInfo.InvariantCulture, " I:{0}", values.First());
+			var bodyPart = String.Empty;
+			var bodyString = await (requestMessage.Content?.ReadAsStringAsync() ?? Task.FromResult<string>(null)).ConfigureAwait(false);
+			if (!String.IsNullOrEmpty(bodyString))
+				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			lock (this)
-				ConsoleContent = String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", ConsoleContent, Environment.NewLine, requestMessage);
-			return Task.CompletedTask;
+				ConsoleContent = String.Format(CultureInfo.InvariantCulture, "{0}{1}[{2}]: {3} {4}{5}{6}", ConsoleContent, Environment.NewLine, DateTimeOffset.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture), requestMessage.Method, requestMessage.RequestUri, instancePart, bodyPart);
 		}
 
-		public Task LogResponse(HttpResponseMessage responseMessage, CancellationToken cancellationToken)
+		public async Task LogResponse(HttpResponseMessage responseMessage, CancellationToken cancellationToken)
 		{
+			var requestMessage = responseMessage.RequestMessage;
+			var instancePart = String.Empty;
+			if (requestMessage.Headers.TryGetValues("Instance", out var values))
+				instancePart = String.Format(CultureInfo.InvariantCulture, " I:{0}", values.First());
+			var bodyPart = String.Empty;
+			var bodyString = await (responseMessage.Content?.ReadAsStringAsync() ?? Task.FromResult<string>(null)).ConfigureAwait(false);
+			if (!String.IsNullOrEmpty(bodyString))
+				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			lock (this)
-				ConsoleContent = String.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", ConsoleContent, Environment.NewLine, responseMessage);
-			return Task.CompletedTask;
+				ConsoleContent = String.Format(CultureInfo.InvariantCulture, "{0}{1}[{2}]: HTTP {7}: {3} {4}{5}{6}", ConsoleContent, Environment.NewLine, DateTimeOffset.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture), requestMessage.Method, requestMessage.RequestUri, instancePart, bodyPart, responseMessage.StatusCode);
 		}
 
 		public bool CanRunCommand(MainWindowCommand command)
@@ -212,7 +212,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					using (DelayChangeNotifications())
 					{
 						var newCm = CreateConnection(newConnection);
-						ConnectionManager = newCm;
+						PageContext.ActiveObject = newCm;
 						var newConnections = new List<ConnectionManagerViewModel>(Connections);
 						newConnections.Add(newCm);
 						Connections = newConnections;

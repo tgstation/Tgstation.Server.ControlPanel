@@ -36,11 +36,8 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
-        <Panel Grid.Row="0">
-          <Panel.Resources>
-            <vms:IsNotNullConverter x:Key="isNotNullConverter"/>
-          </Panel.Resources>
-          <page:AddServer IsVisible="{Binding ConnectionManager, Converter={StaticResource isNotNullConverter}}" IsEnabled="{Binding ConnectionManager, Converter={StaticResource isNotNullConverter}}"/>
+        <Panel Grid.Row="0" >
+          <page:AddServer IsVisible="{Binding PageContext.IsConnectionManager}" IsEnabled="{Binding PageContext.IsConnectionManager}"/>
           <page:Administration/>
           <page:UserManager/>
           <page:InstanceManager/>

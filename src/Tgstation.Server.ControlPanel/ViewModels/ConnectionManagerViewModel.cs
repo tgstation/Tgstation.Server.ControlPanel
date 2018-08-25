@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -189,8 +190,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IServerClientFactory serverClientFactory;
 		readonly IRequestLogger requestLogger;
 
-		readonly Action requestActivation;
-		readonly Action<bool> closeOrDelete;
+		readonly PageContextViewModel pageContext;
+
+		readonly Action onDelete;
 
 		IReadOnlyList<ITreeNode> children;
 
@@ -202,23 +204,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool confirmingDelete;
 		bool usingDefaultCredentials;
 
-		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, Action requestActivation, Action<bool> closeOrDelete)
+		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, PageContextViewModel pageContext, Action onDelete)
 		{
 			this.serverClientFactory = serverClientFactory ?? throw new ArgumentNullException(nameof(serverClientFactory));
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
 			this.requestLogger = requestLogger ?? throw new ArgumentNullException(nameof(requestLogger));
-			this.closeOrDelete = closeOrDelete ?? throw new ArgumentNullException(nameof(closeOrDelete));
-			this.requestActivation = requestActivation ?? throw new ArgumentNullException(nameof(requestActivation));
+			this.onDelete = onDelete ?? throw new ArgumentNullException(nameof(onDelete));
+			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 
 			usingHttp = !connection.Url.ToString().StartsWith(HttpsPrefix, StringComparison.OrdinalIgnoreCase);
-			if (connection.Credentials.Password != null)
+			if (connection.Credentials.Password.Length > 0)
 				AllowSavingPassword = true;
 
 			if (connection.LastToken?.ExpiresAt != null && connection.LastToken.ExpiresAt.Value > DateTimeOffset.Now)
 			{
 				serverClient = serverClientFactory.CreateServerClient(connection.Url, connection.LastToken, connection.Timeout);
 				serverClient.AddRequestLogger(requestLogger);
-				PostConnect();
+				PostConnect(default);
 			}
 
 			Connect = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Connect, this);
@@ -233,7 +235,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			serverClient = null;
 		}
 
-		void PostConnect()
+		void PostConnect(CancellationToken cancellationToken)
 		{
 			var versionNode = new BasicNode
 			{
@@ -246,12 +248,20 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Title = "API Version",
 				Icon = LoadingGif
 			};
-
-			async void GetServerVersion()
+			
+			var fakeUserNode = new BasicNode
 			{
+				Title = "Current User",
+				Icon = LoadingGif
+			};
+
+			async void GetServerVersionAndUserPerms()
+			{
+				var userInfoTask = serverClient.Users.Read(cancellationToken);
 				try
 				{
-					var serverInfo = await serverClient.Version(default).ConfigureAwait(false);
+					var serverInfo = await serverClient.Version(cancellationToken).ConfigureAwait(false);
+					
 					versionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", versionNode.Title, serverInfo.Version);
 					apiVersionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", apiVersionNode.Title, serverInfo.ApiVersion);
 					versionNode.Icon = InfoIcon;
@@ -264,15 +274,49 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				}
 				versionNode.RaisePropertyChanged(nameof(Icon));
 				apiVersionNode.RaisePropertyChanged(nameof(Icon));
+
+				User user = null;
+				List<ITreeNode> newChildren;
+				try
+				{
+					user = await userInfoTask.ConfigureAwait(false);
+					newChildren = new List<ITreeNode>(Children.Where(x => x != fakeUserNode));
+					//newChildren.Add(new UserViewModel(user));
+				}
+				catch
+				{
+					newChildren = new List<ITreeNode>(Children);
+					fakeUserNode.Icon = ErrorIcon;
+					fakeUserNode.RaisePropertyChanged(nameof(Icon));
+				}
+
+				newChildren.Add(new BasicNode
+				{
+					Title = "TODO: Administration",
+					Icon = LoadingGif
+				});
+				newChildren.Add(new BasicNode
+				{
+					Title = "TODO: Users",
+					Icon = LoadingGif
+				});
+				newChildren.Add(new BasicNode
+				{
+					Title = "TODO: Instances",
+					Icon = LoadingGif
+				});
+
+				Children = newChildren;
 			}
 
 			List<ITreeNode> childNodes = new List<ITreeNode>
 			{
 				versionNode,
-				apiVersionNode
+				apiVersionNode,
+				fakeUserNode
 			};
 			Children = childNodes;
-			GetServerVersion();
+			GetServerVersionAndUserPerms();
 		}
 
 		async Task BeginConnect(CancellationToken cancellationToken)
@@ -284,11 +328,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Connecting = true;
 			InvalidCredentials = false;
 			AccountLocked = false;
+
+			Connect.Recheck();
 			try
 			{
 				serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Credentials.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(false);
 				serverClient.AddRequestLogger(requestLogger);
-				PostConnect();
+				PostConnect(cancellationToken);
 			}
 			catch (UnauthorizedException)
 			{
@@ -309,13 +355,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			finally
 			{
 				Connecting = false;
+				Connect.Recheck();
 			}
 			connection.LastToken = serverClient.Token;
 		}
 
 		public Task HandleDoubleClick(CancellationToken cancellationToken)
 		{
-			requestActivation();
+			pageContext.ActiveObject = this;
 			return Task.CompletedTask;
 		}
 
@@ -327,7 +374,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case ConnectionManagerCommand.Close:
 					return true;
 				case ConnectionManagerCommand.Connect:
-					return connection.Valid && serverClient != null;
+					return connection.Valid && !Connected && !Connecting;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -339,7 +386,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				case ConnectionManagerCommand.Delete:
 					if (confirmingDelete)
-						closeOrDelete(true);
+						onDelete();
 					else
 					{
 						async void DeleteConfirmTimeout()
@@ -354,7 +401,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}
 					break;
 				case ConnectionManagerCommand.Close:
-					closeOrDelete(false);
+					pageContext.ActiveObject = null;
 					break;
 				case ConnectionManagerCommand.Connect:
 					await BeginConnect(cancellationToken).ConfigureAwait(false);
