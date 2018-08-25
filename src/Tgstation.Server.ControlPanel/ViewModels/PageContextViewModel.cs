@@ -9,13 +9,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => activeObject;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref activeObject, value);
-				this.RaisePropertyChanged(nameof(IsConnectionManager));
+				using (DelayChangeNotifications())
+				{
+					this.RaiseAndSetIfChanged(ref activeObject, value);
+					this.RaisePropertyChanged(nameof(IsConnectionManager));
+					this.RaisePropertyChanged(nameof(IsUser));
+				}
 			}
 		}
 
 		object activeObject;
 
 		public bool IsConnectionManager => activeObject is ConnectionManagerViewModel;
+		public bool IsUser => activeObject is UserViewModel;
 	}
 }

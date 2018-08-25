@@ -32,17 +32,17 @@
                     Grid.Column="1"  Width="5" Background="Transparent" />
       <Grid Grid.Column="2">
         <Grid.RowDefinitions>
-          <RowDefinition Height="5*"/>
+          <RowDefinition Height="4*"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <Panel Grid.Row="0" >
           <page:AddServer IsVisible="{Binding PageContext.IsConnectionManager}" IsEnabled="{Binding PageContext.IsConnectionManager}"/>
           <page:Administration/>
-          <page:UserManager/>
+          <page:UserManager IsVisible="{Binding PageContext.IsUser}" IsEnabled="{Binding PageContext.IsUser}"/>
           <page:InstanceManager/>
-          <page:InstanceUser/>
           <page:Repository/>
+          <page:InstanceUser/>
           <page:StaticFiles/>
           <page:Watchdog/>
           <page:ChatBot/>
@@ -60,8 +60,8 @@
       <local:JobViewer Grid.Column="4"/>
     </Grid>
     <DockPanel Background="#007ACC" Grid.Row="1">
-      <TextBlock Text="{Binding Versions, Mode=OneTime}" Foreground="#FFFFFF" DockPanel.Dock="Left" Margin="5,0,0,0"/>
       <TextBlock Text="{Binding Meme, Mode=OneTime}" Foreground="#FFFFFF" TextAlignment="Right" DockPanel.Dock="Right" Margin="0,0,5,0"/>
+      <TextBlock Text="{Binding Versions, Mode=OneTime}" Foreground="#FFFFFF" DockPanel.Dock="Left" Margin="5,0,0,0"/>
     </DockPanel>
   </Grid>
 </UserControl>

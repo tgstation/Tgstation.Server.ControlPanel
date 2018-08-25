@@ -19,7 +19,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public void Recheck()
 		{
-			CanExecuteChanged?.Invoke(this, new EventArgs());
+			try
+			{
+				CanExecuteChanged?.Invoke(this, new EventArgs());
+			}
+			catch (InvalidOperationException)
+			{
+				System.Diagnostics.Debugger.Break();
+			}	//main thread issue
 		}
 
 

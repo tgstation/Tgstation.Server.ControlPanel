@@ -212,9 +212,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.onDelete = onDelete ?? throw new ArgumentNullException(nameof(onDelete));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 
+			Connect = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Connect, this);
+			Close = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Close, this);
+			Delete = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Delete, this);
+
 			usingHttp = !connection.Url.ToString().StartsWith(HttpsPrefix, StringComparison.OrdinalIgnoreCase);
 			if (connection.Credentials.Password.Length > 0)
+			{
 				AllowSavingPassword = true;
+				if (connection.Credentials.Username == User.AdminName && connection.Credentials.Password == User.DefaultAdminPassword)
+					UsingDefaultCredentials = true;
+			}
 
 			if (connection.LastToken?.ExpiresAt != null && connection.LastToken.ExpiresAt.Value > DateTimeOffset.Now)
 			{
@@ -222,10 +230,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				serverClient.AddRequestLogger(requestLogger);
 				PostConnect(default);
 			}
-
-			Connect = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Connect, this);
-			Close = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Close, this);
-			Delete = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Delete, this);
 		}
 
 		public void Dispose()
@@ -281,7 +285,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					user = await userInfoTask.ConfigureAwait(false);
 					newChildren = new List<ITreeNode>(Children.Where(x => x != fakeUserNode));
-					//newChildren.Add(new UserViewModel(user));
+					newChildren.Add(new UserViewModel(serverClient.Users, user, pageContext));
 				}
 				catch
 				{
@@ -332,7 +336,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Connect.Recheck();
 			try
 			{
-				serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Credentials.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(false);
+				serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Credentials.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
 				serverClient.AddRequestLogger(requestLogger);
 				PostConnect(cancellationToken);
 			}

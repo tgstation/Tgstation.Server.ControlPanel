@@ -1,3 +1,69 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid Background="#CFD6E5">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid Margin="1" Grid.Row="0" Background="#4D6082">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" />
+    </Grid>
+    <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
+      <StackPanel Orientation="Vertical">
+        <TextBlock Text="{Binding PageContext.ActiveObject.User.Name}" FontSize="26"/>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="ID:"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.User.Id}" Margin="5,0,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="Created on:"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.User.CreatedAt}" Margin="5,0,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="Created by:"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.FormatCreatedBy}" Margin="5,0,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="System Identifier:"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.User.SystemIdentifier}" Margin="5,0,0,0"/>
+        </StackPanel>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <StackPanel Orientation="Vertical">
+          <TextBlock Text="Administration Rights:" FontSize="16"/>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="1*"/>
+              <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="1*"/>
+              <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Column="0" Grid.Row="0">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminEditUsers, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Edit All Users" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminEditPassword, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Edit Own Password" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminRestartServer, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Restart Server" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminChangeVersion, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Change Server Version" Margin="5,4,0,0" />
+            </DockPanel>
+          </Grid>
+        </StackPanel>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
 </UserControl>
