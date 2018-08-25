@@ -14,6 +14,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaiseAndSetIfChanged(ref activeObject, value);
 					this.RaisePropertyChanged(nameof(IsConnectionManager));
 					this.RaisePropertyChanged(nameof(IsUser));
+					this.RaisePropertyChanged(nameof(IsAddUser));
 				}
 			}
 		}
@@ -22,5 +23,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool IsConnectionManager => activeObject is ConnectionManagerViewModel;
 		public bool IsUser => activeObject is UserViewModel;
+		public bool IsAddUser => activeObject is AddUserViewModel;
 	}
 }

@@ -5,10 +5,6 @@
         xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views"
         Title="TGStation 13 Server Control Panel"
         WindowState="Maximized">
-
-  <Design.DataContext>
-    <vm:MainWindowViewModel/>
-  </Design.DataContext>
   
   <local:MainView/>
   

@@ -110,7 +110,7 @@
             <RowDefinition Height="1*"/>
           </Grid.RowDefinitions>
           <DockPanel Grid.Column="0" Grid.Row="0">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceReadAll, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceRead, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Read Info of Accessible Instances" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
@@ -142,7 +142,7 @@
             <TextBlock DockPanel.Dock="Right" Text="Change Instance Configuration Modes" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="4" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceList, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceUpdate, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Manage Instance Auto Updating" Margin="5,4,0,0" />
           </DockPanel>
         </Grid>

@@ -230,6 +230,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				serverClient.AddRequestLogger(requestLogger);
 				PostConnect(default);
 			}
+			else if (connection.Valid)
+			{
+				async void OnLoadConnect() => await BeginConnect(default).ConfigureAwait(false);
+				OnLoadConnect();
+			}
 		}
 
 		public void Dispose()
@@ -279,13 +284,26 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				versionNode.RaisePropertyChanged(nameof(Icon));
 				apiVersionNode.RaisePropertyChanged(nameof(Icon));
 
-				User user = null;
+				UserViewModel userVM = null;
 				List<ITreeNode> newChildren;
 				try
 				{
-					user = await userInfoTask.ConfigureAwait(false);
+					var user = await userInfoTask.ConfigureAwait(false);
 					newChildren = new List<ITreeNode>(Children.Where(x => x != fakeUserNode));
-					newChildren.Add(new UserViewModel(serverClient.Users, user, pageContext));
+					userVM = new UserViewModel(serverClient.Users, user, pageContext, null);
+					newChildren.Add(userVM);
+
+					newChildren.Add(new BasicNode
+					{
+						Title = "TODO: Administration",
+						Icon = LoadingGif
+					});
+					newChildren.Add(new UsersRootViewModel(serverClient.Users, pageContext, userVM));
+					newChildren.Add(new BasicNode
+					{
+						Title = "TODO: Instances",
+						Icon = LoadingGif
+					});
 				}
 				catch
 				{
@@ -293,22 +311,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					fakeUserNode.Icon = ErrorIcon;
 					fakeUserNode.RaisePropertyChanged(nameof(Icon));
 				}
-
-				newChildren.Add(new BasicNode
-				{
-					Title = "TODO: Administration",
-					Icon = LoadingGif
-				});
-				newChildren.Add(new BasicNode
-				{
-					Title = "TODO: Users",
-					Icon = LoadingGif
-				});
-				newChildren.Add(new BasicNode
-				{
-					Title = "TODO: Instances",
-					Icon = LoadingGif
-				});
 
 				Children = newChildren;
 			}

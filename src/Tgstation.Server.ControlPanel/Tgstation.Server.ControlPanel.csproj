@@ -26,6 +26,7 @@
     <None Remove="Views\JobViewer.xaml" />
     <None Remove="Views\ObjectBrowserItem.xaml" />
     <None Remove="Views\Pages\AddServer.xaml" />
+    <None Remove="Views\Pages\AddUser.xaml" />
     <None Remove="Views\Pages\Administration.xaml" />
     <None Remove="Views\Pages\Byond.xaml" />
     <None Remove="Views\Pages\ChatBot.xaml" />
@@ -65,6 +66,9 @@
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\Pages\AddServer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\AddUser.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\Pages\Administration.xaml">
