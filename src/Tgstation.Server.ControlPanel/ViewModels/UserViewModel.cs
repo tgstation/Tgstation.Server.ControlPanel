@@ -360,7 +360,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						Id = User.Id,
 						AdministrationRights = User.AdministrationRights,
 						InstanceManagerRights = User.InstanceManagerRights,
-						Enabled = User.Enabled
+						Enabled = Enabled
 					};
 					if (NewPassword.Length > 0)
 						update.Password = NewPassword;

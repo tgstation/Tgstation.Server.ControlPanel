@@ -29,7 +29,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Title => connection.Url.ToString();
 
-		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.tgs.ico";
+		public string Icon
+		{
+			get
+			{
+				if (Connecting)
+					return LoadingGif;
+				if (AccountLocked)
+					return "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg";
+				if (ConnectionFailed)
+					return ErrorIcon;
+				if (InvalidCredentials)
+					return "resm:Tgstation.Server.ControlPanel.Assets.unauth.png";
+				if (ServerDown)
+					return "resm:Tgstation.Server.ControlPanel.Assets.down.png";
+				return "resm:Tgstation.Server.ControlPanel.Assets.tgs.ico";
+			}
+		}
 
 		public IReadOnlyList<ITreeNode> Children
 		{
@@ -54,10 +70,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool Connected => serverClient != null && serverClient.Token.ExpiresAt < DateTimeOffset.Now;
 
 		public bool Connecting { get; private set; }
-
 		public bool InvalidCredentials { get; private set; }
 		public bool AccountLocked { get; private set; }
-		public bool ConnectionFailed { get; set; }
+		public bool ConnectionFailed { get; private set; }
+		public bool ServerDown { get; private set; }
+
 		public string ServerAddress
 		{
 			get => connection.Url.ToString();
@@ -75,6 +92,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					connection.Url = new Uri(value);
 					this.RaisePropertyChanged(nameof(ServerAddress));
+					this.RaisePropertyChanged(nameof(Title));
 					Connect.Recheck();
 				}
 				catch (UriFormatException) { }
@@ -181,6 +199,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => connection.Credentials.AllowSavingPassword = value;
 		}
 
+		public string ErrorMessage { get; private set; }
+		public bool Errored { get; private set; }
+
 		public EnumCommand<ConnectionManagerCommand> Close { get; }
 		public EnumCommand<ConnectionManagerCommand> Connect { get; }
 		public EnumCommand<ConnectionManagerCommand> Delete { get; }
@@ -217,7 +238,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Delete = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Delete, this);
 
 			usingHttp = !connection.Url.ToString().StartsWith(HttpsPrefix, StringComparison.OrdinalIgnoreCase);
-			if (connection.Credentials.Password.Length > 0)
+			if (connection.Credentials.Password != null && connection.Credentials.Password.Length > 0)
 			{
 				AllowSavingPassword = true;
 				if (connection.Credentials.Username == User.AdminName && connection.Credentials.Password == User.DefaultAdminPassword)
@@ -293,11 +314,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					userVM = new UserViewModel(serverClient.Users, user, pageContext, null);
 					newChildren.Add(userVM);
 
-					newChildren.Add(new BasicNode
-					{
-						Title = "TODO: Administration",
-						Icon = LoadingGif
-					});
+					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM));
 					newChildren.Add(new UsersRootViewModel(serverClient.Users, pageContext, userVM));
 					newChildren.Add(new BasicNode
 					{
@@ -334,36 +351,56 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Connecting = true;
 			InvalidCredentials = false;
 			AccountLocked = false;
+			ServerDown = false;
+			ConnectionFailed = false;
+			ErrorMessage = null;
+			Errored = false;
 
+			this.RaisePropertyChanged(nameof(Icon));
+			this.RaisePropertyChanged(nameof(ErrorMessage));
+			this.RaisePropertyChanged(nameof(Errored));
 			Connect.Recheck();
 			try
 			{
 				serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Credentials.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
 				serverClient.AddRequestLogger(requestLogger);
+				connection.LastToken = serverClient.Token;
 				PostConnect(cancellationToken);
 			}
 			catch (UnauthorizedException)
 			{
 				InvalidCredentials = true;
+				ErrorMessage = "Invalid credentials!";
 			}
 			catch (InsufficientPermissionsException)
 			{
 				AccountLocked = true;
+				ErrorMessage = "Your account is disabled!";
 			}
-			catch (ClientException)
+			catch (ServiceUnavailableException)
+			{
+				ServerDown = true;
+				ErrorMessage = "The server is not available!";
+			}
+			catch (ClientException e)
 			{
 				ConnectionFailed = true;
+				ErrorMessage = e.Message;
 			}
-			catch (HttpRequestException)
+			catch (HttpRequestException e)
 			{
 				ConnectionFailed = true;
+				ErrorMessage = String.Format(CultureInfo.InvariantCulture, "An HTTP protocol error occurred: {0}", (e.InnerException ?? e).Message);
 			}
 			finally
 			{
 				Connecting = false;
 				Connect.Recheck();
+				Errored = ErrorMessage != null;
+				this.RaisePropertyChanged(nameof(Icon));
+				this.RaisePropertyChanged(nameof(ErrorMessage));
+				this.RaisePropertyChanged(nameof(Errored));
 			}
-			connection.LastToken = serverClient.Token;
 		}
 
 		public Task HandleDoubleClick(CancellationToken cancellationToken)
@@ -392,7 +429,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				case ConnectionManagerCommand.Delete:
 					if (confirmingDelete)
+					{
+						pageContext.ActiveObject = null;
 						onDelete();
+					}
 					else
 					{
 						async void DeleteConfirmTimeout()

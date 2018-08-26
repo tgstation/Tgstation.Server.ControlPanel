@@ -86,6 +86,11 @@
             <Button Content="{Binding PageContext.ActiveObject.ConnectionWord}" Grid.Column="2" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding PageContext.ActiveObject.Connect}"/>
             <Button Content="{Binding PageContext.ActiveObject.DeleteWord}" Grid.Column="4" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding PageContext.ActiveObject.Delete}"/> 
           </Grid>
+          <StackPanel Orientation="Vertical" IsVisible="{Binding PageContext.ActiveObject.Errored}" >
+            <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+            <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+            <TextBlock Text="{Binding PageContext.ActiveObject.ErrorMessage}" HorizontalAlignment="Center" FontSize="18"/>
+          </StackPanel>
         </StackPanel>
       </StackPanel>
     </ScrollViewer>

@@ -51,7 +51,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			if (!currentUser.AdministrationRights.HasFlag(AdministrationRights.EditUsers))
 			{
-				Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.png";
+				Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg";
 				Children = null;
 				loading = false;
 				return;

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
@@ -21,6 +23,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public IReadOnlyList<ITreeNode> Children => null;
 
+		public ICommand Close { get; }
+		public ICommand Restart { get; }
+		public EnumCommand<AdministrationCommand> Update { get; }
+
 		readonly PageContextViewModel pageContext;
 		readonly IAdministrationClient administrationClient;
 		readonly IUserRightsProvider userRightsProvider;
@@ -30,6 +36,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.administrationClient = administrationClient ?? throw new ArgumentNullException(nameof(administrationClient));
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
+
+			Close = new EnumCommand<AdministrationCommand>(AdministrationCommand.Close, this);
+			Restart = new EnumCommand<AdministrationCommand>(AdministrationCommand.Restart, this);
+			Update = new EnumCommand<AdministrationCommand>(AdministrationCommand.Update, this);
 		}
 
 		public Task HandleDoubleClick(CancellationToken cancellationToken)
@@ -52,8 +62,41 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public Task RunCommand(AdministrationCommand command, CancellationToken cancellationToken)
+		public async Task RunCommand(AdministrationCommand command, CancellationToken cancellationToken)
 		{
+			switch (command)
+			{
+				case AdministrationCommand.Close:
+					pageContext.ActiveObject = null;
+					break;
+				case AdministrationCommand.Restart:
+					try
+					{
+						//await administrationClient.Delete(cancellationToken).ConfigureAwait(false);
+					}
+					catch (ClientException)
+					{
+						return;
+					}
+					pageContext.ActiveObject = null;
+					break;
+				case AdministrationCommand.Update:
+					try
+					{
+						await administrationClient.Update(new Administration
+						{
+							//TODO
+						}, cancellationToken).ConfigureAwait(false);
+					}
+					catch (ClientException)
+					{
+						return;
+					}
+					pageContext.ActiveObject = null;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
+			}
 		}
 	}
 }

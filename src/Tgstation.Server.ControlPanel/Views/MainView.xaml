@@ -39,7 +39,7 @@
         <Panel Grid.Row="0" >
           <page:AddServer IsVisible="{Binding PageContext.IsConnectionManager}" IsEnabled="{Binding PageContext.IsConnectionManager}"/>
           <page:AddUser IsVisible="{Binding PageContext.IsAddUser}" IsEnabled="{Binding PageContext.IsAddUser}"/>
-          <page:Administration/>
+          <page:Administration IsVisible="{Binding PageContext.IsAdministration}" IsEnabled="{Binding PageContext.IsAdministration}"/>
           <page:UserManager IsVisible="{Binding PageContext.IsUser}" IsEnabled="{Binding PageContext.IsUser}"/>
           <page:InstanceManager/>
           <page:Repository/>
