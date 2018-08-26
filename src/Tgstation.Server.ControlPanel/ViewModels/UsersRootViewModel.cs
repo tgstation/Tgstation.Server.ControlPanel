@@ -53,6 +53,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.png";
 				Children = null;
+				loading = false;
+				return;
 			}
 
 			var auvm = new AddUserViewModel(pageContext, usersClient, this);
@@ -87,6 +89,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				basic.Title = "Error!";
 				basic.Icon = "resm:Tgstation.Server.ControlPanel.Assets.error.png";
+			}
+			finally
+			{
+				loading = false;
 			}
 		}
 

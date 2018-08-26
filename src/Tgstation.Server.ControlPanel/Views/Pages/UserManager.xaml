@@ -45,7 +45,7 @@
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
         <StackPanel Orientation="Horizontal">
-          <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.CanEditRights, Mode=TwoWay}"/>
+          <CheckBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanEditRights}" IsChecked="{Binding PageContext.ActiveObject.Enabled, Mode=TwoWay}"/>
           <TextBlock DockPanel.Dock="Right" Text="Enabled" Margin="5,4,0,0" />
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>

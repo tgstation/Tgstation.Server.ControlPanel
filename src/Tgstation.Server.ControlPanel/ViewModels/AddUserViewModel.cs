@@ -117,7 +117,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					break;
 				case AddUserCommand.Add:
 					UserUpdate uu;
-					if (SystemIdentifier.Length == 0)
+					if (SystemIdentifier.Length != 0)
 						uu = new UserUpdate
 						{
 							SystemIdentifier = SystemIdentifier

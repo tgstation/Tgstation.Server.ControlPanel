@@ -87,6 +87,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public IReadOnlyList<ITreeNode> Children => null;
 
+		public bool Enabled
+		{
+			get => enabled;
+			set => this.RaiseAndSetIfChanged(ref enabled, value);
+		}
+
 		public bool AdminEditUsers
 		{
 			get => user.AdministrationRights.Value.HasFlag(AdministrationRights.EditUsers);
@@ -269,6 +275,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool error;
 		bool canEditPassword;
 		bool canEditRights;
+		bool enabled;
 
 		string newPassword;
 		string passwordConfirm;
@@ -287,6 +294,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			NewPassword = String.Empty;
 			PasswordConfirm = String.Empty;
 
+			Enabled = User.Enabled.Value;
 			CanEditRights = this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.EditUsers);
 			CanEditPassword = CanEditRights || this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.EditPassword);
 		}
@@ -367,6 +375,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					CanEditPassword = AdminEditUsers || AdminEditPassword;
 					CanEditRights = AdminEditUsers;
+					Enabled = user.Enabled.Value;
 					NewPassword = String.Empty;
 					PasswordConfirm = String.Empty;
 					Refresh.Recheck();
