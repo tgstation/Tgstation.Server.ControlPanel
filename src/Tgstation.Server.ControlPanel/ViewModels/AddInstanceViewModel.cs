@@ -11,7 +11,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 {
 	sealed class AddInstanceViewModel : ViewModelBase, ITreeNode, ICommandReceiver<AddInstanceViewModel.AddInstanceCommand>
 	{
-		const string DefaultInstancePath = "/tgs_instances/";
+		const string DefaultInstancePath = "/tgs4_instances/";
 
 		public enum AddInstanceCommand
 		{

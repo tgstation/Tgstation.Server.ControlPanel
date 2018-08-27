@@ -52,7 +52,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			userRightsProvider.OnUpdated += (a, b) => InitalLoad();
 		}
 
-		async Task Refresh(CancellationToken cancellationToken)
+		public async Task Refresh(CancellationToken cancellationToken)
 		{
 			lock (this)
 			{

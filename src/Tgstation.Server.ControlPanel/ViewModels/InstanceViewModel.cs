@@ -68,12 +68,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => newPath;
 			set => this.RaiseAndSetIfChanged(ref newPath, value);
 		}
-		public ConfigurationType ConfigType
+		public ConfigurationType ConfigMode
 		{
 			get => configType;
 			set => this.RaiseAndSetIfChanged(ref configType, value);
 		}
-		public int AutoUpdateInterval
+		public uint AutoUpdateInterval
 		{
 			get => autoUpdateInterval;
 			set => this.RaiseAndSetIfChanged(ref autoUpdateInterval, value);
@@ -88,6 +88,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IInstanceClient instanceClient;
 		readonly PageContextViewModel pageContext;
 		readonly IUserRightsProvider userRightsProvider;
+		readonly InstanceRootViewModel instanceRootViewModel;
 
 		IReadOnlyList<ITreeNode> children;
 		Instance instance;
@@ -97,16 +98,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string newName;
 		string newPath;
 		ConfigurationType configType;
-		int autoUpdateInterval;
+		uint autoUpdateInterval;
 
 		bool deleteConfirming;
+		bool loading;
 
-		public InstanceViewModel(IInstanceManagerClient instanceManagerClient, PageContextViewModel pageContext, Instance instance, IUserRightsProvider userRightsProvider)
+		public InstanceViewModel(IInstanceManagerClient instanceManagerClient, PageContextViewModel pageContext, Instance instance, IUserRightsProvider userRightsProvider, InstanceRootViewModel instanceRootViewModel)
 		{
 			this.instanceManagerClient = instanceManagerClient ?? throw new ArgumentNullException(nameof(instanceManagerClient));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			Instance = instance ?? throw new ArgumentNullException(nameof(instance));
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
+			this.instanceRootViewModel = instanceRootViewModel ?? throw new ArgumentNullException(nameof(instanceRootViewModel));
 
 			instanceClient = instanceManagerClient.CreateClient(instance);
 
@@ -142,8 +145,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		void PostRefresh()
 		{
 			Enabled = Instance.Online.Value;
-			ConfigType = Instance.ConfigurationType.Value;
+			ConfigMode = Instance.ConfigurationType.Value;
 			AutoUpdateInterval = Instance.AutoUpdateInterval.Value;
+			NewName = String.Empty;
+			NewPath = String.Empty;
 		}
 
 		public Task HandleDoubleClick(CancellationToken cancellationToken)
@@ -160,7 +165,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case InstanceCommand.Refresh:
 					return true;
 				case InstanceCommand.Save:
-					return false;
+					return !loading;
 				case InstanceCommand.Delete:
 					return userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Delete);
 				default:
@@ -168,9 +173,60 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public Task RunCommand(InstanceCommand command, CancellationToken cancellationToken)
+		public async Task RunCommand(InstanceCommand command, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				switch (command)
+				{
+					case InstanceCommand.Close:
+						pageContext.ActiveObject = null;
+						break;
+					case InstanceCommand.Refresh:
+						Instance = await instanceManagerClient.GetId(instance, cancellationToken).ConfigureAwait(true);
+						PostRefresh();
+						break;
+					case InstanceCommand.Save:
+						var newInstance = new Instance();
+						if (!String.IsNullOrWhiteSpace(NewName) && userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Rename))
+							newInstance.Name = NewName;
+						if (!String.IsNullOrWhiteSpace(NewPath) && userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Relocate))
+							newInstance.Path = NewPath;
+						if (userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.SetOnline))
+							newInstance.Online = Enabled;
+						if (userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.SetConfiguration))
+							newInstance.ConfigurationType = ConfigMode;
+						if (userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.SetAutoUpdate))
+							newInstance.AutoUpdateInterval = AutoUpdateInterval;
+
+						Instance = await instanceManagerClient.Update(newInstance, cancellationToken).ConfigureAwait(true);
+						PostRefresh();
+						break;
+					case InstanceCommand.Delete:
+						if (!deleteConfirming)
+						{
+							async void ResetDelete()
+							{
+								await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
+								deleteConfirming = false;
+								this.RaisePropertyChanged(nameof(DeleteText));
+							}
+							deleteConfirming = true;
+							this.RaisePropertyChanged(nameof(DeleteText));
+							break;
+						}
+						pageContext.ActiveObject = null;
+						await instanceRootViewModel.Refresh(cancellationToken).ConfigureAwait(false);
+						break;
+					default:
+						throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
+				}
+			}
+			catch (InsufficientPermissionsException)
+			{
+				pageContext.ActiveObject = null;
+				await instanceRootViewModel.Refresh(cancellationToken).ConfigureAwait(false);
+			}
 		}
 	}
 }
