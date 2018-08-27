@@ -10,7 +10,7 @@ using Tgstation.Server.Client.Components;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	sealed class InstanceViewModel : ViewModelBase, ITreeNode, ICommandReceiver<InstanceViewModel.InstanceCommand>
+	sealed class InstanceViewModel : ViewModelBase, ITreeNode, ICommandReceiver<InstanceViewModel.InstanceCommand>, IInstanceUserRightsProvider
 	{
 		public enum InstanceCommand
 		{
@@ -113,7 +113,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			instanceClient = instanceManagerClient.CreateClient(instance);
 
-			PostRefresh();
+			async void InitialLoad() => await PostRefresh(default).ConfigureAwait(false);
+			InitialLoad();
 
 			Close = new EnumCommand<InstanceCommand>(InstanceCommand.Close, this);
 			Refresh = new EnumCommand<InstanceCommand>(InstanceCommand.Refresh, this);
@@ -142,13 +143,30 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.RaisePropertyChanged(nameof(Icon));
 		}
 		
-		void PostRefresh()
+		async Task PostRefresh(CancellationToken cancellationToken)
 		{
-			Enabled = Instance.Online.Value;
-			ConfigMode = Instance.ConfigurationType.Value;
-			AutoUpdateInterval = Instance.AutoUpdateInterval.Value;
-			NewName = String.Empty;
-			NewPath = String.Empty;
+			using (DelayChangeNotifications())
+			{
+				Enabled = Instance.Online.Value;
+				ConfigMode = Instance.ConfigurationType.Value;
+				AutoUpdateInterval = Instance.AutoUpdateInterval.Value;
+				NewName = String.Empty;
+				NewPath = String.Empty;
+
+				Children = new List<ITreeNode>
+				{
+					new BasicNode
+					{
+						Title = "Loading",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png"
+					}
+				};
+			}
+
+			var ddTask = instanceClient.DreamDaemon.Read(cancellationToken);
+			var instanceUser = await instanceClient.Users.Read(cancellationToken).ConfigureAwait(false);
+
+
 		}
 
 		public Task HandleDoubleClick(CancellationToken cancellationToken)
@@ -183,8 +201,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						pageContext.ActiveObject = null;
 						break;
 					case InstanceCommand.Refresh:
-						Instance = await instanceManagerClient.GetId(instance, cancellationToken).ConfigureAwait(true);
-						PostRefresh();
+						loading = true;
+						try
+						{
+							Instance = await instanceManagerClient.GetId(instance, cancellationToken).ConfigureAwait(true);
+							PostRefresh();
+						}
+						finally
+						{
+							loading = false;
+						}
 						break;
 					case InstanceCommand.Save:
 						var newInstance = new Instance();
@@ -199,8 +225,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						if (userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.SetAutoUpdate))
 							newInstance.AutoUpdateInterval = AutoUpdateInterval;
 
-						Instance = await instanceManagerClient.Update(newInstance, cancellationToken).ConfigureAwait(true);
-						PostRefresh();
+						loading = true;
+						try
+						{
+							Instance = await instanceManagerClient.Update(newInstance, cancellationToken).ConfigureAwait(true);
+							PostRefresh();
+						}
+						finally
+						{
+							loading = false;
+						}
 						break;
 					case InstanceCommand.Delete:
 						if (!deleteConfirming)
