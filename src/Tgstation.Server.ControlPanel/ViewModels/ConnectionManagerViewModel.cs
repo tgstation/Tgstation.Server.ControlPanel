@@ -393,7 +393,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			catch (HttpRequestException e)
 			{
 				ConnectionFailed = true;
-				ErrorMessage = String.Format(CultureInfo.InvariantCulture, "An HTTP protocol error occurred: {0}", (e.InnerException ?? e).Message);
+				ErrorMessage = String.Format(CultureInfo.InvariantCulture, "An HTTP error occurred: {0}", (e.InnerException ?? e).Message);
 			}
 			finally
 			{

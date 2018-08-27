@@ -14,6 +14,44 @@
       <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
+      <StackPanel Orientation="Vertical">
+        <TextBlock Text="Server Administration" FontSize="26"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="400"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="Windows Host Machine:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.WindowsHostMachine}" Margin="50,0,0,5" Grid.Column="1" Grid.Row="0" />
+          <TextBlock Text="Updates GitHub Repository:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
+          <Button Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" Content="{Binding PageContext.ActiveObject.GitHubUrl}" Command="{Binding PageContext.ActiveObject.OpenGitHub}" Background="#CFD6E5" Foreground="#31A2EC"  BorderBrush="#CFD6E5"/>
+          <TextBlock Text="Latest Available Version:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="2"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.LatestVersionString}" Margin="0,5,0,0" Grid.Column="1" Grid.Row="2"/>
+          <TextBlock Text="Update To Version:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="3" />
+          <TextBox Grid.Column="1" Grid.Row="3" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.NewVersion, Mode=TwoWay}"/>
+        </Grid>
+      <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+      <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="25*"/>
+          <ColumnDefinition Width="15*"/>
+          <ColumnDefinition Width="5*"/>
+          <ColumnDefinition Width="15*"/>
+          <ColumnDefinition Width="25*"/>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="1" Content="{Binding PageContext.ActiveObject.UpdateText}" Command="{Binding PageContext.ActiveObject.Update}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+        <Button Grid.Column="3" Content="{Binding PageContext.ActiveObject.RestartText}" Command="{Binding PageContext.ActiveObject.Restart}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+      </Grid>
+      </StackPanel> 
     </ScrollViewer>
   </Grid>
 </UserControl>
