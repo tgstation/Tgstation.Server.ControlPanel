@@ -72,12 +72,20 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string NewPassword
 		{
 			get => newPassword;
-			set => this.RaiseAndSetIfChanged(ref newPassword, value);
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newPassword, value);
+				Save.Recheck();
+			}
 		}
 		public string PasswordConfirm
 		{
 			get => passwordConfirm;
-			set => this.RaiseAndSetIfChanged(ref passwordConfirm, value);
+			set
+			{
+				this.RaiseAndSetIfChanged(ref passwordConfirm, value);
+				Save.Recheck();
+			}
 		}
 
 		public ICommand Close { get; }
@@ -371,17 +379,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
 
-			if (userRightsProvider == this)
-				using (DelayChangeNotifications())
+			using (DelayChangeNotifications())
+			{
+				if (userRightsProvider == this)
 				{
 					CanEditPassword = AdminEditUsers || AdminEditPassword;
 					CanEditRights = AdminEditUsers;
-					Enabled = user.Enabled.Value;
-					NewPassword = String.Empty;
-					PasswordConfirm = String.Empty;
-					Refresh.Recheck();
-					Save.Recheck();
 				}
+				NewPassword = String.Empty;
+				PasswordConfirm = String.Empty;
+				Refresh.Recheck();
+				Save.Recheck();
+			}
 		}
 	}
 }

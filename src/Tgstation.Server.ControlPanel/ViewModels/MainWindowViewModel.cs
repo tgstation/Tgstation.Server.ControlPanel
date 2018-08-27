@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Tgstation.Server.Api;
+using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
 using Tgstation.Server.ControlPanel.Models;
 
@@ -166,7 +167,20 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var bodyPart = String.Empty;
 			var bodyString = await (requestMessage.Content?.ReadAsStringAsync() ?? Task.FromResult<string>(null)).ConfigureAwait(false);
 			if (!String.IsNullOrEmpty(bodyString))
+			{
+				//may contain the password for User models, censor it
+				try
+				{
+					var userModel = JsonConvert.DeserializeObject<UserUpdate>(bodyString);
+					if (userModel.Password != null)
+					{
+						userModel.Password = String.Join("", Enumerable.Repeat('*', userModel.Password.Length));
+						bodyString = JsonConvert.SerializeObject(userModel);
+					}
+				}
+				catch (JsonException) { }
 				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
+			}
 			lock (this)
 				ConsoleContent = String.Format(CultureInfo.InvariantCulture, "{0}{1}[{2}]: {3} {4}{5}{6}", ConsoleContent, Environment.NewLine, DateTimeOffset.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture), requestMessage.Method, requestMessage.RequestUri, instancePart, bodyPart);
 		}
