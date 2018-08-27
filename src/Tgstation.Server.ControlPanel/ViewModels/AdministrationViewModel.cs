@@ -72,7 +72,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case AdministrationCommand.Restart:
 					try
 					{
-						//await administrationClient.Delete(cancellationToken).ConfigureAwait(false);
+						await administrationClient.Restart(cancellationToken).ConfigureAwait(false);
 					}
 					catch (ClientException)
 					{

@@ -316,11 +316,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM));
 					newChildren.Add(new UsersRootViewModel(serverClient.Users, pageContext, userVM));
-					newChildren.Add(new BasicNode
-					{
-						Title = "TODO: Instances",
-						Icon = LoadingGif
-					});
+					newChildren.Add(new InstanceRootViewModel(pageContext, serverClient.Instances, userVM));
 				}
 				catch
 				{

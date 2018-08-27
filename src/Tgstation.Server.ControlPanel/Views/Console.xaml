@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <DockPanel LastChildFill="True" Background="#CFD6E5">
     <Panel DockPanel.Dock="Top" Background="#4D6082" Margin="1">
-      <TextBlock DockPanel.Dock="Top" Text="Console" Margin="3" Foreground="White"/>
+      <TextBlock DockPanel.Dock="Left" Text="Console" Margin="3" Foreground="White"/>
+      <Button DockPanel.Dock="Right" Content="Copy" Padding="0,0" Width="40" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding CopyConsole}" />
     </Panel>
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible" Background="#FFFFFF" Margin="3">
       <TextBox TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" Text="{Binding ConsoleContent}"/>

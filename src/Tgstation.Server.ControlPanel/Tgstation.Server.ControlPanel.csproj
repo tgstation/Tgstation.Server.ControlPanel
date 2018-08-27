@@ -45,7 +45,8 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.6.2-build6007-beta" />
     <PackageReference Include="Octokit" Version="0.31.0" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.5.0" />
-    <PackageReference Include="Tgstation.Server.Client" Version="4.0.0-preview4" />
+    <PackageReference Include="TextCopy" Version="1.5.0" />
+    <PackageReference Include="Tgstation.Server.Client" Version="4.0.0-preview5" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\Pages\UserManager.xaml.cs">

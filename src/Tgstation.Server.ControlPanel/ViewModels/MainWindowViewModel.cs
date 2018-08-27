@@ -22,7 +22,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 	{
 		public enum MainWindowCommand
 		{
-			NewServerConnection
+			NewServerConnection,
+			CopyConsole
 		}
 
 		public static string Versions => String.Format(CultureInfo.InvariantCulture, "Version: {0}, API Version: {1}", Assembly.GetExecutingAssembly().GetName().Version, ApiHeaders.Version);
@@ -51,6 +52,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		public ICommand AddServerCommand { get; }
+
+		public ICommand CopyConsole { get; }
 
 		public PageContextViewModel PageContext { get; }
 
@@ -91,7 +94,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			ConsoleContent = "Request details will be shown here...";
 
 			AddServerCommand = new EnumCommand<MainWindowCommand>(MainWindowCommand.NewServerConnection, this);
-
+			CopyConsole = new EnumCommand<MainWindowCommand>(MainWindowCommand.CopyConsole, this);
 		}
 
 		ConnectionManagerViewModel CreateConnection(Connection connection)
@@ -186,6 +189,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			switch (command)
 			{
 				case MainWindowCommand.NewServerConnection:
+				case MainWindowCommand.CopyConsole:
 					return true;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
@@ -217,6 +221,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						newConnections.Add(newCm);
 						Connections = newConnections;
 					}
+					break;
+				case MainWindowCommand.CopyConsole:
+					var tmp = new List<string>(ConsoleContent.Split('\n'));
+					tmp.RemoveAt(0);    //remove info line
+					var clipboard = String.Join(' ', tmp);
+					TextCopy.Clipboard.SetText(clipboard);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
