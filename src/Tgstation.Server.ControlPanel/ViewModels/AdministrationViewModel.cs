@@ -54,7 +54,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		public ICommand Close { get; }
-		public ICommand Restart { get; }
+		public EnumCommand<AdministrationCommand> Restart { get; }
 		public EnumCommand<AdministrationCommand> Update { get; }
 		public EnumCommand<AdministrationCommand> OpenGitHub { get; }
 
@@ -86,6 +86,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Restart = new EnumCommand<AdministrationCommand>(AdministrationCommand.Restart, this);
 			Update = new EnumCommand<AdministrationCommand>(AdministrationCommand.Update, this);
 			OpenGitHub = new EnumCommand<AdministrationCommand>(AdministrationCommand.OpenGitHub, this);
+
+			userRightsProvider.OnUpdated += (a, b) =>
+			{
+				Restart.Recheck();
+				Update.Recheck();
+			};
 		}
 
 		async Task Refresh(CancellationToken cancellationToken)

@@ -42,7 +42,7 @@
           <page:Administration IsVisible="{Binding PageContext.IsAdministration}" IsEnabled="{Binding PageContext.IsAdministration}"/>
           <page:UserManager IsVisible="{Binding PageContext.IsUser}" IsEnabled="{Binding PageContext.IsUser}"/>
           <page:AddInstance IsVisible="{Binding PageContext.IsAddInstance}" IsEnabled="{Binding PageContext.IsAddInstance}"/>
-          <page:InstanceManager/>
+          <page:InstanceManager IsVisible="{Binding PageContext.IsInstance}" IsEnabled="{Binding PageContext.IsInstance}"/>
           <page:Repository/>
           <page:InstanceUser/>
           <page:StaticFiles/>

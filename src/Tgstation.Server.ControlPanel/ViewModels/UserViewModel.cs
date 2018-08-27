@@ -274,6 +274,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public event EventHandler OnUpdated;
+
 		readonly IUserRightsProvider userRightsProvider;
 		readonly IUsersClient usersClient;
 		readonly PageContextViewModel pageContext;
@@ -304,8 +306,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			PasswordConfirm = String.Empty;
 
 			Enabled = User.Enabled.Value;
-			CanEditRights = this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.EditUsers);
-			CanEditPassword = CanEditRights || this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.EditPassword);
+			void SetLocks()
+			{
+				CanEditRights = this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.EditUsers);
+				CanEditPassword = CanEditRights || (this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.EditPassword) && this.userRightsProvider == this);
+			};
+			SetLocks();
+
+			this.userRightsProvider.OnUpdated += (a, b) =>
+			{
+				using (DelayChangeNotifications())
+					SetLocks();
+			};
 		}
 
 		public Task HandleDoubleClick(CancellationToken cancellationToken)
@@ -362,6 +374,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					break;
 				case UserCommand.Refresh:
 					await RunRequest(async () => User = await usersClient.GetId(user, cancellationToken).ConfigureAwait(true)).ConfigureAwait(true);
+					OnUpdated?.Invoke(this, new EventArgs());
 					break;
 				case UserCommand.Save:
 					var update = new UserUpdate
@@ -374,6 +387,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					if (NewPassword.Length > 0)
 						update.Password = NewPassword;
 					await RunRequest(async () => user = await usersClient.Update(update, cancellationToken).ConfigureAwait(false)).ConfigureAwait(true);
+					OnUpdated?.Invoke(this, new EventArgs());
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
@@ -381,11 +395,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			using (DelayChangeNotifications())
 			{
-				if (userRightsProvider == this)
-				{
-					CanEditPassword = AdminEditUsers || AdminEditPassword;
-					CanEditRights = AdminEditUsers;
-				}
 				NewPassword = String.Empty;
 				PasswordConfirm = String.Empty;
 				Refresh.Recheck();

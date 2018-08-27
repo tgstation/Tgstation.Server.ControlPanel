@@ -45,6 +45,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			async void FirstLoad() => await Refresh(default).ConfigureAwait(false);
 			FirstLoad();
+			currentUser.OnUpdated += (a, b) => FirstLoad();
 		}
 
 		public async Task Refresh(CancellationToken cancellationToken)

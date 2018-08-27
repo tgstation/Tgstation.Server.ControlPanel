@@ -49,6 +49,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			async void InitalLoad() => await Refresh(default).ConfigureAwait(false);
 			InitalLoad();
+			userRightsProvider.OnUpdated += (a, b) => InitalLoad();
 		}
 
 		async Task Refresh(CancellationToken cancellationToken)
@@ -101,7 +102,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						newChildren = new List<ITreeNode>();
 						if (hasCreateRight)
 							newChildren.Add(auvm);
-						newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x)));
+						newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x, userRightsProvider)));
 						if (instances.Count == 1)
 							newChildren[1].IsExpanded = true;
 						Children = newChildren;
@@ -123,7 +124,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public void DirectAddInstance(Instance instance)
 		{
 			var newChildren = new List<ITreeNode>(Children);
-			var newThing = new InstanceViewModel(instanceManagerClient, pageContext, instance);
+			var newThing = new InstanceViewModel(instanceManagerClient, pageContext, instance, userRightsProvider);
 			newChildren.Add(newThing);
 			Children = newChildren;
 			pageContext.ActiveObject = newThing;

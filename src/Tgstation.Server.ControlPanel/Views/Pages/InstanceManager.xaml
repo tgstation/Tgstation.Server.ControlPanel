@@ -1,3 +1,90 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid Background="#CFD6E5">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid Margin="1" Grid.Row="0" Background="#4D6082">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+    </Grid>
+    <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
+      <StackPanel Orientation="Vertical">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="100"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Title}" FontSize="26"/>
+          <Image Grid.Column="1" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding PageContext.ActiveObject.Refreshing}" Margin="0,0,5,0"/>
+          <Image Grid.Column="1" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.error.png" IsVisible="{Binding PageContext.ActiveObject.Error}" Margin="0,0,5,0"/>
+          <Button Grid.Column="2" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="ID:"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.Instance.Id}" Margin="5,0,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="Path:"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.Instance.Path}" Margin="5,0,0,0"/>
+        </StackPanel>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <StackPanel Orientation="Horizontal">
+          <CheckBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanOnline}" IsChecked="{Binding PageContext.ActiveObject.Enabled, Mode=TwoWay}"/>
+          <TextBlock Text="Online" Margin="5,4,0,0" />
+        </StackPanel>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="New Name:" Margin="5,4,0,0" />
+          <TextBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanRename}" Text="{Binding PageContext.ActiveObject.NewName, Mode=TwoWay}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="New Path:" Margin="5,4,0,0" />
+          <TextBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanRelocate}" Text="{Binding PageContext.ActiveObject.NewPath, Mode=TwoWay}"/>
+        </StackPanel>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="400"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="Static File Mode:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
+          <DropDown SelectedIndex="{Binding PageContext.ActiveObject.ConfigMode}" IsEnabled="{Binding PageContext.ActiveObject.CanConfig, Mode=TwoWay}" Grid.Column="1" Grid.Row="0">
+            <DropDownItem>No File Management</DropDownItem>
+            <DropDownItem>Authorized users can read and write any file</DropDownItem>
+            <DropDownItem>Authorized users read and write using their system identity</DropDownItem>
+          </DropDown>
+          <TextBlock Text="Automatic Update Interval (Minutes) (0 to disable):" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
+          <NumericUpDown Width="75" Height="25" Value="{Binding PageContext.ActiveObject.AutoUpdateInterval, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}" Grid.Column="1" Grid.Row="1"/>
+        </Grid>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25*"/>
+            <ColumnDefinition Width="15*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="15*"/>
+            <ColumnDefinition Width="25*"/>
+          </Grid.ColumnDefinitions>
+          <Button Grid.Column="1" Content="Save" Command="{Binding PageContext.ActiveObject.Save}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <Button Grid.Column="3" Content="{Binding PageContext.ActiveObject.DeleteText}" Command="{Binding PageContext.ActiveObject.Delete}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
 </UserControl>
