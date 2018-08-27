@@ -304,6 +304,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					versionNode.Icon = InfoIcon;
 					apiVersionNode.Icon = InfoIcon;
 				}
+				catch (UnauthorizedException)
+				{
+					//bad token potentially
+					await BeginConnect(cancellationToken).ConfigureAwait(true);
+					return;
+				}
 				catch
 				{
 					versionNode.Icon = ErrorIcon;
@@ -321,7 +327,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					userVM = new UserViewModel(serverClient.Users, user, pageContext, null);
 					newChildren.Add(userVM);
 
-					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM));
+					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM, this));
 					newChildren.Add(new UsersRootViewModel(serverClient.Users, pageContext, userVM));
 					newChildren.Add(new InstanceRootViewModel(pageContext, serverClient.Instances, userVM));
 				}
@@ -345,11 +351,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			GetServerVersionAndUserPerms();
 		}
 
-		async Task BeginConnect(CancellationToken cancellationToken)
+		public async Task BeginConnect(CancellationToken cancellationToken)
 		{
 			if (Connecting)
 				throw new InvalidOperationException("Already connecting!");
-
+			Dispose();
+			pageContext.ActiveObject = pageContext.ActiveObject == this ? this : null;
 			startedConnectingAt = DateTimeOffset.Now;
 			Connecting = true;
 			InvalidCredentials = false;

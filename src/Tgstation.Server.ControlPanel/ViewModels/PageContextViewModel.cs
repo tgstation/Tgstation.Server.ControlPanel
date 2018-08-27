@@ -16,6 +16,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(IsUser));
 					this.RaisePropertyChanged(nameof(IsAddUser));
 					this.RaisePropertyChanged(nameof(IsAdministration));
+					this.RaisePropertyChanged(nameof(IsAddInstance));
 				}
 			}
 		}
@@ -26,5 +27,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool IsUser => activeObject is UserViewModel;
 		public bool IsAddUser => activeObject is AddUserViewModel;
 		public bool IsAdministration => activeObject is AdministrationViewModel;
+		public bool IsAddInstance => activeObject is AddInstanceViewModel;
 	}
 }

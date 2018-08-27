@@ -41,6 +41,7 @@
           <page:AddUser IsVisible="{Binding PageContext.IsAddUser}" IsEnabled="{Binding PageContext.IsAddUser}"/>
           <page:Administration IsVisible="{Binding PageContext.IsAdministration}" IsEnabled="{Binding PageContext.IsAdministration}"/>
           <page:UserManager IsVisible="{Binding PageContext.IsUser}" IsEnabled="{Binding PageContext.IsUser}"/>
+          <page:AddInstance IsVisible="{Binding PageContext.IsAddInstance}" IsEnabled="{Binding PageContext.IsAddInstance}"/>
           <page:InstanceManager/>
           <page:Repository/>
           <page:InstanceUser/>

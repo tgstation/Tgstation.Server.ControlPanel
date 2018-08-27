@@ -61,6 +61,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly PageContextViewModel pageContext;
 		readonly IAdministrationClient administrationClient;
 		readonly IUserRightsProvider userRightsProvider;
+		readonly ConnectionManagerViewModel connectionManagerViewModel;
 
 		Administration model;
 		string newVersion;
@@ -69,11 +70,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool confirmingRestart;
 		bool confirmingUpdate;
 
-		public AdministrationViewModel(PageContextViewModel pageContext, IAdministrationClient administrationClient, IUserRightsProvider userRightsProvider)
+		public AdministrationViewModel(PageContextViewModel pageContext, IAdministrationClient administrationClient, IUserRightsProvider userRightsProvider, ConnectionManagerViewModel connectionManagerViewModel)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.administrationClient = administrationClient ?? throw new ArgumentNullException(nameof(administrationClient));
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
+			this.connectionManagerViewModel = connectionManagerViewModel ?? throw new ArgumentNullException(nameof(connectionManagerViewModel));
 
 			UpdateText = InitialUpdateText;
 			RestartText = InitialRestartText;
@@ -170,7 +172,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						return;
 					}
-					pageContext.ActiveObject = null;
+					await connectionManagerViewModel.BeginConnect(cancellationToken).ConfigureAwait(true);
 					break;
 				case AdministrationCommand.Update:
 					if (!confirmingUpdate)
@@ -192,7 +194,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						return;
 					}
-					pageContext.ActiveObject = null;
+					await connectionManagerViewModel.BeginConnect(cancellationToken).ConfigureAwait(true);
 					break;
 				case AdministrationCommand.OpenGitHub:
 					try

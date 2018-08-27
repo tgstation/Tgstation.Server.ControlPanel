@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 
@@ -117,6 +118,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				loading = false;
 				IsExpanded = true;
 			}
+		}
+
+		public void DirectAddInstance(Instance instance)
+		{
+			var newChildren = new List<ITreeNode>(Children);
+			var newThing = new InstanceViewModel(instanceManagerClient, pageContext, instance);
+			newChildren.Add(newThing);
+			Children = newChildren;
+			pageContext.ActiveObject = newThing;
 		}
 
 		public Task HandleDoubleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);

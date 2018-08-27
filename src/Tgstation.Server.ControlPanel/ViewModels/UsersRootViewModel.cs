@@ -14,7 +14,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 	{
 		public string Title => "Users";
 
-		public string Icon { get; private set; }
+		public string Icon
+		{
+			get => icon;
+			set => this.RaiseAndSetIfChanged(ref icon, value);
+		}
 		public bool IsExpanded { get; set; }
 
 		public IReadOnlyList<ITreeNode> Children
@@ -29,6 +33,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		IReadOnlyList<ITreeNode> children;
 		bool loading;
+
+		string icon;
 
 		public UsersRootViewModel(IUsersClient usersClient, PageContextViewModel pageContext, UserViewModel currentUser)
 		{

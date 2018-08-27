@@ -11,7 +11,9 @@
         <ColumnDefinition Width="Auto" />
       </Grid.ColumnDefinitions>
       <TextBlock Text="Console" Margin="3" Foreground="White" Grid.Column="0"/>
-      <Button Content="Copy" Padding="0,1" Width="40" Height="20" Background="#4D6082" Foreground="White" Command="{Binding CopyConsole}" Grid.Column="1"/>
+      <Button Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Command="{Binding CopyConsole}" Grid.Column="1">
+        <Image Source="resm:Tgstation.Server.ControlPanel.Assets.copy.png" Width="12" Height="12"/>
+      </Button>
     </Grid>
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible" Background="#FFFFFF" Margin="3" Grid.Row="1">
       <TextBox TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" Text="{Binding ConsoleContent}"/>
