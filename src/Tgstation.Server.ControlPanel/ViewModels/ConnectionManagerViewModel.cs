@@ -28,6 +28,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		const string HttpsPrefix = "https://";
 
 		public string Title => connection.Url.ToString();
+		public bool IsExpanded {
+			get => isExpanded;
+			set => this.RaiseAndSetIfChanged(ref isExpanded, value);
+		}
 
 		public string Icon
 		{
@@ -224,6 +228,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool usingHttp;
 		bool confirmingDelete;
 		bool usingDefaultCredentials;
+		bool isExpanded;
 
 		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, PageContextViewModel pageContext, Action onDelete)
 		{
@@ -267,6 +272,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		void PostConnect(CancellationToken cancellationToken)
 		{
+			IsExpanded = true;
+
 			var versionNode = new BasicNode
 			{
 				Title = "Version",

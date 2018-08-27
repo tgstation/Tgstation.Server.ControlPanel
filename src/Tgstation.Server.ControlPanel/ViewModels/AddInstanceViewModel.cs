@@ -12,6 +12,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.plus.jpg";
 
+		public bool IsExpanded { get; set; }
+
 		public IReadOnlyList<ITreeNode> Children => null;
 
 		readonly PageContextViewModel pageContext;

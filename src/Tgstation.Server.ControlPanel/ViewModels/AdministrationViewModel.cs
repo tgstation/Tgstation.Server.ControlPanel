@@ -18,7 +18,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		public string Title => "Administration";
-
+		
+		public bool IsExpanded { get; set; }
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.gear.png";
 
 		public IReadOnlyList<ITreeNode> Children => null;

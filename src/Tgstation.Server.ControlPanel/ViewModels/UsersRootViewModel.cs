@@ -15,6 +15,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string Title => "Users";
 
 		public string Icon { get; private set; }
+		public bool IsExpanded { get; set; }
 
 		public IReadOnlyList<ITreeNode> Children
 		{

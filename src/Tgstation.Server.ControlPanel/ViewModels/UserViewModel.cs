@@ -23,6 +23,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public AdministrationRights AdministrationRights => user.AdministrationRights.Value;
 		public InstanceManagerRights InstanceManagerRights => user.InstanceManagerRights.Value;
+		public bool IsExpanded { get; set; }
 
 		public User User
 		{

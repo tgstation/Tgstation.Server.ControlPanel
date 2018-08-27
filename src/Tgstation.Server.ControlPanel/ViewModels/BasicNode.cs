@@ -8,6 +8,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 	sealed class BasicNode : ViewModelBase, ITreeNode
 	{
 		public string Title { get; set; }
+		public bool IsExpanded { get; set; }
 
 		public string Icon
 		{

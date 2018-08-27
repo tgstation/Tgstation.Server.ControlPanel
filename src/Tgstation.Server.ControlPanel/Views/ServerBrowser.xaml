@@ -11,11 +11,16 @@
     </StackPanel>
     <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="#FFFFFF" Margin="3">
       <TreeView Items="{Binding Connections}">
-        <TreeView.ItemTemplate>
+        <TreeView.DataTemplates>
           <TreeDataTemplate ItemsSource="{Binding Children}">
             <local:ObjectBrowserItem />
           </TreeDataTemplate>
-        </TreeView.ItemTemplate>
+        </TreeView.DataTemplates>
+        <TreeView.Styles>
+          <Style Selector="TreeViewItem">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+          </Style>
+        </TreeView.Styles>
       </TreeView>
     </ScrollViewer>
   </DockPanel>

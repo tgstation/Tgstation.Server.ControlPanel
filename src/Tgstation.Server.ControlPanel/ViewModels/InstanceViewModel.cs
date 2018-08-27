@@ -12,6 +12,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 	{
 		public string Title => instance.Name;
 
+		public bool IsExpanded { get; set; }
+
 		public string Icon => instance.Online.Value ? "resm:Tgstation.Server.ControlPanel.Assets.database.png" : "resm:Tgstation.Server.ControlPanel.Assets.database_down.png";
 
 		public IReadOnlyList<ITreeNode> Children => null;	//TODO

@@ -13,6 +13,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 	{
 		public string Title => "Instances";
 
+		public bool IsExpanded
+		{
+			get => isExpanded;
+			set => this.RaiseAndSetIfChanged(ref isExpanded, value);
+		}
+
 		public string Icon
 		{
 			get => icon;
@@ -32,6 +38,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		IReadOnlyList<ITreeNode> children;
 		string icon;
 		bool loading;
+		bool isExpanded;
 
 		public InstanceRootViewModel(PageContextViewModel pageContext, IInstanceManagerClient instanceManagerClient, IUserRightsProvider userRightsProvider)
 		{
@@ -94,6 +101,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						if (hasCreateRight)
 							newChildren.Add(auvm);
 						newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x)));
+						if (instances.Count == 1)
+							newChildren[1].IsExpanded = true;
 						Children = newChildren;
 						Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
 					}
@@ -106,6 +115,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			finally
 			{
 				loading = false;
+				IsExpanded = true;
 			}
 		}
 

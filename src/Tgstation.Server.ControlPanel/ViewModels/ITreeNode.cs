@@ -9,6 +9,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string Title { get; }
 
 		string Icon { get; }
+
+		bool IsExpanded { get; set; }
+
 		IReadOnlyList<ITreeNode> Children { get; }
 
 		Task HandleDoubleClick(CancellationToken cancellationToken);

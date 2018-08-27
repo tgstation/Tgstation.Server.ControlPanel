@@ -18,6 +18,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		public string Title => "Add User";
+		public bool IsExpanded { get; set; }
 
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.plus.jpg";
 		
