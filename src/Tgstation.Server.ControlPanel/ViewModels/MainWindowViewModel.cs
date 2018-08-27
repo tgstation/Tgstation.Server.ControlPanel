@@ -89,9 +89,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			settingsSaveLoopCts = new CancellationTokenSource();
 			settingsSaveLoop = SettingsSaveLoop(settingsSaveLoopCts.Token);
 
+			ConsoleContent = "Request details will be shown here...";
+
 			PageContext = new PageContextViewModel();
 			Connections = new List<ConnectionManagerViewModel>(settings.Connections.Select(x => CreateConnection(x)));
-			ConsoleContent = "Request details will be shown here...";
 
 			AddServerCommand = new EnumCommand<MainWindowCommand>(MainWindowCommand.NewServerConnection, this);
 			CopyConsole = new EnumCommand<MainWindowCommand>(MainWindowCommand.CopyConsole, this);
