@@ -52,59 +52,61 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				loading = true;
 			}
 
-			var hasReadRight = userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.List) || userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Read);
-			var hasCreateRight = userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Create);
-
-			if (!hasReadRight && !hasCreateRight)
+			try
 			{
-				Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg";
-				Children = null;
+				var hasReadRight = userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.List) || userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Read);
+				var hasCreateRight = userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Create);
+
+				if (!hasReadRight && !hasCreateRight)
+				{
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg";
+					Children = null;
+					return;
+				}
+
+				AddInstanceViewModel auvm = null;
+				var newChildren = new List<ITreeNode>();
+				if (hasCreateRight)
+				{
+					auvm = new AddInstanceViewModel(pageContext, instanceManagerClient, this);
+					newChildren.Add(auvm);
+				}
+
+				BasicNode basic = null;
+				if (hasReadRight)
+				{
+					basic = new BasicNode()
+					{
+						Title = "Loading...",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png"
+					};
+					newChildren.Add(basic);
+				}
+
+				Children = newChildren;
+
+				if (hasReadRight)
+					try
+					{
+						var instances = await instanceManagerClient.List(cancellationToken).ConfigureAwait(false);
+
+						newChildren = new List<ITreeNode>();
+						if (hasCreateRight)
+							newChildren.Add(auvm);
+						newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x)));
+						Children = newChildren;
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
+					}
+					catch
+					{
+						basic.Title = "Error!";
+						basic.Icon = "resm:Tgstation.Server.ControlPanel.Assets.error.png";
+					}
+			}
+			finally
+			{
 				loading = false;
-				return;
 			}
-
-			AddInstanceViewModel auvm = null;
-			var newChildren = new List<ITreeNode>();
-			if (hasCreateRight)
-			{
-				auvm = new AddInstanceViewModel(pageContext, instanceManagerClient, this);
-				newChildren.Add(auvm);
-			}
-
-			BasicNode basic = null;
-			if (hasReadRight)
-			{
-				basic = new BasicNode()
-				{
-					Title = "Loading...",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png"
-				};
-				newChildren.Add(basic);
-			}
-
-			Children = newChildren;
-
-			if (hasReadRight)
-				try
-				{
-					var instances = await instanceManagerClient.List(cancellationToken).ConfigureAwait(false);
-
-					newChildren = new List<ITreeNode>();
-					if (hasCreateRight)
-						newChildren.Add(auvm);
-					newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x)));
-					Children = newChildren;
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
-				}
-				catch
-				{
-					basic.Title = "Error!";
-					basic.Icon = "resm:Tgstation.Server.ControlPanel.Assets.error.png";
-				}
-				finally
-				{
-					loading = false;
-				}
 		}
 
 		public Task HandleDoubleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
