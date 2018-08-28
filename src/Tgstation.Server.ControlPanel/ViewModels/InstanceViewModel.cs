@@ -17,7 +17,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			Close,
 			Save,
-			Delete
+			Delete,
+			FixPerms
 		}
 
 		public string Title => Instance.Name;
@@ -82,6 +83,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<InstanceCommand> Close { get; }
 		public EnumCommand<InstanceCommand> Save { get; }
 		public EnumCommand<InstanceCommand> Delete { get; }
+		public EnumCommand<InstanceCommand> FixPerms { get; }
 
 		public AdministrationRights AdministrationRights => userRightsProvider.AdministrationRights;
 
@@ -121,6 +123,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Close = new EnumCommand<InstanceCommand>(InstanceCommand.Close, this);
 			Save = new EnumCommand<InstanceCommand>(InstanceCommand.Save, this);
 			Delete = new EnumCommand<InstanceCommand>(InstanceCommand.Delete, this);
+			FixPerms = new EnumCommand<InstanceCommand>(InstanceCommand.FixPerms, this);
 
 			userRightsProvider.OnUpdated += (a, b) =>
 			{
@@ -134,6 +137,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(CanOnline));
 					Delete.Recheck();
 					Save.Recheck();
+					FixPerms.Recheck();
 				}
 			};
 		}
@@ -148,21 +152,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		async Task PostRefresh(CancellationToken cancellationToken)
 		{
-			loading = true;
-			try
+			using (DelayChangeNotifications())
 			{
-				using (DelayChangeNotifications())
-				{
-					Enabled = Instance.Online.Value;
-					ConfigMode = Instance.ConfigurationType.Value;
-					AutoUpdateInterval = Instance.AutoUpdateInterval.Value;
-					NewName = String.Empty;
-					NewPath = String.Empty;
+				Enabled = Instance.Online.Value;
+				ConfigMode = Instance.ConfigurationType.Value;
+				AutoUpdateInterval = Instance.AutoUpdateInterval.Value;
+				NewName = String.Empty;
+				NewPath = String.Empty;
 
-					if (!Enabled)
-						return;
+				if (!Enabled)
+					return;
 
-					Children = new List<ITreeNode>
+				Children = new List<ITreeNode>
 				{
 					new BasicNode
 					{
@@ -170,33 +171,33 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png"
 					}
 				};
-				}
+			}
 
-				var instanceUser = await instanceClient.Users.Read(cancellationToken).ConfigureAwait(false);
+			var instanceUser = await instanceClient.Users.Read(cancellationToken).ConfigureAwait(false);
 
-				var instanceUserTreeNode = new InstanceUserViewModel(pageContext, userRightsProvider, instanceClient.Users, instanceUser, null);
+			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, userRightsProvider, instanceClient.Users, instanceUser, null);
 
-				instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad();
+			instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad();
 
-				var canReadDD = instanceUser.DreamDaemonRights.Value.HasFlag(DreamDaemonRights.ReadMetadata);
-				ITreeNode ddNode;
-				if (canReadDD)
-					ddNode = new BasicNode
-					{
-						Title = "TODO: DreamDaemon",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png"
-					};
-				else
+			var canReadDD = instanceUser.DreamDaemonRights.Value.HasFlag(DreamDaemonRights.ReadMetadata);
+			ITreeNode ddNode;
+			if (canReadDD)
+				ddNode = new BasicNode
 				{
-					ddNode = new BasicNode
-					{
-						Title = "DreamDaemon",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-					};
-					SetDDRunning(true); //vOv
-				}
+					Title = "TODO: DreamDaemon",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png"
+				};
+			else
+			{
+				ddNode = new BasicNode
+				{
+					Title = "DreamDaemon",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				};
+				SetDDRunning(true); //vOv
+			}
 
-				var newChildren = new List<ITreeNode>
+			var newChildren = new List<ITreeNode>
 				{
 					instanceUserTreeNode,
 					instanceUser.InstanceUserRights != 0 ? new BasicNode
@@ -257,39 +258,30 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					},
 				};
 
+			using (DelayChangeNotifications())
+			{
+				Children = newChildren;
+				this.RaisePropertyChanged(nameof(Icon));
+			}
+
+			if (canReadDD)
+			{
+				var dd = await instanceClient.DreamDaemon.Read(cancellationToken).ConfigureAwait(false);
 				using (DelayChangeNotifications())
 				{
-					Children = newChildren;
-					this.RaisePropertyChanged(nameof(Icon));
-				}
-
-				if (canReadDD)
-				{
-					var dd = await instanceClient.DreamDaemon.Read(cancellationToken).ConfigureAwait(false);
-					using (DelayChangeNotifications())
+					SetDDRunning(dd.Running.Value);
+					var ddIndex = newChildren.IndexOf(ddNode);
+					ddNode = new BasicNode
 					{
-						SetDDRunning(dd.Running.Value);
-						var ddIndex = newChildren.IndexOf(ddNode);
-						ddNode = new BasicNode
-						{
-							Title = "TODO: DreamDaemon",
-							Icon = dd.Running.Value ? "resm:Tgstation.Server.ControlPanel.Assets.dd.ico" : "resm:Tgstation.Server.ControlPanel.Assets.dd_down.ico"
-						};
-						newChildren = new List<ITreeNode>(newChildren)
-						{
-							[ddIndex] = ddNode
-						};
-						Children = newChildren;
-					}
+						Title = "TODO: DreamDaemon",
+						Icon = dd.Running.Value ? "resm:Tgstation.Server.ControlPanel.Assets.dd.ico" : "resm:Tgstation.Server.ControlPanel.Assets.dd_down.ico"
+					};
+					newChildren = new List<ITreeNode>(newChildren)
+					{
+						[ddIndex] = ddNode
+					};
+					Children = newChildren;
 				}
-			}
-			catch
-			{
-				Debugger.Break();
-			}
-			finally
-			{
-				loading = false;
 			}
 		}
 
@@ -306,6 +298,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case InstanceCommand.Close:
 					return true;
 				case InstanceCommand.Save:
+				case InstanceCommand.FixPerms:
 					return !loading;
 				case InstanceCommand.Delete:
 					return userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Delete);
@@ -316,6 +309,26 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public async Task RunCommand(InstanceCommand command, CancellationToken cancellationToken)
 		{
+			async Task Update(Instance newInstance)
+			{
+				loading = true;
+				try
+				{
+					Save.Recheck();
+					Delete.Recheck();
+					FixPerms.Recheck();
+					Instance = await instanceManagerClient.Update(newInstance, cancellationToken).ConfigureAwait(true);
+					await PostRefresh(cancellationToken).ConfigureAwait(true);
+				}
+				finally
+				{
+					loading = false;
+					Save.Recheck();
+					Delete.Recheck();
+					FixPerms.Recheck();
+				}
+			}
+
 			try
 			{
 				switch (command)
@@ -339,16 +352,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						if (userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.SetAutoUpdate))
 							newInstance.AutoUpdateInterval = AutoUpdateInterval;
 
-						loading = true;
-						try
-						{
-							Instance = await instanceManagerClient.Update(newInstance, cancellationToken).ConfigureAwait(true);
-							await PostRefresh(cancellationToken).ConfigureAwait(true);
-						}
-						finally
-						{
-							loading = false;
-						}
+						await Update(newInstance).ConfigureAwait(true);
 						break;
 					case InstanceCommand.Delete:
 						if (!deleteConfirming)
@@ -366,6 +370,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						}
 						pageContext.ActiveObject = null;
 						await instanceRootViewModel.Refresh(cancellationToken).ConfigureAwait(false);
+						break;
+					case InstanceCommand.FixPerms:
+						await Update(new Instance
+						{
+							Id = Instance.Id
+						}).ConfigureAwait(true);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
