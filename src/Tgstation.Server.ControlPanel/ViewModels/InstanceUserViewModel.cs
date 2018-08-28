@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
@@ -11,7 +10,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 {
 	sealed class InstanceUserViewModel : ITreeNode, IInstanceUserRightsProvider
 	{
-		public string Title => rightsProvider == this ? "User Permissions" : displayName;
+		public string Title => rightsProvider == this ? "Current User" : displayName;
 
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.user.png";
 
