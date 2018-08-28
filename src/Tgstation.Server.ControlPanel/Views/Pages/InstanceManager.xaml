@@ -42,14 +42,20 @@
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-        <StackPanel Orientation="Horizontal">
-          <TextBlock Text="New Name:" Margin="5,4,0,0" />
-          <TextBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanRename}" Text="{Binding PageContext.ActiveObject.NewName, Mode=TwoWay}"/>
-        </StackPanel>
-        <StackPanel Orientation="Horizontal">
-          <TextBlock Text="New Path:" Margin="5,4,0,0" />
-          <TextBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanRelocate}" Text="{Binding PageContext.ActiveObject.NewPath, Mode=TwoWay}"/>
-        </StackPanel>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="400"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="New Name:" Margin="5,4,50,0" Grid.Column="0" Grid.Row="0"/>
+          <TextBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanRename}" Text="{Binding PageContext.ActiveObject.NewName, Mode=TwoWay}" Grid.Column="1" Grid.Row="0"/>
+          <TextBlock Text="New Path:" Margin="5,4,50,0"  Grid.Column="0" Grid.Row="1"/>
+          <TextBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanRelocate}" Text="{Binding PageContext.ActiveObject.NewPath, Mode=TwoWay}" Grid.Column="1" Grid.Row="1"/>
+        </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
 
@@ -62,14 +68,14 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="400"/>
           </Grid.ColumnDefinitions>
-          <TextBlock Text="Static File Mode:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
+          <TextBlock Text="Static File Mode:" Margin="0,5,50,0" Grid.Column="0" Grid.Row="0"/>
           <DropDown SelectedIndex="{Binding PageContext.ActiveObject.ConfigMode}" IsEnabled="{Binding PageContext.ActiveObject.CanConfig, Mode=TwoWay}" Grid.Column="1" Grid.Row="0">
             <DropDownItem>No File Management</DropDownItem>
             <DropDownItem>Authorized users can read and write any file</DropDownItem>
             <DropDownItem>Authorized users read and write using their system identity</DropDownItem>
           </DropDown>
-          <TextBlock Text="Automatic Update Interval (Minutes) (0 to disable):" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
-          <NumericUpDown Width="75" Height="25" Value="{Binding PageContext.ActiveObject.AutoUpdateInterval, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}" Grid.Column="1" Grid.Row="1"/>
+          <TextBlock Text="Automatic Update Interval (Minutes) (0 to disable):" Margin="0,5,50,0" Grid.Column="0" Grid.Row="1" />
+          <NumericUpDown Height="25" Value="{Binding PageContext.ActiveObject.AutoUpdateInterval, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}" Grid.Column="1" Grid.Row="1"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

@@ -102,7 +102,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						newChildren = new List<ITreeNode>();
 						if (hasCreateRight)
 							newChildren.Add(auvm);
-						newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x, userRightsProvider)));
+						newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x, userRightsProvider, this)));
 						if (instances.Count == 1)
 							newChildren[1].IsExpanded = true;
 						Children = newChildren;
@@ -124,7 +124,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public void DirectAddInstance(Instance instance)
 		{
 			var newChildren = new List<ITreeNode>(Children);
-			var newThing = new InstanceViewModel(instanceManagerClient, pageContext, instance, userRightsProvider);
+			var newThing = new InstanceViewModel(instanceManagerClient, pageContext, instance, userRightsProvider, this);
 			newChildren.Add(newThing);
 			Children = newChildren;
 			pageContext.ActiveObject = newThing;

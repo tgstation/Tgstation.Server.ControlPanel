@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
@@ -10,7 +11,7 @@ using Tgstation.Server.Client.Components;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	sealed class InstanceViewModel : ViewModelBase, ITreeNode, ICommandReceiver<InstanceViewModel.InstanceCommand>, IInstanceUserRightsProvider
+	sealed class InstanceViewModel : ViewModelBase, ITreeNode, ICommandReceiver<InstanceViewModel.InstanceCommand>
 	{
 		public enum InstanceCommand
 		{
@@ -24,7 +25,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool IsExpanded { get; set; }
 
-		public string Icon => instance.Online.Value ? (ddRunning ? "resm:Tgstation.Server.ControlPanel.Assets.database_on.jpg" : "resm:Tgstation.Server.ControlPanel.Assets.database.png") : "resm:Tgstation.Server.ControlPanel.Assets.database_down.png";
+		public string Icon => instance.Online.Value ? (ddRunning ? "resm:Tgstation.Server.ControlPanel.Assets.database_on.jpg" : "resm:Tgstation.Server.ControlPanel.Assets.database.png") : "resm:Tgstation.Server.ControlPanel.Assets.database_down.jpg";
 
 
 		public string DeleteText => deleteConfirming ? "Confirm?" : "Detach";
@@ -84,6 +85,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<InstanceCommand> Save { get; }
 		public EnumCommand<InstanceCommand> Delete { get; }
 
+		public AdministrationRights AdministrationRights => userRightsProvider.AdministrationRights;
+
+		public InstanceManagerRights InstanceManagerRights => userRightsProvider.InstanceManagerRights;
+
 		readonly IInstanceManagerClient instanceManagerClient;
 		readonly IInstanceClient instanceClient;
 		readonly PageContextViewModel pageContext;
@@ -113,8 +118,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			instanceClient = instanceManagerClient.CreateClient(instance);
 
-			async void InitialLoad() => await PostRefresh(default).ConfigureAwait(false);
-			InitialLoad();
+			SafeLoad(false);
 
 			Close = new EnumCommand<InstanceCommand>(InstanceCommand.Close, this);
 			Refresh = new EnumCommand<InstanceCommand>(InstanceCommand.Refresh, this);
@@ -137,6 +141,27 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			};
 		}
 
+		async Task RefreshTing(bool reloadInstance, CancellationToken cancellationToken)
+		{
+			loading = true;
+			try
+			{
+				if(reloadInstance)
+					Instance = await instanceManagerClient.GetId(instance, cancellationToken).ConfigureAwait(true);
+				await PostRefresh(cancellationToken).ConfigureAwait(true);
+			}
+			catch
+			{
+				Debugger.Break();
+			}
+			finally
+			{
+				loading = false;
+			}
+		}
+
+		async void SafeLoad(bool reloadInstance) => await RefreshTing(reloadInstance, default).ConfigureAwait(true);
+	
 		public void SetDDRunning(bool yes)
 		{
 			ddRunning = yes;
@@ -153,6 +178,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				NewName = String.Empty;
 				NewPath = String.Empty;
 
+				if (!Enabled)
+					return;
+
 				Children = new List<ITreeNode>
 				{
 					new BasicNode
@@ -163,10 +191,116 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				};
 			}
 
-			var ddTask = instanceClient.DreamDaemon.Read(cancellationToken);
 			var instanceUser = await instanceClient.Users.Read(cancellationToken).ConfigureAwait(false);
 
+			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, userRightsProvider, instanceClient.Users, instanceUser, null);
 
+			instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad(true);
+
+			var canReadDD = instanceUser.DreamDaemonRights.Value.HasFlag(DreamDaemonRights.ReadMetadata);
+			ITreeNode ddNode;
+			if (canReadDD)
+				ddNode = new BasicNode
+				{
+					Title = "TODO: DreamDaemon",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png"
+				};
+			else
+			{
+				ddNode = new BasicNode
+				{
+					Title = "DreamDaemon",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				};
+				SetDDRunning(true); //vOv
+			}
+
+			var newChildren = new List<ITreeNode>
+			{
+				instanceUserTreeNode,
+				instanceUser.InstanceUserRights != 0 ? new BasicNode
+				{
+					Title = "TODO: Users",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png"
+
+				}: new BasicNode
+				{
+					Title = "Users",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				},
+				instanceUser.RepositoryRights != 0 ? new BasicNode
+				{
+					Title = "TODO: Repository",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.git.png"
+				} : new BasicNode
+				{
+					Title = "Repository",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				},
+				instanceUser.ByondRights != 0 ? new BasicNode
+				{
+					Title = "TODO: Byond",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.byond.jpg"
+				} : new BasicNode
+				{
+					Title = "Byond",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				},
+				instanceUser.DreamMakerRights != 0 ? new BasicNode
+				{
+					Title = "TODO: Compiler",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.dreammaker.ico"
+				} : new BasicNode
+				{
+					Title = "Compiler",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				},
+				ddNode,
+				instanceUser.ChatBotRights != 0 ? new BasicNode
+				{
+					Title = "TODO: Chat Bots",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.chat.png"
+				} : new BasicNode
+				{
+					Title = "Chat Bots",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				},
+				instanceUser.ChatBotRights != 0 ? new BasicNode
+				{
+					Title = "TODO: Static Files",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png"
+				} : new BasicNode
+				{
+					Title = "Static Files",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				},
+			};
+
+			using (DelayChangeNotifications())
+			{
+				Children = newChildren;
+				this.RaisePropertyChanged(nameof(Icon));
+			}
+
+			if (canReadDD)
+			{
+				var dd = await instanceClient.DreamDaemon.Read(cancellationToken).ConfigureAwait(false);
+				using (DelayChangeNotifications())
+				{
+					SetDDRunning(dd.Running.Value);
+					var ddIndex = newChildren.IndexOf(ddNode);
+					ddNode = new BasicNode
+					{
+						Title = "TODO: DreamDaemon",
+						Icon = dd.Running.Value ? "resm:Tgstation.Server.ControlPanel.Assets.dd.ico" : "resm:Tgstation.Server.ControlPanel.Assets.dd_down.ico"
+					};
+					newChildren = new List<ITreeNode>(newChildren)
+					{
+						[ddIndex] = ddNode
+					};
+					Children = newChildren;
+				}
+			}
 		}
 
 		public Task HandleDoubleClick(CancellationToken cancellationToken)
@@ -201,19 +335,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						pageContext.ActiveObject = null;
 						break;
 					case InstanceCommand.Refresh:
-						loading = true;
-						try
-						{
-							Instance = await instanceManagerClient.GetId(instance, cancellationToken).ConfigureAwait(true);
-							PostRefresh();
-						}
-						finally
-						{
-							loading = false;
-						}
+						await RefreshTing(true, cancellationToken).ConfigureAwait(true);
 						break;
 					case InstanceCommand.Save:
-						var newInstance = new Instance();
+						var newInstance = new Instance
+						{
+							Id = Instance.Id
+						};
 						if (!String.IsNullOrWhiteSpace(NewName) && userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Rename))
 							newInstance.Name = NewName;
 						if (!String.IsNullOrWhiteSpace(NewPath) && userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Relocate))
@@ -229,7 +357,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						try
 						{
 							Instance = await instanceManagerClient.Update(newInstance, cancellationToken).ConfigureAwait(true);
-							PostRefresh();
+							await PostRefresh(cancellationToken).ConfigureAwait(true);
 						}
 						finally
 						{
@@ -247,6 +375,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							}
 							deleteConfirming = true;
 							this.RaisePropertyChanged(nameof(DeleteText));
+							ResetDelete();
 							break;
 						}
 						pageContext.ActiveObject = null;
