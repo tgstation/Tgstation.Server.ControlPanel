@@ -33,6 +33,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				using (DelayChangeNotifications())
 				{
 					this.RaiseAndSetIfChanged(ref user, value);
+					newInstanceManagerRights = user.InstanceManagerRights.Value;
+					newAdministrationRights = user.AdministrationRights.Value;
 
 					this.RaisePropertyChanged(nameof(AdminEditUsers));
 					this.RaisePropertyChanged(nameof(AdminEditPassword));
@@ -104,52 +106,52 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool AdminEditUsers
 		{
-			get => user.AdministrationRights.Value.HasFlag(AdministrationRights.EditUsers);
+			get => newAdministrationRights.HasFlag(AdministrationRights.EditUsers);
 			set
 			{
 				var right = AdministrationRights.EditUsers;
 				if (value)
-					user.AdministrationRights |= right;
+					newAdministrationRights |= right;
 				else
-					user.AdministrationRights &= ~right;
+					newAdministrationRights &= ~right;
 			}
 		}
 		public bool AdminEditPassword
 		{
-			get => user.AdministrationRights.Value.HasFlag(AdministrationRights.EditPassword);
+			get => newAdministrationRights.HasFlag(AdministrationRights.EditPassword);
 			set
 			{
 				var right = AdministrationRights.EditPassword;
 				if (value)
-					user.AdministrationRights |= right;
+					newAdministrationRights |= right;
 				else
-					user.AdministrationRights &= ~right;
+					newAdministrationRights &= ~right;
 			}
 		}
 
 		public bool AdminRestartServer
 		{
-			get => user.AdministrationRights.Value.HasFlag(AdministrationRights.RestartHost);
+			get => newAdministrationRights.HasFlag(AdministrationRights.RestartHost);
 			set
 			{
 				var right = AdministrationRights.RestartHost;
 				if (value)
-					user.AdministrationRights |= right;
+					newAdministrationRights |= right;
 				else
-					user.AdministrationRights &= ~right;
+					newAdministrationRights &= ~right;
 			}
 		}
 
 		public bool AdminChangeVersion
 		{
-			get => user.AdministrationRights.Value.HasFlag(AdministrationRights.ChangeVersion);
+			get => newAdministrationRights.HasFlag(AdministrationRights.ChangeVersion);
 			set
 			{
 				var right = AdministrationRights.ChangeVersion;
 				if (value)
-					user.AdministrationRights |= right;
+					newAdministrationRights |= right;
 				else
-					user.AdministrationRights &= ~right;
+					newAdministrationRights &= ~right;
 			}
 		}
 
@@ -167,110 +169,110 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool InstanceCreate
 		{
-			get => user.InstanceManagerRights.Value.HasFlag(InstanceManagerRights.Create);
+			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.Create);
 			set
 			{
 				var right = InstanceManagerRights.Create;
 				if (value)
-					user.InstanceManagerRights |= right;
+					newInstanceManagerRights |= right;
 				else
-					user.InstanceManagerRights &= ~right;
+					newInstanceManagerRights &= ~right;
 			}
 		}
 		public bool InstanceRead
 		{
-			get => user.InstanceManagerRights.Value.HasFlag(InstanceManagerRights.Read);
+			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.Read);
 			set
 			{
 				var right = InstanceManagerRights.Read;
 				if (value)
-					user.InstanceManagerRights |= right;
+					newInstanceManagerRights |= right;
 				else
-					user.InstanceManagerRights &= ~right;
+					newInstanceManagerRights &= ~right;
 			}
 		}
 		public bool InstanceRename
 		{
-			get => user.InstanceManagerRights.Value.HasFlag(InstanceManagerRights.Rename);
+			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.Rename);
 			set
 			{
 				var right = InstanceManagerRights.Rename;
 				if (value)
-					user.InstanceManagerRights |= right;
+					newInstanceManagerRights |= right;
 				else
-					user.InstanceManagerRights &= ~right;
+					newInstanceManagerRights &= ~right;
 			}
 		}
 		public bool InstanceRelocate
 		{
-			get => user.InstanceManagerRights.Value.HasFlag(InstanceManagerRights.Relocate);
+			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.Relocate);
 			set
 			{
 				var right = InstanceManagerRights.Relocate;
 				if (value)
-					user.InstanceManagerRights |= right;
+					newInstanceManagerRights |= right;
 				else
-					user.InstanceManagerRights &= ~right;
+					newInstanceManagerRights &= ~right;
 			}
 		}
 		public bool InstanceOnline
 		{
-			get => user.InstanceManagerRights.Value.HasFlag(InstanceManagerRights.SetOnline);
+			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.SetOnline);
 			set
 			{
 				var right = InstanceManagerRights.SetOnline;
 				if (value)
-					user.InstanceManagerRights |= right;
+					newInstanceManagerRights |= right;
 				else
-					user.InstanceManagerRights &= ~right;
+					newInstanceManagerRights &= ~right;
 			}
 		}
 		public bool InstanceDelete
 		{
-			get => user.InstanceManagerRights.Value.HasFlag(InstanceManagerRights.Delete);
+			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.Delete);
 			set
 			{
 				var right = InstanceManagerRights.Delete;
 				if (value)
-					user.InstanceManagerRights |= right;
+					newInstanceManagerRights |= right;
 				else
-					user.InstanceManagerRights &= ~right;
+					newInstanceManagerRights &= ~right;
 			}
 		}
 		public bool InstanceList
 		{
-			get => user.InstanceManagerRights.Value.HasFlag(InstanceManagerRights.List);
+			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.List);
 			set
 			{
 				var right = InstanceManagerRights.List;
 				if (value)
-					user.InstanceManagerRights |= right;
+					newInstanceManagerRights |= right;
 				else
-					user.InstanceManagerRights &= ~right;
+					newInstanceManagerRights &= ~right;
 			}
 		}
 		public bool InstanceConfig
 		{
-			get => user.InstanceManagerRights.Value.HasFlag(InstanceManagerRights.SetConfiguration);
+			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.SetConfiguration);
 			set
 			{
 				var right = InstanceManagerRights.SetConfiguration;
 				if (value)
-					user.InstanceManagerRights |= right;
+					newInstanceManagerRights |= right;
 				else
-					user.InstanceManagerRights &= ~right;
+					newInstanceManagerRights &= ~right;
 			}
 		}
 		public bool InstanceUpdate
 		{
-			get => user.InstanceManagerRights.Value.HasFlag(InstanceManagerRights.SetAutoUpdate);
+			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.SetAutoUpdate);
 			set
 			{
 				var right = InstanceManagerRights.SetAutoUpdate;
 				if (value)
-					user.InstanceManagerRights |= right;
+					newInstanceManagerRights |= right;
 				else
-					user.InstanceManagerRights &= ~right;
+					newInstanceManagerRights &= ~right;
 			}
 		}
 
@@ -279,6 +281,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IUserRightsProvider userRightsProvider;
 		readonly IUsersClient usersClient;
 		readonly PageContextViewModel pageContext;
+
+		InstanceManagerRights newInstanceManagerRights;
+		AdministrationRights newAdministrationRights;
 
 		User user;
 
@@ -380,8 +385,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var update = new UserUpdate
 					{
 						Id = User.Id,
-						AdministrationRights = User.AdministrationRights,
-						InstanceManagerRights = User.InstanceManagerRights,
+						AdministrationRights = newAdministrationRights,
+						InstanceManagerRights = newInstanceManagerRights,
 						Enabled = Enabled
 					};
 					if (NewPassword.Length > 0)

@@ -16,7 +16,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public enum InstanceCommand
 		{
 			Close,
-			Refresh,
 			Save,
 			Delete
 		}
@@ -81,7 +80,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		public EnumCommand<InstanceCommand> Close { get; }
-		public EnumCommand<InstanceCommand> Refresh { get; }
 		public EnumCommand<InstanceCommand> Save { get; }
 		public EnumCommand<InstanceCommand> Delete { get; }
 
@@ -118,10 +116,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			instanceClient = instanceManagerClient.CreateClient(instance);
 
-			SafeLoad(false);
+			SafeLoad();
 
 			Close = new EnumCommand<InstanceCommand>(InstanceCommand.Close, this);
-			Refresh = new EnumCommand<InstanceCommand>(InstanceCommand.Refresh, this);
 			Save = new EnumCommand<InstanceCommand>(InstanceCommand.Save, this);
 			Delete = new EnumCommand<InstanceCommand>(InstanceCommand.Delete, this);
 
@@ -141,14 +138,150 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			};
 		}
 
-		async Task RefreshTing(bool reloadInstance, CancellationToken cancellationToken)
+		async void SafeLoad() => await PostRefresh(default).ConfigureAwait(true);
+	
+		public void SetDDRunning(bool yes)
+		{
+			ddRunning = yes;
+			this.RaisePropertyChanged(nameof(Icon));
+		}
+
+		async Task PostRefresh(CancellationToken cancellationToken)
 		{
 			loading = true;
 			try
 			{
-				if(reloadInstance)
-					Instance = await instanceManagerClient.GetId(instance, cancellationToken).ConfigureAwait(true);
-				await PostRefresh(cancellationToken).ConfigureAwait(true);
+				using (DelayChangeNotifications())
+				{
+					Enabled = Instance.Online.Value;
+					ConfigMode = Instance.ConfigurationType.Value;
+					AutoUpdateInterval = Instance.AutoUpdateInterval.Value;
+					NewName = String.Empty;
+					NewPath = String.Empty;
+
+					if (!Enabled)
+						return;
+
+					Children = new List<ITreeNode>
+				{
+					new BasicNode
+					{
+						Title = "Loading",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png"
+					}
+				};
+				}
+
+				var instanceUser = await instanceClient.Users.Read(cancellationToken).ConfigureAwait(false);
+
+				var instanceUserTreeNode = new InstanceUserViewModel(pageContext, userRightsProvider, instanceClient.Users, instanceUser, null);
+
+				instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad();
+
+				var canReadDD = instanceUser.DreamDaemonRights.Value.HasFlag(DreamDaemonRights.ReadMetadata);
+				ITreeNode ddNode;
+				if (canReadDD)
+					ddNode = new BasicNode
+					{
+						Title = "TODO: DreamDaemon",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png"
+					};
+				else
+				{
+					ddNode = new BasicNode
+					{
+						Title = "DreamDaemon",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+					};
+					SetDDRunning(true); //vOv
+				}
+
+				var newChildren = new List<ITreeNode>
+				{
+					instanceUserTreeNode,
+					instanceUser.InstanceUserRights != 0 ? new BasicNode
+					{
+						Title = "TODO: Users",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png"
+
+					}: new BasicNode
+					{
+						Title = "Users",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+					},
+					instanceUser.RepositoryRights != 0 ? new BasicNode
+					{
+						Title = "TODO: Repository",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.git.png"
+					} : new BasicNode
+					{
+						Title = "Repository",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+					},
+					instanceUser.ByondRights != 0 ? new BasicNode
+					{
+						Title = "TODO: Byond",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.byond.jpg"
+					} : new BasicNode
+					{
+						Title = "Byond",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+					},
+					instanceUser.DreamMakerRights != 0 ? new BasicNode
+					{
+						Title = "TODO: Compiler",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.dreammaker.ico"
+					} : new BasicNode
+					{
+						Title = "Compiler",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+					},
+					ddNode,
+					instanceUser.ChatBotRights != 0 ? new BasicNode
+					{
+						Title = "TODO: Chat Bots",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.chat.png"
+					} : new BasicNode
+					{
+						Title = "Chat Bots",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+					},
+					instanceUser.ChatBotRights != 0 ? new BasicNode
+					{
+						Title = "TODO: Static Files",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png"
+					} : new BasicNode
+					{
+						Title = "Static Files",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+					},
+				};
+
+				using (DelayChangeNotifications())
+				{
+					Children = newChildren;
+					this.RaisePropertyChanged(nameof(Icon));
+				}
+
+				if (canReadDD)
+				{
+					var dd = await instanceClient.DreamDaemon.Read(cancellationToken).ConfigureAwait(false);
+					using (DelayChangeNotifications())
+					{
+						SetDDRunning(dd.Running.Value);
+						var ddIndex = newChildren.IndexOf(ddNode);
+						ddNode = new BasicNode
+						{
+							Title = "TODO: DreamDaemon",
+							Icon = dd.Running.Value ? "resm:Tgstation.Server.ControlPanel.Assets.dd.ico" : "resm:Tgstation.Server.ControlPanel.Assets.dd_down.ico"
+						};
+						newChildren = new List<ITreeNode>(newChildren)
+						{
+							[ddIndex] = ddNode
+						};
+						Children = newChildren;
+					}
+				}
 			}
 			catch
 			{
@@ -157,149 +290,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			finally
 			{
 				loading = false;
-			}
-		}
-
-		async void SafeLoad(bool reloadInstance) => await RefreshTing(reloadInstance, default).ConfigureAwait(true);
-	
-		public void SetDDRunning(bool yes)
-		{
-			ddRunning = yes;
-			this.RaisePropertyChanged(nameof(Icon));
-		}
-		
-		async Task PostRefresh(CancellationToken cancellationToken)
-		{
-			using (DelayChangeNotifications())
-			{
-				Enabled = Instance.Online.Value;
-				ConfigMode = Instance.ConfigurationType.Value;
-				AutoUpdateInterval = Instance.AutoUpdateInterval.Value;
-				NewName = String.Empty;
-				NewPath = String.Empty;
-
-				if (!Enabled)
-					return;
-
-				Children = new List<ITreeNode>
-				{
-					new BasicNode
-					{
-						Title = "Loading",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png"
-					}
-				};
-			}
-
-			var instanceUser = await instanceClient.Users.Read(cancellationToken).ConfigureAwait(false);
-
-			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, userRightsProvider, instanceClient.Users, instanceUser, null);
-
-			instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad(true);
-
-			var canReadDD = instanceUser.DreamDaemonRights.Value.HasFlag(DreamDaemonRights.ReadMetadata);
-			ITreeNode ddNode;
-			if (canReadDD)
-				ddNode = new BasicNode
-				{
-					Title = "TODO: DreamDaemon",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png"
-				};
-			else
-			{
-				ddNode = new BasicNode
-				{
-					Title = "DreamDaemon",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				};
-				SetDDRunning(true); //vOv
-			}
-
-			var newChildren = new List<ITreeNode>
-			{
-				instanceUserTreeNode,
-				instanceUser.InstanceUserRights != 0 ? new BasicNode
-				{
-					Title = "TODO: Users",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png"
-
-				}: new BasicNode
-				{
-					Title = "Users",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				},
-				instanceUser.RepositoryRights != 0 ? new BasicNode
-				{
-					Title = "TODO: Repository",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.git.png"
-				} : new BasicNode
-				{
-					Title = "Repository",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				},
-				instanceUser.ByondRights != 0 ? new BasicNode
-				{
-					Title = "TODO: Byond",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.byond.jpg"
-				} : new BasicNode
-				{
-					Title = "Byond",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				},
-				instanceUser.DreamMakerRights != 0 ? new BasicNode
-				{
-					Title = "TODO: Compiler",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.dreammaker.ico"
-				} : new BasicNode
-				{
-					Title = "Compiler",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				},
-				ddNode,
-				instanceUser.ChatBotRights != 0 ? new BasicNode
-				{
-					Title = "TODO: Chat Bots",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.chat.png"
-				} : new BasicNode
-				{
-					Title = "Chat Bots",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				},
-				instanceUser.ChatBotRights != 0 ? new BasicNode
-				{
-					Title = "TODO: Static Files",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png"
-				} : new BasicNode
-				{
-					Title = "Static Files",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				},
-			};
-
-			using (DelayChangeNotifications())
-			{
-				Children = newChildren;
-				this.RaisePropertyChanged(nameof(Icon));
-			}
-
-			if (canReadDD)
-			{
-				var dd = await instanceClient.DreamDaemon.Read(cancellationToken).ConfigureAwait(false);
-				using (DelayChangeNotifications())
-				{
-					SetDDRunning(dd.Running.Value);
-					var ddIndex = newChildren.IndexOf(ddNode);
-					ddNode = new BasicNode
-					{
-						Title = "TODO: DreamDaemon",
-						Icon = dd.Running.Value ? "resm:Tgstation.Server.ControlPanel.Assets.dd.ico" : "resm:Tgstation.Server.ControlPanel.Assets.dd_down.ico"
-					};
-					newChildren = new List<ITreeNode>(newChildren)
-					{
-						[ddIndex] = ddNode
-					};
-					Children = newChildren;
-				}
 			}
 		}
 
@@ -314,7 +304,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			switch (command)
 			{
 				case InstanceCommand.Close:
-				case InstanceCommand.Refresh:
 					return true;
 				case InstanceCommand.Save:
 					return !loading;
@@ -333,9 +322,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					case InstanceCommand.Close:
 						pageContext.ActiveObject = null;
-						break;
-					case InstanceCommand.Refresh:
-						await RefreshTing(true, cancellationToken).ConfigureAwait(true);
 						break;
 					case InstanceCommand.Save:
 						var newInstance = new Instance

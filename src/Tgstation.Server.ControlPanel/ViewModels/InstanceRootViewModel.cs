@@ -106,6 +106,24 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						if (instances.Count == 1)
 							newChildren[1].IsExpanded = true;
 						Children = newChildren;
+						if (pageContext.IsInstance)
+						{
+							int? index = null;
+							var pcID = ((InstanceViewModel)pageContext.ActiveObject).Instance.Id;
+
+							for (var I = 0; I < instances.Count; ++I)
+								if (instances[I].Id == pcID)
+								{
+									index = hasCreateRight ? I + 1 : I;
+									break;
+								}
+
+							if (index.HasValue)
+								pageContext.ActiveObject = Children[index.Value];
+							else
+								pageContext.ActiveObject = null;
+						}
+
 						Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
 					}
 					catch
@@ -113,6 +131,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						basic.Title = "Error!";
 						basic.Icon = "resm:Tgstation.Server.ControlPanel.Assets.error.png";
 					}
+				else if (pageContext.IsInstance)
+					pageContext.ActiveObject = null;
 			}
 			finally
 			{
