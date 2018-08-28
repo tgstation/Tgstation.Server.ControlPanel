@@ -1,7 +1,7 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
@@ -94,6 +94,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly PageContextViewModel pageContext;
 		readonly IUserRightsProvider userRightsProvider;
 		readonly InstanceRootViewModel instanceRootViewModel;
+		readonly IUserProvider userProvider;
 
 		IReadOnlyList<ITreeNode> children;
 		Instance instance;
@@ -108,13 +109,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool deleteConfirming;
 		bool loading;
 
-		public InstanceViewModel(IInstanceManagerClient instanceManagerClient, PageContextViewModel pageContext, Instance instance, IUserRightsProvider userRightsProvider, InstanceRootViewModel instanceRootViewModel)
+		InstanceUser instanceUser;
+
+		public InstanceViewModel(IInstanceManagerClient instanceManagerClient, PageContextViewModel pageContext, Instance instance, IUserRightsProvider userRightsProvider, InstanceRootViewModel instanceRootViewModel, IUserProvider userProvider)
 		{
 			this.instanceManagerClient = instanceManagerClient ?? throw new ArgumentNullException(nameof(instanceManagerClient));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			Instance = instance ?? throw new ArgumentNullException(nameof(instance));
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
 			this.instanceRootViewModel = instanceRootViewModel ?? throw new ArgumentNullException(nameof(instanceRootViewModel));
+			this.userProvider = userProvider ?? throw new ArgumentNullException(nameof(userProvider));
 
 			instanceClient = instanceManagerClient.CreateClient(instance);
 
@@ -173,9 +177,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				};
 			}
 
-			var instanceUser = await instanceClient.Users.Read(cancellationToken).ConfigureAwait(false);
+			instanceUser = await instanceClient.Users.Read(cancellationToken).ConfigureAwait(false);
 
-			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, userRightsProvider, instanceClient.Users, instanceUser, null);
+			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, userRightsProvider, instanceClient.Users, instanceUser, InstanceUserRootViewModel.GetDisplayNameForInstanceUser(userProvider, instanceUser), null);
 
 			instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad();
 
@@ -198,65 +202,56 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 
 			var newChildren = new List<ITreeNode>
+			{
+				instanceUserTreeNode,
+				new InstanceUserRootViewModel(pageContext, instanceClient.Users, instanceUserTreeNode, userProvider),
+				instanceUser.RepositoryRights != 0 ? new BasicNode
 				{
-					instanceUserTreeNode,
-					instanceUser.InstanceUserRights != 0 ? new BasicNode
-					{
-						Title = "TODO: Users",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png"
-
-					}: new BasicNode
-					{
-						Title = "Users",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-					},
-					instanceUser.RepositoryRights != 0 ? new BasicNode
-					{
-						Title = "TODO: Repository",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.git.png"
-					} : new BasicNode
-					{
-						Title = "Repository",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-					},
-					instanceUser.ByondRights != 0 ? new BasicNode
-					{
-						Title = "TODO: Byond",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.byond.jpg"
-					} : new BasicNode
-					{
-						Title = "Byond",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-					},
-					instanceUser.DreamMakerRights != 0 ? new BasicNode
-					{
-						Title = "TODO: Compiler",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.dreammaker.ico"
-					} : new BasicNode
-					{
-						Title = "Compiler",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-					},
-					ddNode,
-					instanceUser.ChatBotRights != 0 ? new BasicNode
-					{
-						Title = "TODO: Chat Bots",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.chat.png"
-					} : new BasicNode
-					{
-						Title = "Chat Bots",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-					},
-					instanceUser.ChatBotRights != 0 ? new BasicNode
-					{
-						Title = "TODO: Static Files",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png"
-					} : new BasicNode
-					{
-						Title = "Static Files",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-					},
-				};
+					Title = "TODO: Repository",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.git.png"
+				} : new BasicNode
+				{
+					Title = "Repository",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				},
+				instanceUser.ByondRights != 0 ? new BasicNode
+				{
+					Title = "TODO: Byond",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.byond.jpg"
+				} : new BasicNode
+				{
+					Title = "Byond",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				},
+				instanceUser.DreamMakerRights != 0 ? new BasicNode
+				{
+					Title = "TODO: Compiler",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.dreammaker.ico"
+				} : new BasicNode
+				{
+					Title = "Compiler",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				},
+				ddNode,
+				instanceUser.ChatBotRights != 0 ? new BasicNode
+				{
+					Title = "TODO: Chat Bots",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.chat.png"
+				} : new BasicNode
+				{
+					Title = "Chat Bots",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				},
+				instanceUser.ChatBotRights != 0 ? new BasicNode
+				{
+					Title = "TODO: Static Files",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png"
+				} : new BasicNode
+				{
+					Title = "Static Files",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				},
+			};
 
 			using (DelayChangeNotifications())
 			{

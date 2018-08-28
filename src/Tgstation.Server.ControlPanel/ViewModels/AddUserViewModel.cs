@@ -131,9 +131,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						};
 					try
 					{
-						await usersClient.Create(uu, cancellationToken).ConfigureAwait(true);
-						await usersRootViewModel.Refresh(cancellationToken).ConfigureAwait(true);
-						pageContext.ActiveObject = null;
+						var newUser = await usersClient.Create(uu, cancellationToken).ConfigureAwait(true);
+						usersRootViewModel.DirectAdd(newUser);
 					}
 					catch { }
 					break;

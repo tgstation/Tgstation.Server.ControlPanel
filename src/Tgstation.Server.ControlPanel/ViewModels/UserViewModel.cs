@@ -299,7 +299,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public UserViewModel(IUsersClient usersClient, User user, PageContextViewModel pageContext, IUserRightsProvider userRightsProvider)
 		{
 			this.usersClient = usersClient ?? throw new ArgumentNullException(nameof(usersClient));
-			this.user = user ?? throw new ArgumentNullException(nameof(user));
+			User = user ?? throw new ArgumentNullException(nameof(user));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.userRightsProvider = userRightsProvider ?? this;
 
@@ -391,7 +391,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					};
 					if (NewPassword.Length > 0)
 						update.Password = NewPassword;
-					await RunRequest(async () => user = await usersClient.Update(update, cancellationToken).ConfigureAwait(false)).ConfigureAwait(true);
+					await RunRequest(async () => User = await usersClient.Update(update, cancellationToken).ConfigureAwait(false)).ConfigureAwait(true);
 					OnUpdated?.Invoke(this, new EventArgs());
 					break;
 				default:

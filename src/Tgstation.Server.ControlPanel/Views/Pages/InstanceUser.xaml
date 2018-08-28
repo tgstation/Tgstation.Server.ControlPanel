@@ -1,3 +1,135 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid Background="#CFD6E5">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid Margin="1" Grid.Row="0" Background="#4D6082">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+    </Grid>
+    <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
+      <StackPanel Orientation="Vertical">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="100"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Name}" FontSize="26"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="User ID:"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.Id}" Margin="5,0,0,0"/>
+        </StackPanel>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <TextBlock Text="Instance User Rights:" FontSize="16"/>
+        <StackPanel Orientation="Vertical" IsEnabled="{Binding PageContext.ActiveObject.CanEditRights}>">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="1*"/>
+              <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UserRead, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Read Instance Users" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UserWrite, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Edit Instance Users" Margin="5,4,0,0" />
+            </DockPanel>
+          </Grid>
+          <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+          <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+          <TextBlock Text="Repository Rights:" FontSize="16"/>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="1*"/>
+              <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="1*"/>
+              <RowDefinition Height="1*"/>
+              <RowDefinition Height="1*"/>
+              <RowDefinition Height="1*"/>
+              <RowDefinition Height="1*"/>
+              <RowDefinition Height="1*"/>
+              <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoRead, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Read Info" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoOrigin, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Clone Remotes" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoSha, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Checkout SHA Hashes" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoTestMerge, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Test Merge" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="0" Grid.Row="2" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoReset, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Hard Reset to Origin Branch" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="1" Grid.Row="2" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoCommitter, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Change Committer Identity" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="0" Grid.Row="3" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoTMCommits, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Allow changing the 'Push Test Merge Commits' setting" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="1" Grid.Row="3" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoCreds, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Change git Credentials" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="0" Grid.Row="4" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoRef, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Checkout Branches and Tags" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="1" Grid.Row="4" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoAuto, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Change Auto Update Settings" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="0" Grid.Row="5" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoDelete, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Delete the Repository" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="1" Grid.Row="5" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoCancelClone, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Cancel Clone Jobs" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="0" Grid.Row="6" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoCancelUpdate, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Cancel Update Jobs" Margin="5,4,0,0" />
+            </DockPanel>
+          </Grid>
+        </StackPanel>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25*"/>
+            <ColumnDefinition Width="15*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="15*"/>
+            <ColumnDefinition Width="25*"/>
+          </Grid.ColumnDefinitions>
+          <Button Grid.Column="1" Content="Save" Command="{Binding PageContext.ActiveObject.Save}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <Button Grid.Column="3" Content="{Binding PageContext.ActiveObject.DeleteText}" Command="{Binding PageContext.ActiveObject.Delete}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
 </UserControl>

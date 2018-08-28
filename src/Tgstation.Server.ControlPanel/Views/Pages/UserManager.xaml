@@ -109,7 +109,7 @@
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
           </Grid.RowDefinitions>
-          <DockPanel Grid.Column="0" Grid.Row="0">
+          <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceRead, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Read Info of Accessible Instances" Margin="5,4,0,0" />
           </DockPanel>

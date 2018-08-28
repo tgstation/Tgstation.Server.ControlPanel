@@ -65,7 +65,7 @@
             <DropDownItem>Authorized users read and write using their system identity</DropDownItem>
           </DropDown>
           <TextBlock Text="Automatic Update Interval (Minutes) (0 to disable):" Margin="0,5,50,0" Grid.Column="0" Grid.Row="1" />
-          <NumericUpDown Height="25" Value="{Binding PageContext.ActiveObject.AutoUpdateInterval, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}" Grid.Column="1" Grid.Row="1"/>
+          <NumericUpDown Height="25" Minimum="0" Value="{Binding PageContext.ActiveObject.AutoUpdateInterval, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}" Grid.Column="1" Grid.Row="1"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

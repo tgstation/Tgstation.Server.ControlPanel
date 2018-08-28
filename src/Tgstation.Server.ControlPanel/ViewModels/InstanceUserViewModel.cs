@@ -11,7 +11,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 {
 	sealed class InstanceUserViewModel : ITreeNode, IInstanceUserRightsProvider
 	{
-		public string Title => rightsProvider == this ? "User Permissions" : String.Format(CultureInfo.InvariantCulture, "TODO: Someone Else ({0})", instanceUser.UserId);
+		public string Title => rightsProvider == this ? "User Permissions" : displayName;
 
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.user.png";
 
@@ -19,38 +19,34 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public IReadOnlyList<ITreeNode> Children => null;
 
+		public long Id => instanceUser.UserId.Value;
+
 		public InstanceUserRights InstanceUserRights => instanceUser.InstanceUserRights.Value;
-
 		public RepositoryRights RepositoryRights => instanceUser.RepositoryRights.Value;
-
 		public ByondRights ByondRights => instanceUser.ByondRights.Value;
-
 		public DreamMakerRights DreamMakerRights => instanceUser.DreamMakerRights.Value;
-
 		public DreamDaemonRights DreamDaemonRights => instanceUser.DreamDaemonRights.Value;
-
 		public ChatBotRights ChatBotRights => instanceUser.ChatBotRights.Value;
-
 		public ConfigurationRights ConfigurationRights => instanceUser.ConfigurationRights.Value;
-
 		public AdministrationRights AdministrationRights => userRightsProvider.AdministrationRights;
-
 		public InstanceManagerRights InstanceManagerRights => userRightsProvider.InstanceManagerRights;
 
 		readonly PageContextViewModel pageContext;
 		readonly IUserRightsProvider userRightsProvider;
 		readonly IInstanceUserClient users;
 		readonly IInstanceUserRightsProvider rightsProvider;
+		readonly string displayName;
 		InstanceUser instanceUser;
 
 		public event EventHandler OnUpdated;
 
-		public InstanceUserViewModel(PageContextViewModel pageContext, IUserRightsProvider userRightsProvider, IInstanceUserClient users, InstanceUser instanceUser, IInstanceUserRightsProvider rightsProvider)
+		public InstanceUserViewModel(PageContextViewModel pageContext, IUserRightsProvider userRightsProvider, IInstanceUserClient users, InstanceUser instanceUser, string displayName, IInstanceUserRightsProvider rightsProvider)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
 			this.users = users ?? throw new ArgumentNullException(nameof(users));
 			this.instanceUser = instanceUser ?? throw new ArgumentNullException(nameof(instanceUser));
+			this.displayName = displayName ?? throw new ArgumentNullException(nameof(displayName));
 			this.rightsProvider = rightsProvider ?? this;
 
 			userRightsProvider.OnUpdated += (a, b) => OnUpdated?.Invoke(this, new EventArgs());

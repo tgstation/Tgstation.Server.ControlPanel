@@ -2,15 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	sealed class UsersRootViewModel : ViewModelBase, ITreeNode
+	sealed class UsersRootViewModel : ViewModelBase, ITreeNode, IUserProvider
 	{
 		public string Title => "Users";
 
@@ -20,6 +20,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref icon, value);
 		}
 		public bool IsExpanded { get; set; }
+
+		public User CurrentUser => currentUser.User;
 
 		public IReadOnlyList<ITreeNode> Children
 		{
@@ -32,6 +34,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly UserViewModel currentUser;
 
 		IReadOnlyList<ITreeNode> children;
+		IReadOnlyList<User> lastUsers;
 		bool loading;
 
 		string icon;
@@ -79,12 +82,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			try
 			{
-				var users = await usersClient.List(cancellationToken).ConfigureAwait(false);
+				lastUsers = await usersClient.List(cancellationToken).ConfigureAwait(false);
 				var newChildren = new List<ITreeNode>
 				{
 					auvm
 				};
-				newChildren.AddRange(users.Where(x => x.Id != currentUser.User.Id).Select(x => new UserViewModel(usersClient, x, pageContext, currentUser)));
+				newChildren.AddRange(lastUsers.Where(x => x.Id != currentUser.User.Id).Select(x => new UserViewModel(usersClient, x, pageContext, currentUser)));
 				Children = newChildren;
 				Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
 			}
@@ -104,6 +107,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public void DirectAdd(User user)
+		{
+			var newModel = new UserViewModel(usersClient, user, pageContext, currentUser);
+			var newChildren = new List<ITreeNode>(Children)
+			{
+				newModel
+			};
+			lastUsers = new List<User>(lastUsers)
+			{
+				user
+			};
+			Children = newChildren;
+			pageContext.ActiveObject = newModel;
+		}
+
 		public Task HandleDoubleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
+
+		public IReadOnlyList<User> GetUsers() => lastUsers;
 	}
 }
