@@ -60,7 +60,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						.Where(x => x.Id == user.UserId).Select(x => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", x.Name, x.Id)).FirstOrDefault()
 						?? String.Format(CultureInfo.InvariantCulture, "User ID: {0}", user.UserId);
 
-		async Task Refresh(CancellationToken cancellationToken)
+		public async Task Refresh(CancellationToken cancellationToken)
 		{
 			lock (this)
 			{
@@ -94,7 +94,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				if(hasReadRight)
 					newChildren.AddRange(activeUsers
-						.Select(x => new InstanceUserViewModel(pageContext, rightsProvider, instanceUserClient, x,
+						.Select(x => new InstanceUserViewModel(pageContext, this, rightsProvider, instanceUserClient, x,
 						GetDisplayNameForInstanceUser(userProvider, x),
 						rightsProvider)));
 
@@ -135,7 +135,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public void DirectAdd(InstanceUser user)
 		{
-			var newModel = new InstanceUserViewModel(pageContext, rightsProvider, instanceUserClient, user, GetDisplayNameForInstanceUser(userProvider, user), rightsProvider);
+			var newModel = new InstanceUserViewModel(pageContext, this, rightsProvider, instanceUserClient, user, GetDisplayNameForInstanceUser(userProvider, user), rightsProvider);
 			var newChildren = new List<ITreeNode>(Children)
 			{
 				newModel

@@ -179,7 +179,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			instanceUser = await instanceClient.Users.Read(cancellationToken).ConfigureAwait(false);
 
-			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, userRightsProvider, instanceClient.Users, instanceUser, InstanceUserRootViewModel.GetDisplayNameForInstanceUser(userProvider, instanceUser), null);
+			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, this, userRightsProvider, instanceClient.Users, instanceUser, InstanceUserRootViewModel.GetDisplayNameForInstanceUser(userProvider, instanceUser), null);
 
 			instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad();
 

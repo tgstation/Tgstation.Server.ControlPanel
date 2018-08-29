@@ -22,6 +22,7 @@
             <ColumnDefinition Width="100"/>
           </Grid.ColumnDefinitions>
           <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Name}" FontSize="26"/>
+          <Button Grid.Column="2" Content="Refresh" Command="{Binding PageContext.ActiveObject.RefreshCommand}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
         <StackPanel Orientation="Horizontal">
           <TextBlock Text="User ID:"/>

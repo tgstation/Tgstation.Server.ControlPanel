@@ -9,11 +9,21 @@ using Tgstation.Server.Client.Components;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	sealed class InstanceUserViewModel : ViewModelBase, ITreeNode, IInstanceUserRightsProvider
+	sealed class InstanceUserViewModel : ViewModelBase, ITreeNode, IInstanceUserRightsProvider, ICommandReceiver<InstanceUserViewModel.InstanceUserCommand>
 	{
+		public enum InstanceUserCommand
+		{
+			Close,
+			Refresh,
+			Save,
+			Delete
+		}
+
 		public string Title => rightsProvider == this ? "Current User" : displayName;
 
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.user.png";
+
+		public string DeleteText => confirmingDelete ? "Confirm?" : "Delete";
 
 		public bool IsExpanded { get; set; }
 
@@ -638,7 +648,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public EnumCommand<InstanceUserCommand> Close { get; }
+		public EnumCommand<InstanceUserCommand> RefreshCommand { get; }
+		public EnumCommand<InstanceUserCommand> Save { get; }
+		public EnumCommand<InstanceUserCommand> Delete { get; }
+
 		readonly PageContextViewModel pageContext;
+		readonly InstanceViewModel instanceViewModel;
 		readonly IUserRightsProvider userRightsProvider;
 		readonly IInstanceUserClient instanceUserClient;
 		readonly IInstanceUserRightsProvider rightsProvider;
@@ -655,23 +671,34 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		ConfigurationRights newConfigurationRights;
 
 		bool loading;
+		bool confirmingDelete;
 
 		public event EventHandler OnUpdated;
 
-		public InstanceUserViewModel(PageContextViewModel pageContext, IUserRightsProvider userRightsProvider, IInstanceUserClient instanceUserClient, InstanceUser instanceUser, string displayName, IInstanceUserRightsProvider rightsProvider)
+		public InstanceUserViewModel(PageContextViewModel pageContext, InstanceViewModel instanceViewModel, IUserRightsProvider userRightsProvider, IInstanceUserClient instanceUserClient, InstanceUser instanceUser, string displayName, IInstanceUserRightsProvider rightsProvider)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
+			this.instanceViewModel = instanceViewModel ?? throw new ArgumentNullException(nameof(instanceViewModel));
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
 			this.instanceUserClient = instanceUserClient ?? throw new ArgumentNullException(nameof(instanceUserClient));
 			this.instanceUser = instanceUser ?? throw new ArgumentNullException(nameof(instanceUser));
 			this.displayName = displayName ?? throw new ArgumentNullException(nameof(displayName));
 			this.rightsProvider = rightsProvider ?? this;
 
-			this.RaisePropertyChanged();
-
 			userRightsProvider.OnUpdated += (a, b) => OnUpdated?.Invoke(this, new EventArgs());
 
 			PostLoad();
+
+			Close = new EnumCommand<InstanceUserCommand>(InstanceUserCommand.Close, this);
+			RefreshCommand = new EnumCommand<InstanceUserCommand>(InstanceUserCommand.Refresh, this);
+			Save = new EnumCommand<InstanceUserCommand>(InstanceUserCommand.Save, this);
+			Delete = new EnumCommand<InstanceUserCommand>(InstanceUserCommand.Delete, this);
+
+			this.rightsProvider.OnUpdated += (a, b) =>
+			{
+				Save.Recheck();
+				Delete.Recheck();
+			};
 		}
 
 		void PostLoad()
@@ -684,7 +711,65 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			newDreamMakerRights = instanceUser.DreamMakerRights.Value;
 			newConfigurationRights = instanceUser.ConfigurationRights.Value;
 
-			//TODO RaisePropertyChanged for all checkboxes
+			using (DelayChangeNotifications())
+			{
+				this.RaisePropertyChanged(nameof(UserRead));
+				this.RaisePropertyChanged(nameof(UserWrite));
+				this.RaisePropertyChanged(nameof(UserCreate));
+
+				this.RaisePropertyChanged(nameof(ByondRead));
+				this.RaisePropertyChanged(nameof(ByondList));
+				this.RaisePropertyChanged(nameof(ByondChange));
+				this.RaisePropertyChanged(nameof(ByondCancel));
+
+				this.RaisePropertyChanged(nameof(RepoRead));
+				this.RaisePropertyChanged(nameof(RepoOrigin));
+				this.RaisePropertyChanged(nameof(RepoSha));
+				this.RaisePropertyChanged(nameof(RepoTestMerge));
+				this.RaisePropertyChanged(nameof(RepoReset));
+				this.RaisePropertyChanged(nameof(RepoCommitter));
+				this.RaisePropertyChanged(nameof(RepoTMCommits));
+				this.RaisePropertyChanged(nameof(RepoCreds));
+				this.RaisePropertyChanged(nameof(RepoRef));
+				this.RaisePropertyChanged(nameof(RepoAuto));
+				this.RaisePropertyChanged(nameof(RepoDelete));
+				this.RaisePropertyChanged(nameof(RepoCancelClone));
+				this.RaisePropertyChanged(nameof(RepoCancelUpdate));
+
+				this.RaisePropertyChanged(nameof(CompRead));
+				this.RaisePropertyChanged(nameof(CompStart));
+				this.RaisePropertyChanged(nameof(CompCancel));
+				this.RaisePropertyChanged(nameof(CompDme));
+				this.RaisePropertyChanged(nameof(CompVali));
+				this.RaisePropertyChanged(nameof(CompList));
+
+				this.RaisePropertyChanged(nameof(DDRead));
+				this.RaisePropertyChanged(nameof(DDPort));
+				this.RaisePropertyChanged(nameof(DDAuto));
+				this.RaisePropertyChanged(nameof(DDSec));
+				this.RaisePropertyChanged(nameof(DDMeta));
+				this.RaisePropertyChanged(nameof(DDWeb));
+				this.RaisePropertyChanged(nameof(DDSoftR));
+				this.RaisePropertyChanged(nameof(DDSoftT));
+				this.RaisePropertyChanged(nameof(DDRes));
+				this.RaisePropertyChanged(nameof(DDTerm));
+				this.RaisePropertyChanged(nameof(DDStart));
+				this.RaisePropertyChanged(nameof(DDTime));
+
+				this.RaisePropertyChanged(nameof(ChatEnable));
+				this.RaisePropertyChanged(nameof(ChatProvider));
+				this.RaisePropertyChanged(nameof(ChatChannels));
+				this.RaisePropertyChanged(nameof(ChatReadString));
+				this.RaisePropertyChanged(nameof(ChatWriteString));
+				this.RaisePropertyChanged(nameof(ChatRead));
+				this.RaisePropertyChanged(nameof(ChatName));
+				this.RaisePropertyChanged(nameof(ChatCreate));
+				this.RaisePropertyChanged(nameof(ChatDelete));
+
+				this.RaisePropertyChanged(nameof(StaticRead));
+				this.RaisePropertyChanged(nameof(StaticWrite));
+				this.RaisePropertyChanged(nameof(StaticList));
+			}
 		}
 
 		async Task Refresh(CancellationToken cancellationToken)
@@ -695,6 +780,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					return;
 				loading = true;
 			}
+			RefreshCommand.Recheck();
+			Save.Recheck();
+			Delete.Recheck();
 
 			try
 			{
@@ -705,6 +793,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			finally
 			{
 				loading = false;
+				RefreshCommand.Recheck();
+				Save.Recheck();
+				Delete.Recheck();
 			}
 		}
 
@@ -712,6 +803,70 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			pageContext.ActiveObject = this;
 			return Task.CompletedTask;
+		}
+
+		public bool CanRunCommand(InstanceUserCommand command)
+		{
+			switch (command)
+			{
+				case InstanceUserCommand.Close:
+					return true;
+				case InstanceUserCommand.Refresh:
+					return !loading;
+				case InstanceUserCommand.Save:
+				case InstanceUserCommand.Delete:
+					return rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.WriteUsers) && !loading;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
+			}
+		}
+
+		public async Task RunCommand(InstanceUserCommand command, CancellationToken cancellationToken)
+		{
+			switch (command)
+			{
+				case InstanceUserCommand.Close:
+					pageContext.ActiveObject = null;
+					break;
+				case InstanceUserCommand.Refresh:
+					await Refresh(cancellationToken).ConfigureAwait(false);
+					break;
+				case InstanceUserCommand.Save:
+					var update = new InstanceUser
+					{
+						UserId = instanceUser.UserId,
+						ByondRights = newByondRights,
+						ChatBotRights = newChatBotRights,
+						ConfigurationRights = newConfigurationRights,
+						DreamDaemonRights = newDreamDaemonRights,
+						DreamMakerRights = newDreamMakerRights,
+						InstanceUserRights = newInstanceUserRights,
+						RepositoryRights = newRepositoryRights
+					};
+					loading = true;
+					RefreshCommand.Recheck();
+					Save.Recheck();
+					Delete.Recheck();
+					try
+					{
+						instanceUser = await instanceUserClient.Update(update, cancellationToken).ConfigureAwait(true);
+						PostLoad();
+					}
+					finally
+					{
+						loading = false;
+						RefreshCommand.Recheck();
+						Save.Recheck();
+						Delete.Recheck();
+					}
+					break;
+				case InstanceUserCommand.Delete:
+					pageContext.ActiveObject = null;
+					await instanceViewModel.Refresh(cancellationToken).ConfigureAwait(true);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
+			}
 		}
 	}
 }
