@@ -106,10 +106,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool AdminEditUsers
 		{
-			get => newAdministrationRights.HasFlag(AdministrationRights.EditUsers);
+			get => newAdministrationRights.HasFlag(AdministrationRights.WriteUsers);
 			set
 			{
-				var right = AdministrationRights.EditUsers;
+				var right = AdministrationRights.WriteUsers;
 				if (value)
 					newAdministrationRights |= right;
 				else
@@ -118,10 +118,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 		public bool AdminEditPassword
 		{
-			get => newAdministrationRights.HasFlag(AdministrationRights.EditPassword);
+			get => newAdministrationRights.HasFlag(AdministrationRights.EditOwnPassword);
 			set
 			{
-				var right = AdministrationRights.EditPassword;
+				var right = AdministrationRights.EditOwnPassword;
 				if (value)
 					newAdministrationRights |= right;
 				else
@@ -313,8 +313,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Enabled = User.Enabled.Value;
 			void SetLocks()
 			{
-				CanEditRights = this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.EditUsers);
-				CanEditPassword = CanEditRights || (this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.EditPassword) && this.userRightsProvider == this);
+				CanEditRights = this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers);
+				CanEditPassword = CanEditRights || (this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.EditOwnPassword) && this.userRightsProvider == this);
 			};
 			SetLocks();
 

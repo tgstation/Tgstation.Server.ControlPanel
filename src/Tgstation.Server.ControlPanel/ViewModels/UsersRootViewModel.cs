@@ -60,7 +60,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				loading = true;
 			}
 
-			if (!currentUser.AdministrationRights.HasFlag(AdministrationRights.EditUsers))
+			if (!currentUser.AdministrationRights.HasFlag(AdministrationRights.WriteUsers))
 			{
 				Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg";
 				Children = null;

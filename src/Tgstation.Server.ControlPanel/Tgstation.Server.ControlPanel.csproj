@@ -48,7 +48,7 @@
     <PackageReference Include="Octokit" Version="0.31.0" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.5.0" />
     <PackageReference Include="TextCopy" Version="1.5.0" />
-    <PackageReference Include="Tgstation.Server.Client" Version="4.0.0-preview7" />
+    <PackageReference Include="Tgstation.Server.Client" Version="4.0.0-preview9" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\Pages\UserManager.xaml.cs">
