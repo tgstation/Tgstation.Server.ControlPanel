@@ -21,86 +21,39 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string ServerName => nameProvider();
 
 		readonly Func<IServerClient> clientProvider;
+		readonly Func<TimeSpan> requeryRateProvider;
 		readonly Func<string> nameProvider;
 		readonly JobManagerViewModel jobManagerViewModel;
 
 		readonly Dictionary<long, InstanceJobSink> instanceSinks;
+		readonly CancellationTokenSource cancellationTokenSource;
 
 		readonly Action onDisposed;
 
+		readonly Dictionary<long, JobViewModel> jobModelMap;
+
 		IReadOnlyList<JobViewModel> jobs;
 
-		public ServerJobSinkViewModel(Func<IServerClient> clientProvider, Func<string> nameProvider, JobManagerViewModel jobManagerViewModel, Action onDisposed)
+		public ServerJobSinkViewModel(Func<IServerClient> clientProvider, Func<TimeSpan> requeryRateProvider, Func<string> nameProvider, JobManagerViewModel jobManagerViewModel, Action onDisposed)
 		{
 			this.clientProvider = clientProvider ?? throw new ArgumentNullException(nameof(clientProvider));
+			this.requeryRateProvider = requeryRateProvider ?? throw new ArgumentNullException(nameof(requeryRateProvider));
 			this.nameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
 			this.jobManagerViewModel = jobManagerViewModel ?? throw new ArgumentNullException(nameof(jobManagerViewModel));
 			this.onDisposed = onDisposed ?? throw new ArgumentNullException(nameof(onDisposed));
 
 			instanceSinks = new Dictionary<long, InstanceJobSink>();
-			jobs = new List<JobViewModel> {
-				new JobViewModel(new Job{
-					Id = 1,
-					StartedAt = DateTimeOffset.Now - TimeSpan.FromSeconds(50),
-					StartedBy = new User
-					{
-						Name = "Some schmuck",
-						Id= 42
-					},
-					Description = "In progress job"
-				}, true),
-				new JobViewModel(new Job{
-					Id = 2,
-					StartedAt = DateTimeOffset.Now,
-					StoppedAt = DateTimeOffset.Now,
-					StartedBy = new User
-					{
-						Name = "Some guy",
-						Id= 69
-					},
-					Description = "Done job"
-				}, true),
-				new JobViewModel(new Job{
-					Id = 3,
-					StartedAt = DateTimeOffset.Now - TimeSpan.FromSeconds(20),
-					StartedBy = new User
-					{
-						Name = "Some schmuck",
-						Id= 42
-					},
-					Progress = 40,
-					Description = "In progress job"
-				}, false),
-				new JobViewModel(new Job{
-					Id = 4,
-					StartedAt = DateTimeOffset.Now - TimeSpan.FromSeconds(20),
-					StoppedAt = DateTimeOffset.Now,
-					StartedBy = new User
-					{
-						Name = "Some schmuck",
-						Id= 42
-					},
-					Description = "Errored job",
-					ExceptionDetails = "Shit's fucked yo..."
-				}, true),
-				new JobViewModel(new Job{
-					Id = 5,
-					StartedAt = DateTimeOffset.Now - TimeSpan.FromSeconds(20),
-					StoppedAt = DateTimeOffset.Now,
-					StartedBy = new User
-					{
-						Name = "Some schmuck",
-						Id= 42
-					},
-					Progress = 69,
-					Description = "Cancelled job",
-					Cancelled = true
-				}, true)
-			};
+			jobs = new List<JobViewModel>();
+			cancellationTokenSource = new CancellationTokenSource();
+			jobModelMap = new Dictionary<long, JobViewModel>();
+
+			UpdateLoop();
 		}
 
 		public void Dispose()
 		{
+			cancellationTokenSource.Cancel();
+			cancellationTokenSource.Dispose();
 			onDisposed();
 			foreach (var I in instanceSinks)
 				I.Value.Dispose();
@@ -134,6 +87,60 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				foreach (var I in instanceSinks)
 					observables.Add(I.Value.UpdateJobs(client.Instances.CreateClient(I.Value.Instance).Jobs, cancellationToken));
 			return observables.Merge();
+		}
+
+		long? DeregisterJob(Job job)
+		{
+			lock (instanceSinks)
+				foreach (var I in instanceSinks)
+					if (I.Value.DeregisterJob(job))
+						return I.Key;
+			return null;
+		}
+
+		async void UpdateLoop()
+		{
+			var cancellationToken = cancellationTokenSource.Token;
+			while (!cancellationToken.IsCancellationRequested)
+				try
+				{
+					var serverClient = clientProvider();
+					var jobUpdates = UpdateJobs(cancellationToken);
+
+					await jobUpdates.ForEachAsync(job =>
+					{
+						if (job == null)
+							return;
+
+						long? instanceId = null;
+						if (job.StoppedAt.HasValue)
+							instanceId = DeregisterJob(job);
+						else
+							lock (instanceSinks)
+								foreach (var I in instanceSinks)
+									if (I.Value.TracksJob(job))
+										instanceId = I.Key;
+
+						if (!instanceId.HasValue)
+							return;
+
+						var client = serverClient.Instances.CreateClient(new Instance
+						{
+							Id = instanceId.Value
+						}).Jobs;
+
+						lock (jobModelMap)
+							if (!jobModelMap.TryGetValue(job.Id, out var viewModel))
+								jobModelMap.Add(job.Id, new JobViewModel(job, () => DeregisterJob(job), client));
+							else
+								viewModel.Update(job, client);
+
+					}).ConfigureAwait(false);
+
+					await Task.Delay(requeryRateProvider(), cancellationToken).ConfigureAwait(false);
+				}
+				catch { }
+
 		}
 
 		public void NameUpdate() => this.RaisePropertyChanged(nameof(ServerName));

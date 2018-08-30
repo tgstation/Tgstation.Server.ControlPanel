@@ -42,6 +42,18 @@ namespace Tgstation.Server.ControlPanel
 					trackedJobs.Add(job.Id, job);
 		}
 
+		public bool DeregisterJob(Job job)
+		{
+			lock (trackedJobs)
+				return trackedJobs.Remove(job.Id);
+		}
+
+		public bool TracksJob(Job job)
+		{
+			lock (trackedJobs)
+				return trackedJobs.TryGetValue(job.Id, out job);
+		}
+
 		public async Task InitialQuery(IJobsClient jobsClient, CancellationToken cancellationToken)
 		{
 			var jobs = await jobsClient.ListActive(cancellationToken).ConfigureAwait(false);

@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Client;
+using Tgstation.Server.Client.Components;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
@@ -40,21 +42,25 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<JobCommand> Remove { get; }
 		public EnumCommand<JobCommand> Cancel { get; }
 
-		readonly bool canCancel;
+		readonly Action onRemove;
 
 		Job job;
+		IJobsClient jobsClient;
+		bool canCancel;
 
-		public JobViewModel(Job job, bool canCancel)
+		public JobViewModel(Job job, Action onRemove, IJobsClient jobsClient)
 		{
-			this.canCancel = canCancel;
+			this.onRemove = onRemove ?? throw new ArgumentNullException(nameof(onRemove));
+			canCancel = true;
 			Remove = new EnumCommand<JobCommand>(JobCommand.Remove, this);
 			Cancel = new EnumCommand<JobCommand>(JobCommand.Cancel, this);
-			Update(job);
+			Update(job, jobsClient);
 		}
 
-		void Update(Job job)
+		public void Update(Job job, IJobsClient jobsClient)
 		{
 			this.job = job ?? throw new ArgumentNullException(nameof(job));
+			this.jobsClient = jobsClient ?? throw new ArgumentNullException(nameof(jobsClient));
 
 			this.RaisePropertyChanged(nameof(Finished));
 			this.RaisePropertyChanged(nameof(ErrorDetails));
@@ -74,15 +80,32 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case JobCommand.Remove:
 					return Finished;
 				case JobCommand.Cancel:
-					return canCancel && !Finished;
+					return canCancel && !Finished && jobsClient != null;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
 		}
 
-		public Task RunCommand(JobCommand command, CancellationToken cancellationToken)
+		public async Task RunCommand(JobCommand command, CancellationToken cancellationToken)
 		{
-			return Task.CompletedTask;
+			switch (command)
+			{
+				case JobCommand.Remove:
+					onRemove();
+					break;
+				case JobCommand.Cancel:
+					try
+					{
+						await jobsClient.Cancel(job, cancellationToken).ConfigureAwait(false);  //still has to finish cancelling and propagate back to us
+					}
+					catch (InsufficientPermissionsException)
+					{
+						canCancel = false;
+					}
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
+			}
 		}
 	}
 }
