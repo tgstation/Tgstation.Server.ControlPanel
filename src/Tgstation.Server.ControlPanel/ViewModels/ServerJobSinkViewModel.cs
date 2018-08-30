@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -134,7 +135,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			lock (jobModelMap)
 				if (!jobModelMap.TryGetValue(job.Id, out var viewModel))
-					jobModelMap.Add(job.Id, new JobViewModel(job, () => DeregisterJob(job), client));
+				{
+					JobViewModel newModel = null;
+					newModel = new JobViewModel(job, () =>
+					{
+						DeregisterJob(job);
+						lock (jobModelMap)
+						{
+							jobModelMap.Remove(job.Id);
+							Jobs = new List<JobViewModel>(Jobs.Where(x => x != newModel));
+						}
+					}, client);
+					jobModelMap.Add(job.Id, newModel);
+					Jobs = new List<JobViewModel>(Jobs)
+					{
+						newModel
+					};
+				}
 				else
 					viewModel.Update(job, client);
 		}
