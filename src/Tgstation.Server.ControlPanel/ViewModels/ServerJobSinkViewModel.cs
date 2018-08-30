@@ -32,6 +32,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly Dictionary<long, JobViewModel> jobModelMap;
 
+		readonly Task updateTask;
+
+		TaskCompletionSource<object> updated;
+
 		IReadOnlyList<JobViewModel> jobs;
 
 		public ServerJobSinkViewModel(Func<IServerClient> clientProvider, Func<TimeSpan> requeryRateProvider, Func<string> nameProvider, JobManagerViewModel jobManagerViewModel, Action onDisposed)
@@ -46,13 +50,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			jobs = new List<JobViewModel>();
 			cancellationTokenSource = new CancellationTokenSource();
 			jobModelMap = new Dictionary<long, JobViewModel>();
+			updated = new TaskCompletionSource<object>();
 
-			UpdateLoop();
+			//avalonia does some fuckery with the async context so we need to detach this ourselves
+			updateTask = Task.Run(UpdateLoop);
 		}
 
 		public void Dispose()
 		{
 			cancellationTokenSource.Cancel();
+			updateTask.GetAwaiter().GetResult();
 			cancellationTokenSource.Dispose();
 			onDisposed();
 			foreach (var I in instanceSinks)
@@ -73,15 +80,20 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				}
 			}
 			if (newSink)
+			{
 				await sink.InitialQuery(instanceClient.Jobs, cancellationToken).ConfigureAwait(false);
+				if (sink.Updated.IsCompleted)
+					lock (this)
+					{
+						updated.SetResult(null);
+						updated = new TaskCompletionSource<object>();
+					}
+			}
 			return sink;
 		}
 
-		public IObservable<Job> UpdateJobs(CancellationToken cancellationToken)
+		public IObservable<Job> UpdateJobs(IServerClient client, CancellationToken cancellationToken)
 		{
-			var client = clientProvider();
-			if (client == null)
-				return Observable.Empty<Job>();
 			var observables = new List<IObservable<Job>>();
 			lock (instanceSinks)
 				foreach (var I in instanceSinks)
@@ -98,48 +110,82 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return null;
 		}
 
-		async void UpdateLoop()
+		void UpdateJobList(Job job, IServerClient serverClient)
+		{
+			if (job == null)
+				return;
+
+			long? instanceId = null;
+			if (job.StoppedAt.HasValue)
+				instanceId = DeregisterJob(job);
+			else
+				lock (instanceSinks)
+					foreach (var I in instanceSinks)
+						if (I.Value.TracksJob(job))
+							instanceId = I.Key;
+
+			if (!instanceId.HasValue)
+				return;
+
+			var client = serverClient.Instances.CreateClient(new Instance
+			{
+				Id = instanceId.Value
+			}).Jobs;
+
+			lock (jobModelMap)
+				if (!jobModelMap.TryGetValue(job.Id, out var viewModel))
+					jobModelMap.Add(job.Id, new JobViewModel(job, () => DeregisterJob(job), client));
+				else
+					viewModel.Update(job, client);
+		}
+
+		IObservable<Job> NewJobs()
+		{
+			var observables = new List<IObservable<Job>>();
+			lock (instanceSinks)
+				foreach (var I in instanceSinks)
+					observables.Add(I.Value.NewJobs());
+			return observables.Merge();
+		}
+
+		async Task UpdateLoop()
 		{
 			var cancellationToken = cancellationTokenSource.Token;
+
 			while (!cancellationToken.IsCancellationRequested)
+			{
+				Task oldDelayTask = null;
 				try
 				{
-					var serverClient = clientProvider();
-					var jobUpdates = UpdateJobs(cancellationToken);
+					var delay = oldDelayTask ?? Task.Delay(requeryRateProvider(), cancellationToken);
+					Task updates, instanceUpdates;
+					lock (this)
+						updates = updated.Task;
 
-					await jobUpdates.ForEachAsync(job =>
+					lock (instanceSinks)
 					{
-						if (job == null)
-							return;
+						var tasks = new List<Task>();
+						foreach (var I in instanceSinks)
+							tasks.Add(I.Value.Updated);
+						instanceUpdates = tasks.Count > 0 ? (Task)Task.WhenAny(tasks) : new TaskCompletionSource<object>().Task;
+					}
 
-						long? instanceId = null;
-						if (job.StoppedAt.HasValue)
-							instanceId = DeregisterJob(job);
-						else
-							lock (instanceSinks)
-								foreach (var I in instanceSinks)
-									if (I.Value.TracksJob(job))
-										instanceId = I.Key;
+					await Task.WhenAny(updates, instanceUpdates, delay).ConfigureAwait(false);
+					var serverClient = clientProvider();
+					var timedOut = delay.IsCompleted;
+					if (!timedOut)
+						oldDelayTask = delay;
+					else
+						oldDelayTask = null;
+					if (serverClient != null)
+					{
+						var jobUpdates = timedOut ? UpdateJobs(serverClient, cancellationToken) : NewJobs();
 
-						if (!instanceId.HasValue)
-							return;
-
-						var client = serverClient.Instances.CreateClient(new Instance
-						{
-							Id = instanceId.Value
-						}).Jobs;
-
-						lock (jobModelMap)
-							if (!jobModelMap.TryGetValue(job.Id, out var viewModel))
-								jobModelMap.Add(job.Id, new JobViewModel(job, () => DeregisterJob(job), client));
-							else
-								viewModel.Update(job, client);
-
-					}).ConfigureAwait(false);
-
-					await Task.Delay(requeryRateProvider(), cancellationToken).ConfigureAwait(false);
+						await jobUpdates.ForEachAsync(job => UpdateJobList(job, serverClient)).ConfigureAwait(false);
+					}
 				}
 				catch { }
+			}
 
 		}
 

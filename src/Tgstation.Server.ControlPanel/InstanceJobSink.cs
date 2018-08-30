@@ -15,10 +15,16 @@ namespace Tgstation.Server.ControlPanel
 {
 	sealed class InstanceJobSink : IInstanceJobSink, IDisposable
 	{
-		readonly JobManagerViewModel jobManagerViewModel;
+
 		public Instance Instance { get; }
+		public Task Updated => updated.Task;
+
+		readonly JobManagerViewModel jobManagerViewModel;
 		readonly Dictionary<long, Job> trackedJobs;
 		readonly CancellationTokenSource cancellationTokenSource;
+		readonly List<Job> newestJobs;
+
+		TaskCompletionSource<object> updated;
 
 		public InstanceJobSink(Instance instance, JobManagerViewModel jobManagerViewModel)
 		{
@@ -27,6 +33,19 @@ namespace Tgstation.Server.ControlPanel
 
 			trackedJobs = new Dictionary<long, Job>();
 			cancellationTokenSource = new CancellationTokenSource();
+			updated = new TaskCompletionSource<object>();
+			newestJobs = new List<Job>();
+		}
+
+		public IObservable<Job> NewJobs()
+		{
+			IObservable<Job> result;
+			lock (newestJobs)
+			{
+				result = newestJobs.ToList().ToObservable();
+				newestJobs.Clear();
+			}
+			return result;
 		}
 
 		public void Dispose()
@@ -38,8 +57,16 @@ namespace Tgstation.Server.ControlPanel
 		public void RegisterJob(Job job)
 		{
 			lock (trackedJobs)
+			{
 				if (!trackedJobs.ContainsKey(job.Id))
+				{
 					trackedJobs.Add(job.Id, job);
+					lock (newestJobs)
+						newestJobs.Add(job);
+				}
+				updated.SetResult(null);
+				updated = new TaskCompletionSource<object>();
+			}
 		}
 
 		public bool DeregisterJob(Job job)

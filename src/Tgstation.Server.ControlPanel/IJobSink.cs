@@ -5,6 +5,6 @@ namespace Tgstation.Server.ControlPanel
 {
 	public interface IJobSink
 	{
-		IServerJobSink GetServerSink(Func<IServerClient> clientProvider, Func<TimeSpan> timespanProvider, Func<string> serverNameProvider);
+		IServerJobSink GetServerSink(Func<IServerClient> clientProvider, Func<TimeSpan> timeSpanProvider, Func<string> serverNameProvider);
 	}
 }

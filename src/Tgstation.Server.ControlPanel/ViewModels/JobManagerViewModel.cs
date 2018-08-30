@@ -30,7 +30,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public IServerJobSink GetServerSink(Func<IServerClient> clientProvider, Func<TimeSpan> timeSpanProvider, Func<string> nameProvider)
 		{
 			ServerJobSinkViewModel sink = null;
-			sink = new ServerJobSinkViewModel(clientProvider, nameProvider, this, () =>
+			sink = new ServerJobSinkViewModel(clientProvider, timeSpanProvider, nameProvider, this, () =>
 			{
 				lock (this)
 					Sinks = new List<ServerJobSinkViewModel>(jobSinks.Where(x => x != sink));
