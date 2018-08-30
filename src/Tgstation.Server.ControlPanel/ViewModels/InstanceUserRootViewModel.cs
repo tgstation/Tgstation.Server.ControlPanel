@@ -35,6 +35,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IInstanceUserClient instanceUserClient;
 		readonly IInstanceUserRightsProvider rightsProvider;
 		readonly IUserProvider userProvider;
+		readonly InstanceViewModel instanceViewModel;
 
 		IReadOnlyList<ITreeNode> children;
 		IReadOnlyList<InstanceUser> activeUsers;
@@ -43,12 +44,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string icon;
 
 
-		public InstanceUserRootViewModel(PageContextViewModel pageContext, IInstanceUserClient instanceUserClient, IInstanceUserRightsProvider rightsProvider, IUserProvider userProvider)
+		public InstanceUserRootViewModel(PageContextViewModel pageContext, IInstanceUserClient instanceUserClient, IInstanceUserRightsProvider rightsProvider, IUserProvider userProvider, InstanceViewModel instanceViewModel)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.instanceUserClient = instanceUserClient ?? throw new ArgumentNullException(nameof(instanceUserClient));
 			this.rightsProvider = rightsProvider ?? throw new ArgumentNullException(nameof(rightsProvider));
 			this.userProvider = userProvider ?? throw new ArgumentNullException(nameof(userProvider));
+			this.instanceViewModel = instanceViewModel ?? throw new ArgumentNullException(nameof(instanceViewModel));
 
 			Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
 
@@ -94,9 +96,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				if(hasReadRight)
 					newChildren.AddRange(activeUsers
-						.Select(x => new InstanceUserViewModel(pageContext, this, rightsProvider, instanceUserClient, x,
+						.Select(x => new InstanceUserViewModel(pageContext, instanceViewModel, rightsProvider, instanceUserClient, x,
 						GetDisplayNameForInstanceUser(userProvider, x),
-						rightsProvider)));
+						rightsProvider, this)));
 
 				Children = newChildren;
 				Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
@@ -135,7 +137,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public void DirectAdd(InstanceUser user)
 		{
-			var newModel = new InstanceUserViewModel(pageContext, this, rightsProvider, instanceUserClient, user, GetDisplayNameForInstanceUser(userProvider, user), rightsProvider);
+			var newModel = new InstanceUserViewModel(pageContext, instanceViewModel, rightsProvider, instanceUserClient, user, GetDisplayNameForInstanceUser(userProvider, user), rightsProvider, this);
 			var newChildren = new List<ITreeNode>(Children)
 			{
 				newModel

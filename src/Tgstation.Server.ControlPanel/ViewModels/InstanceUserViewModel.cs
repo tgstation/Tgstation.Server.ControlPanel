@@ -658,6 +658,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IUserRightsProvider userRightsProvider;
 		readonly IInstanceUserClient instanceUserClient;
 		readonly IInstanceUserRightsProvider rightsProvider;
+		readonly InstanceUserRootViewModel instanceUserRootViewModel;
 		readonly string displayName;
 
 		InstanceUser instanceUser;
@@ -675,13 +676,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public event EventHandler OnUpdated;
 
-		public InstanceUserViewModel(PageContextViewModel pageContext, InstanceViewModel instanceViewModel, IUserRightsProvider userRightsProvider, IInstanceUserClient instanceUserClient, InstanceUser instanceUser, string displayName, IInstanceUserRightsProvider rightsProvider)
+		public InstanceUserViewModel(PageContextViewModel pageContext, InstanceViewModel instanceViewModel, IUserRightsProvider userRightsProvider, IInstanceUserClient instanceUserClient, InstanceUser instanceUser, string displayName, IInstanceUserRightsProvider rightsProvider, InstanceUserRootViewModel instanceUserRootViewModel)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.instanceViewModel = instanceViewModel ?? throw new ArgumentNullException(nameof(instanceViewModel));
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
 			this.instanceUserClient = instanceUserClient ?? throw new ArgumentNullException(nameof(instanceUserClient));
 			this.instanceUser = instanceUser ?? throw new ArgumentNullException(nameof(instanceUser));
+			this.instanceUserRootViewModel = instanceUserRootViewModel;
 			this.displayName = displayName ?? throw new ArgumentNullException(nameof(displayName));
 			this.rightsProvider = rightsProvider ?? this;
 
@@ -861,8 +863,27 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}
 					break;
 				case InstanceUserCommand.Delete:
+					if (!confirmingDelete)
+					{
+						confirmingDelete = true;
+						this.RaisePropertyChanged(nameof(DeleteText));
+
+						async void ResetConfirm()
+						{
+							await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
+							confirmingDelete = false;
+							this.RaisePropertyChanged(nameof(DeleteText));
+						}
+						ResetConfirm();
+						return;
+					}
+
+					await instanceUserClient.Delete(instanceUser, cancellationToken).ConfigureAwait(true);
 					pageContext.ActiveObject = null;
-					await instanceViewModel.Refresh(cancellationToken).ConfigureAwait(true);
+					if (rightsProvider == this)
+						await instanceViewModel.Refresh(cancellationToken).ConfigureAwait(true);
+					else
+						await instanceUserRootViewModel.Refresh(cancellationToken).ConfigureAwait(true);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");

@@ -177,9 +177,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				};
 			}
 
-			instanceUser = await instanceClient.Users.Read(cancellationToken).ConfigureAwait(false);
+			try
+			{
+				instanceUser = await instanceClient.Users.Read(cancellationToken).ConfigureAwait(false);
+			}
+			catch (InsufficientPermissionsException)
+			{
+				//reeee
+				Children = null;
+				return;
+			}
 
-			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, this, userRightsProvider, instanceClient.Users, instanceUser, InstanceUserRootViewModel.GetDisplayNameForInstanceUser(userProvider, instanceUser), null);
+			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, this, userRightsProvider, instanceClient.Users, instanceUser, InstanceUserRootViewModel.GetDisplayNameForInstanceUser(userProvider, instanceUser), null, null);
 
 			instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad();
 
@@ -204,7 +213,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var newChildren = new List<ITreeNode>
 			{
 				instanceUserTreeNode,
-				new InstanceUserRootViewModel(pageContext, instanceClient.Users, instanceUserTreeNode, userProvider),
+				new InstanceUserRootViewModel(pageContext, instanceClient.Users, instanceUserTreeNode, userProvider, this),
 				instanceUser.RepositoryRights != 0 ? new BasicNode
 				{
 					Title = "TODO: Repository",
@@ -299,6 +308,25 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					return userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Delete);
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
+			}
+		}
+		public async Task Refresh(CancellationToken cancellationToken)
+		{
+			loading = true;
+			try
+			{
+				Save.Recheck();
+				Delete.Recheck();
+				FixPerms.Recheck();
+				Instance = await instanceManagerClient.GetId(Instance, cancellationToken).ConfigureAwait(true);
+				await PostRefresh(cancellationToken).ConfigureAwait(true);
+			}
+			finally
+			{
+				loading = false;
+				Save.Recheck();
+				Delete.Recheck();
+				FixPerms.Recheck();
 			}
 		}
 
