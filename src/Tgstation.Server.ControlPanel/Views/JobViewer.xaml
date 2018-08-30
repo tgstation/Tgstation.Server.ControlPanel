@@ -5,6 +5,61 @@
       <TextBlock DockPanel.Dock="Top" Text="Jobs" Margin="3" Foreground="White"/>
     </Panel>
     <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="#FFFFFF" Margin="3">
+      <ItemsControl Items="{Binding Jobs.Sinks}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Orientation="Vertical">
+              <StackPanel Margin="2" Orientation="Vertical">
+                <Rectangle HorizontalAlignment="Stretch" Fill="#000000" Height="1" Margin="0,0,0,0"/>
+                <TextBlock Text="{Binding ServerName}" Margin="2"/>
+                <Rectangle HorizontalAlignment="Stretch" Fill="#000000" Height="1" Margin="0,0,0,0"/>
+              </StackPanel>
+              <ItemsControl Items="{Binding Jobs}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <StackPanel Orientation="Vertical" Background="#4D6082" Margin="2">
+                      <Grid>
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="*"/>
+                          <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Title}" Margin="3" Foreground="White" Grid.Column="0"/>
+                        <Button Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Remove}" IsVisible="{Binding Finished}" Margin="0,0,5,0" />
+                      </Grid>
+                      <StackPanel Background="{Binding Background}" Margin="1">
+                        <TextBlock Text="{Binding Description}" FontSize="14" TextWrapping="Wrap"/>
+                        <Grid>
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                          </Grid.ColumnDefinitions>
+                          <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                          </Grid.RowDefinitions>
+                          <TextBlock Text="Started By:" Grid.Column="0" Grid.Row="0" Margin="0,0,5,0"/>
+                          <TextBlock Text="{Binding StartedBy}" Grid.Column="1" Grid.Row="0" TextWrapping="Wrap" />
+                          <TextBlock Text="Started At:" Grid.Column="0" Grid.Row="1" Margin="0,0,5,0"/>
+                          <TextBlock Text="{Binding StartedAt}" Grid.Column="1" Grid.Row="1" TextWrapping="Wrap" />
+                        </Grid>
+                        <Grid>
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                          </Grid.ColumnDefinitions>
+                          <ProgressBar Value="{Binding Progress}" IsIndeterminate="{Binding !HasProgress}" Margin="2" Height="25" Grid.Row="0" Grid.Column="0"/>
+                          <Button Content="Cancel" Command="{Binding Cancel}" IsVisible="{Binding !Finished}" Grid.Row="0" Grid.Column="1" Margin ="2" Padding="0,0"/>
+                        </Grid>
+                        <TextBlock Text="{Binding ErrorDetails}" Foreground="#FFFFFF" IsVisible="{Binding Error}" FontSize="13" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel >
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
     </ScrollViewer>
   </DockPanel>
 </UserControl>

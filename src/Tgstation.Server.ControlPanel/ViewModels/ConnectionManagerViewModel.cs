@@ -98,6 +98,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(ServerAddress));
 					this.RaisePropertyChanged(nameof(Title));
 					Connect.Recheck();
+					jobSink.NameUpdate();
 				}
 				catch (UriFormatException) { }
 			}
@@ -249,7 +250,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.requestLogger = requestLogger ?? throw new ArgumentNullException(nameof(requestLogger));
 			this.onDelete = onDelete ?? throw new ArgumentNullException(nameof(onDelete));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
-			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate) ?? throw new ArgumentNullException(nameof(jobSink));
+			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate, () => connection.Url.ToString()) ?? throw new ArgumentNullException(nameof(jobSink));
 
 			Connect = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Connect, this);
 			Close = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Close, this);
@@ -280,9 +281,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			Children = null;
 			jobSink.Dispose();
+			Disconnect();
+		}
+
+		void Disconnect()
+		{
 			serverClient?.Dispose();
 			serverClient = null;
 		}
+
 
 		void PostConnect(CancellationToken cancellationToken)
 		{
@@ -370,7 +377,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			if (Connecting)
 				throw new InvalidOperationException("Already connecting!");
-			Dispose();
+			Disconnect();
 			pageContext.ActiveObject = pageContext.ActiveObject == this ? this : null;
 			startedConnectingAt = DateTimeOffset.Now;
 			Connecting = true;
@@ -457,6 +464,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						pageContext.ActiveObject = null;
 						onDelete();
+						Dispose();
 					}
 					else
 					{
