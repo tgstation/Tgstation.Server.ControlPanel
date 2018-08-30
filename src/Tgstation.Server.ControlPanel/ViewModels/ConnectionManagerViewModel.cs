@@ -151,6 +151,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				connection.Timeout = TimeSpan.FromMilliseconds(Math.Floor(value));
 			}
 		}
+		public double RequeryMs
+		{
+			get => connection.JobRequeryRate.TotalMilliseconds;
+			set
+			{
+				if (value < 1)
+					return;
+				connection.JobRequeryRate = TimeSpan.FromMilliseconds(Math.Floor(value));
+			}
+		}
 
 		public bool UsingDefaultCredentials
 		{
@@ -219,6 +229,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly Action onDelete;
 
+		readonly IServerJobSink jobSink;
+
 		IReadOnlyList<ITreeNode> children;
 
 		IServerClient serverClient;
@@ -230,13 +242,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool usingDefaultCredentials;
 		bool isExpanded;
 
-		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, PageContextViewModel pageContext, Action onDelete)
+		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, PageContextViewModel pageContext, Action onDelete, IJobSink jobSink)
 		{
 			this.serverClientFactory = serverClientFactory ?? throw new ArgumentNullException(nameof(serverClientFactory));
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
 			this.requestLogger = requestLogger ?? throw new ArgumentNullException(nameof(requestLogger));
 			this.onDelete = onDelete ?? throw new ArgumentNullException(nameof(onDelete));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
+			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate) ?? throw new ArgumentNullException(nameof(jobSink));
 
 			Connect = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Connect, this);
 			Close = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Close, this);
@@ -266,6 +279,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public void Dispose()
 		{
 			Children = null;
+			jobSink.Dispose();
 			serverClient?.Dispose();
 			serverClient = null;
 		}

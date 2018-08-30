@@ -13,6 +13,7 @@ namespace Tgstation.Server.ControlPanel.Models
 		public Uri Url { get; set; }
 
 		public TimeSpan Timeout { get; set; }
+		public TimeSpan JobRequeryRate { get; set; }
 
 		public Credentials Credentials { get; set; }
 

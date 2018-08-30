@@ -58,6 +58,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public PageContextViewModel PageContext { get; }
 
+		public JobManagerViewModel Jobs { get; }
+
 		public List<ConnectionManagerViewModel> Connections
 		{
 			get => connections;
@@ -93,6 +95,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			ConsoleContent = "Request details will be shown here...";
 
 			PageContext = new PageContextViewModel();
+			Jobs = new JobManagerViewModel();
 			Connections = new List<ConnectionManagerViewModel>(settings.Connections.Select(x => CreateConnection(x)));
 
 			AddServerCommand = new EnumCommand<MainWindowCommand>(MainWindowCommand.NewServerConnection, this);
@@ -106,7 +109,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				settings.Connections.Remove(connection);
 				Connections = new List<ConnectionManagerViewModel>(Connections.Where(x => x != newManager));
-			});
+			}, Jobs);
 			return newManager;
 		}
 
