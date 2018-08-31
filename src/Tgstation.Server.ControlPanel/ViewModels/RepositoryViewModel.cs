@@ -22,6 +22,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool IsExpanded { get; set; }
 
+		public string Origin => repository?.Origin;
+
+
 		readonly PageContextViewModel pageContext;
 		readonly IRepositoryClient repositoryClient;
 
@@ -34,7 +37,21 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.repositoryClient = repositoryClient ?? throw new ArgumentNullException(nameof(repositoryClient));
 
+			async void InitialLoad() => await Refresh(default).ConfigureAwait(false);
+			InitialLoad();
+		}
+
+		async Task Refresh(CancellationToken cancellationToken)
+		{
 			Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png";
+			try
+			{
+				repository = await repositoryClient.Read(cancellationToken).ConfigureAwait(true);
+			}
+			finally
+			{
+				Icon = "resm:Tgstation.Server.ControlPanel.Assets.git.png";
+			}
 		}
 
 		public Task HandleDoubleClick(CancellationToken cancellationToken)

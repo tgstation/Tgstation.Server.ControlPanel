@@ -214,7 +214,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				instanceUserTreeNode,
 				new InstanceUserRootViewModel(pageContext, instanceClient.Users, instanceUserTreeNode, userProvider, this),
-				instanceUser.RepositoryRights != 0 ? new BasicNode
+				instanceUser.RepositoryRights != RepositoryRights.None ? new BasicNode
 				{
 					Title = "TODO: Repository",
 					Icon = "resm:Tgstation.Server.ControlPanel.Assets.git.png"
@@ -223,7 +223,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Title = "Repository",
 					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
 				},
-				instanceUser.ByondRights != 0 ? new BasicNode
+				instanceUser.ByondRights != ByondRights.None ? new BasicNode
 				{
 					Title = "TODO: Byond",
 					Icon = "resm:Tgstation.Server.ControlPanel.Assets.byond.jpg"
@@ -232,7 +232,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Title = "Byond",
 					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
 				},
-				instanceUser.DreamMakerRights != 0 ? new BasicNode
+				instanceUser.DreamMakerRights != DreamMakerRights.None ? new BasicNode
 				{
 					Title = "TODO: Compiler",
 					Icon = "resm:Tgstation.Server.ControlPanel.Assets.dreammaker.ico"
@@ -242,7 +242,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
 				},
 				ddNode,
-				instanceUser.ChatBotRights != 0 ? new BasicNode
+				instanceUser.ChatBotRights != ChatBotRights.None ? new BasicNode
 				{
 					Title = "TODO: Chat Bots",
 					Icon = "resm:Tgstation.Server.ControlPanel.Assets.chat.png"
@@ -251,7 +251,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Title = "Chat Bots",
 					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
 				},
-				instanceUser.ChatBotRights != 0 ? new BasicNode
+				instanceUser.ConfigurationRights != ConfigurationRights.None ? new BasicNode
 				{
 					Title = "TODO: Static Files",
 					Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png"
