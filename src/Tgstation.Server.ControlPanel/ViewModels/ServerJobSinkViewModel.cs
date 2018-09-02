@@ -81,7 +81,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					instanceSinks.Add(instanceClient.Metadata.Id, sink);
 				}
 			}
-			if (newSink)
+			if (newSink && instanceClient.Metadata.Online == true)
 			{
 				await sink.InitialQuery(instanceClient.Jobs, cancellationToken).ConfigureAwait(false);
 				if (sink.Updated.IsCompleted)

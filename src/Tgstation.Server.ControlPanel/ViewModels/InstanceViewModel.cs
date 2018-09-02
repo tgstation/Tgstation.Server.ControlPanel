@@ -380,7 +380,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						{
 							async void ResetDelete()
 							{
-								await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
+								await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
 								deleteConfirming = false;
 								this.RaisePropertyChanged(nameof(DeleteText));
 							}
@@ -390,7 +390,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							break;
 						}
 						pageContext.ActiveObject = null;
-						await instanceRootViewModel.Refresh(cancellationToken).ConfigureAwait(false);
+						await instanceManagerClient.Delete(instance, cancellationToken).ConfigureAwait(true);
+						await instanceRootViewModel.Refresh(cancellationToken).ConfigureAwait(true);
 						break;
 					case InstanceCommand.FixPerms:
 						await Update(new Instance
