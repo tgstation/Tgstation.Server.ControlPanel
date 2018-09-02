@@ -45,7 +45,7 @@
           <page:InstanceManager IsVisible="{Binding PageContext.IsInstance}" IsEnabled="{Binding PageContext.IsInstance}"/>
           <page:AddInstanceUser IsVisible="{Binding PageContext.IsAddInstanceUser}" IsEnabled="{Binding PageContext.IsAddInstanceUser}"/>
           <page:InstanceUser IsVisible="{Binding PageContext.IsInstanceUser}" IsEnabled="{Binding PageContext.IsInstanceUser}"/>
-          <page:Repository/>
+          <page:Repository IsVisible="{Binding PageContext.IsRepository}" IsEnabled="{Binding PageContext.IsRepository}"/>
           <page:StaticFiles/>
           <page:Watchdog/>
           <page:ChatBot/>

@@ -4,7 +4,6 @@ using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
 using Tgstation.Server.Client.Components;
