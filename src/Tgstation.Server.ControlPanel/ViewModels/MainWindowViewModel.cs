@@ -24,7 +24,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public enum MainWindowCommand
 		{
 			NewServerConnection,
-			CopyConsole
+			CopyConsole,
+			AppUpdate
 		}
 
 		public static string Versions => String.Format(CultureInfo.InvariantCulture, "Version: {0}, API Version: {1}", Assembly.GetExecutingAssembly().GetName().Version, ApiHeaders.Version);
@@ -56,7 +57,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public ICommand CopyConsole { get; }
 
+		public EnumCommand<MainWindowCommand> AppUpdate { get; }
+
 		public PageContextViewModel PageContext { get; }
+
+		public bool CanUpdate => updater.Functional && !noUpdatesAvailable;
 
 		public JobManagerViewModel Jobs { get; }
 
@@ -65,6 +70,24 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => connections;
 			private set => this.RaiseAndSetIfChanged(ref connections, value);
 		}
+
+		public int UpdateProgress
+		{
+			get => updateProgress;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref updateProgress, value);
+				this.RaisePropertyChanged(nameof(ShowUpdateProgress));
+			}
+		}
+
+		public string UpdateText
+		{
+			get => updateText;
+			set => this.RaiseAndSetIfChanged(ref updateText, value);
+		}
+
+		public bool ShowUpdateProgress => UpdateProgress != -1;
 
 		readonly IUpdater updater;
 		readonly IServerClientFactory serverClientFactory;
@@ -78,6 +101,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		List<ConnectionManagerViewModel> connections;
 
 		string consoleContent;
+		string updateText;
+
+		int updateProgress;
+		bool updateReady;
+		bool updateInstalled;
+		bool noUpdatesAvailable;
 
 		public MainWindowViewModel(IUpdater updater)
 		{
@@ -97,12 +126,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			ConsoleContent = "Request details will be shown here...";
 
+			Task.Run(CheckForUpdates);
+
 			PageContext = new PageContextViewModel();
 			Jobs = new JobManagerViewModel();
 			Connections = new List<ConnectionManagerViewModel>(settings.Connections.Select(x => CreateConnection(x)));
 
 			AddServerCommand = new EnumCommand<MainWindowCommand>(MainWindowCommand.NewServerConnection, this);
 			CopyConsole = new EnumCommand<MainWindowCommand>(MainWindowCommand.CopyConsole, this);
+			AppUpdate = new EnumCommand<MainWindowCommand>(MainWindowCommand.AppUpdate, this);
 		}
 
 		ConnectionManagerViewModel CreateConnection(Connection connection)
@@ -213,12 +245,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case MainWindowCommand.NewServerConnection:
 				case MainWindowCommand.CopyConsole:
 					return true;
+				case MainWindowCommand.AppUpdate:
+					return updater.Functional && updateReady;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
 		}
 
-		public Task RunCommand(MainWindowCommand command, CancellationToken cancellationToken)
+		public async Task RunCommand(MainWindowCommand command, CancellationToken cancellationToken)
 		{
 			switch (command)
 			{
@@ -250,13 +284,44 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var clipboard = String.Join(" ", tmp);
 					TextCopy.Clipboard.SetText(clipboard);
 					break;
+				case MainWindowCommand.AppUpdate:
+					if (!updateInstalled)
+					{
+						UpdateProgress = 0;
+						UpdateText = "Installing Update: ";
+						await updater.ApplyUpdate(progress => UpdateProgress = progress);
+						updateInstalled = true;
+						updateReady = true;
+						UpdateText = "Update Ready!";
+						AppUpdate.Recheck();
+					}
+					else
+						updater.RestartApp();
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
-			return Task.CompletedTask;
 		}
-		public void OnTreeNodeDoubleClick(object sender, RoutedEventArgs mouseEvtArgs)
+
+		async Task CheckForUpdates()
 		{
+			if (!updater.Functional)
+				return;
+
+			UpdateText = "Checking for updates: ";
+			UpdateProgress = 0;
+			var newVersion = await updater.LatestVersion(progress => UpdateProgress = progress).ConfigureAwait(true);
+			if (newVersion > Assembly.GetExecutingAssembly().GetName().Version)
+			{
+				UpdateText = "Update Available!";
+				updateReady = true;
+				AppUpdate.Recheck();
+			}
+			else
+			{
+				noUpdatesAvailable = true;
+				this.RaisePropertyChanged(nameof(CanUpdate));
+			}
 		}
 	}
 }
