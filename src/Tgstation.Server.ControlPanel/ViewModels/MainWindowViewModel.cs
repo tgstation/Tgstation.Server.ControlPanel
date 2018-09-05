@@ -66,6 +66,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			private set => this.RaiseAndSetIfChanged(ref connections, value);
 		}
 
+		readonly IUpdater updater;
 		readonly IServerClientFactory serverClientFactory;
 		readonly CancellationTokenSource settingsSaveLoopCts;
 		readonly Task settingsSaveLoop;
@@ -78,8 +79,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		string consoleContent;
 
-		public MainWindowViewModel()
+		public MainWindowViewModel(IUpdater updater)
 		{
+			this.updater = updater ?? throw new ArgumentNullException(nameof(updater));
+
 			var assemblyName = Assembly.GetExecutingAssembly().GetName();
 			serverClientFactory = new ServerClientFactory(new ProductHeaderValue(assemblyName.Name, assemblyName.Version.ToString()));
 
@@ -87,7 +90,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			const string SettingsFileName = "settings.json";
 			storageDirectory = Path.Combine(storagePath, assemblyName.Name);
 			settingsPath = Path.Combine(storageDirectory, SettingsFileName);
-			settings = LoadSettings().Result;
+			settings = LoadSettings();
 
 			settingsSaveLoopCts = new CancellationTokenSource();
 			settingsSaveLoop = SettingsSaveLoop(settingsSaveLoopCts.Token);
@@ -113,12 +116,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return newManager;
 		}
 
-		async Task<UserSettings> LoadSettings()
+		UserSettings LoadSettings()
 		{
 			UserSettings settings = null;
 			try
 			{
-				var settingsFile = await File.ReadAllTextAsync(settingsPath).ConfigureAwait(false);
+				var settingsFile = File.ReadAllText(settingsPath);
 				settings = JsonConvert.DeserializeObject<UserSettings>(settingsFile);
 			}
 			catch (IOException) { }
@@ -130,13 +133,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return settings;
 		}
 
-		async Task SaveSettings()
+		void SaveSettings()
 		{
 			try
 			{
 				Directory.CreateDirectory(storageDirectory);
 				var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-				await File.WriteAllTextAsync(settingsPath, json).ConfigureAwait(false);
+				File.WriteAllText(settingsPath, json);
 			}
 			catch (IOException) { }
 		}
@@ -149,7 +152,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken).ConfigureAwait(false);
 					cancellationToken.ThrowIfCancellationRequested();
-					await SaveSettings().ConfigureAwait(false);
+					SaveSettings();
 				}
 			}
 			catch (OperationCanceledException) { }
@@ -159,7 +162,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			settingsSaveLoopCts.Cancel();
 			settingsSaveLoop.GetAwaiter().GetResult();
-			SaveSettings().GetAwaiter().GetResult();
+			SaveSettings();
+			updater.Dispose();
 		}
 
 		public async Task LogRequest(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
@@ -243,7 +247,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case MainWindowCommand.CopyConsole:
 					var tmp = new List<string>(ConsoleContent.Split('\n'));
 					tmp.RemoveAt(0);    //remove info line
-					var clipboard = String.Join(' ', tmp);
+					var clipboard = String.Join(" ", tmp);
 					TextCopy.Clipboard.SetText(clipboard);
 					break;
 				default:
