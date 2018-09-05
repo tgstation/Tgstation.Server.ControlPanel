@@ -7,7 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgstation.Server.ControlPan
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgstation.Server.ControlPanel.Windows", "src\Tgstation.Server.ControlPanel.Windows\Tgstation.Server.ControlPanel.Windows.csproj", "{142BC0C0-7882-44B6-A0B4-BD2B4FC30D3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgstation.Server.ControlPanel.Core", "src\Tgstation.Server.ControlPanel.Core\Tgstation.Server.ControlPanel.Core.csproj", "{924142CB-4AEA-40E6-97FC-67BC200C474B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgstation.Server.ControlPanel.Core", "src\Tgstation.Server.ControlPanel.Core\Tgstation.Server.ControlPanel.Core.csproj", "{924142CB-4AEA-40E6-97FC-67BC200C474B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{26C80555-3C9F-461C-8272-8257E46F0EDA}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
