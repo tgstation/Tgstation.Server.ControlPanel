@@ -22,9 +22,9 @@ artifacts:
 cache:
   - ~\.nuget\packages -> **\*.csproj
 install:
-  - nuget restore tgstation-server.sln
+  - nuget restore Tgstation.Server.ControlPanel.sln
 build:
-  project: tgstation-server.sln
+  project: Tgstation.Server.ControlPanel.sln
   parallel: false
   verbosity: minimal
 deploy:
