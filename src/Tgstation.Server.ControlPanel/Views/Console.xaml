@@ -15,7 +15,7 @@
         <Image Source="resm:Tgstation.Server.ControlPanel.Assets.copy.png" Width="12" Height="12"/>
       </Button>
     </Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible" Background="#FFFFFF" Margin="3" Grid.Row="1">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible" Background="#FFFFFF" Margin="3" Grid.Row="1" Name="_scrollViewer">
       <TextBox TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" Text="{Binding ConsoleContent}"/>
     </ScrollViewer>
   </Grid>

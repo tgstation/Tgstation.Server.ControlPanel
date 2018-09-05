@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Threading;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,7 +81,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					instanceSinks.Add(instanceClient.Metadata.Id, sink);
 				}
 			}
-			if (newSink)
+			if (newSink && instanceClient.Metadata.Online == true)
 			{
 				await sink.InitialQuery(instanceClient.Jobs, cancellationToken).ConfigureAwait(false);
 				if (sink.Updated.IsCompleted)
@@ -111,7 +112,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return null;
 		}
 
-		void UpdateJobList(Job job, IServerClient serverClient)
+		async Task UpdateJobList(Job job, IServerClient serverClient)
 		{
 			if (job == null)
 				return;
@@ -133,8 +134,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Id = instanceId.Value
 			}).Jobs;
 
+			JobViewModel viewModel;
 			lock (jobModelMap)
-				if (!jobModelMap.TryGetValue(job.Id, out var viewModel))
+				if (!jobModelMap.TryGetValue(job.Id, out viewModel))
 				{
 					JobViewModel newModel = null;
 					newModel = new JobViewModel(job, () =>
@@ -151,9 +153,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						newModel
 					};
+					return;
 				}
-				else
-					viewModel.Update(job, client);
+			await Dispatcher.UIThread.InvokeAsync(() => viewModel.Update(job, client)).ConfigureAwait(false);
 		}
 
 		IObservable<Job> NewJobs()
@@ -198,7 +200,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						var jobUpdates = timedOut ? UpdateJobs(serverClient, cancellationToken) : NewJobs();
 
-						await jobUpdates.ForEachAsync(job => UpdateJobList(job, serverClient)).ConfigureAwait(false);
+						var tasks = new List<Task>();
+						await jobUpdates.ForEachAsync(job =>
+						{
+							lock (tasks)
+								tasks.Add(UpdateJobList(job, serverClient));
+						}).ConfigureAwait(false);
+
+						await Task.WhenAll(tasks).ConfigureAwait(false);
 					}
 				}
 				catch { }

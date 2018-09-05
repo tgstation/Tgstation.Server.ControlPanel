@@ -1,7 +1,6 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
@@ -96,6 +95,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly InstanceRootViewModel instanceRootViewModel;
 		readonly IUserProvider userProvider;
 
+		IInstanceJobSink instanceJobSink;
+
 		IReadOnlyList<ITreeNode> children;
 		Instance instance;
 		bool ddRunning;
@@ -111,7 +112,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		InstanceUser instanceUser;
 
-		public InstanceViewModel(IInstanceManagerClient instanceManagerClient, PageContextViewModel pageContext, Instance instance, IUserRightsProvider userRightsProvider, InstanceRootViewModel instanceRootViewModel, IUserProvider userProvider)
+		public InstanceViewModel(IInstanceManagerClient instanceManagerClient, PageContextViewModel pageContext, Instance instance, IUserRightsProvider userRightsProvider, InstanceRootViewModel instanceRootViewModel, IUserProvider userProvider, IServerJobSink serverJobSink)
 		{
 			this.instanceManagerClient = instanceManagerClient ?? throw new ArgumentNullException(nameof(instanceManagerClient));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
@@ -122,7 +123,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			instanceClient = instanceManagerClient.CreateClient(instance);
 
-			SafeLoad();
+			SafeLoad(serverJobSink);
 
 			Close = new EnumCommand<InstanceCommand>(InstanceCommand.Close, this);
 			Save = new EnumCommand<InstanceCommand>(InstanceCommand.Save, this);
@@ -146,7 +147,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			};
 		}
 
-		async void SafeLoad() => await PostRefresh(default).ConfigureAwait(true);
+		async void SafeLoad(IServerJobSink serverJobSink)
+		{
+			if(serverJobSink != null)
+				instanceJobSink = await serverJobSink?.GetSinkForInstance(instanceClient, default) ?? throw new ArgumentNullException(nameof(serverJobSink));
+			await PostRefresh(default).ConfigureAwait(true);
+		}
 	
 		public void SetDDRunning(bool yes)
 		{
@@ -190,7 +196,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, this, userRightsProvider, instanceClient.Users, instanceUser, InstanceUserRootViewModel.GetDisplayNameForInstanceUser(userProvider, instanceUser), null, null);
 
-			instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad();
+			instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad(null);
 
 			var canReadDD = instanceUser.DreamDaemonRights.Value.HasFlag(DreamDaemonRights.ReadMetadata);
 			ITreeNode ddNode;
@@ -214,15 +220,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				instanceUserTreeNode,
 				new InstanceUserRootViewModel(pageContext, instanceClient.Users, instanceUserTreeNode, userProvider, this),
-				instanceUser.RepositoryRights != RepositoryRights.None ? new BasicNode
-				{
-					Title = "TODO: Repository",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.git.png"
-				} : new BasicNode
-				{
-					Title = "Repository",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				},
+				new RepositoryViewModel(pageContext, instanceClient.Repository, instanceJobSink, instanceUserTreeNode),
 				instanceUser.ByondRights != ByondRights.None ? new BasicNode
 				{
 					Title = "TODO: Byond",
@@ -382,7 +380,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						{
 							async void ResetDelete()
 							{
-								await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
+								await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
 								deleteConfirming = false;
 								this.RaisePropertyChanged(nameof(DeleteText));
 							}
@@ -392,7 +390,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							break;
 						}
 						pageContext.ActiveObject = null;
-						await instanceRootViewModel.Refresh(cancellationToken).ConfigureAwait(false);
+						await instanceManagerClient.Delete(instance, cancellationToken).ConfigureAwait(true);
+						await instanceRootViewModel.Refresh(cancellationToken).ConfigureAwait(true);
 						break;
 					case InstanceCommand.FixPerms:
 						await Update(new Instance

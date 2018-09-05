@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
+using Tgstation.Server.Client;
 using Tgstation.Server.Client.Components;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
@@ -47,7 +48,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string NewOrigin
 		{
 			get => newOrigin;
-			set => this.RaiseAndSetIfChanged(ref newOrigin, value);
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newOrigin, value);
+				Clone.Recheck();
+			}
 		}
 		public string NewSha
 		{
@@ -124,6 +129,29 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanUpdate => rightsProvider.RepositoryRights.HasFlag(RepositoryRights.UpdateBranch);
 		public bool CanTestMerge => rightsProvider.RepositoryRights.HasFlag(RepositoryRights.MergePullRequest);
 
+		public bool Error
+		{
+			get => error;
+			set => this.RaiseAndSetIfChanged(ref error, value);
+		}
+
+		public bool CloneAvailable
+		{
+			get => cloneAvailable;
+			set => this.RaiseAndSetIfChanged(ref cloneAvailable, value);
+		}
+
+		public bool Refreshing
+		{
+			get => refreshing;
+			set => this.RaiseAndSetIfChanged(ref refreshing, value);
+		}
+
+		public string ErrorMessage
+		{
+			get => errorMessage;
+			set => this.RaiseAndSetIfChanged(ref errorMessage, value);
+		}
 
 		public EnumCommand<RepositoryCommand> Close { get; }
 		public EnumCommand<RepositoryCommand> RefreshCommand { get; }
@@ -153,9 +181,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool newAutoUpdatesKeepTestMerges;
 		bool newAutoUpdatesSynchronize;
 
+		string errorMessage;
+		bool error;
+
 		string icon;
 
-		bool loading;
+		bool refreshing;
+		bool cloneAvailable;
 
 		public RepositoryViewModel(PageContextViewModel pageContext, IRepositoryClient repositoryClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider)
 		{
@@ -202,21 +234,32 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		async Task Refresh(Repository update, bool? cloneOrDelete, CancellationToken cancellationToken)
 		{
 			Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png";
-			loading = true;
+			Refreshing = true;
+			Error = false;
+			ErrorMessage = null;
+			CloneAvailable = false;
 			RecheckCommands();
 			try
 			{
 				var oldRepo = Repository;
-				if (cloneOrDelete.HasValue)
-					if (cloneOrDelete.Value)
-						Repository = await repositoryClient.Delete(cancellationToken).ConfigureAwait(true);
+				try
+				{
+					if (cloneOrDelete.HasValue)
+						if (cloneOrDelete.Value)
+							Repository = await repositoryClient.Clone(update, cancellationToken).ConfigureAwait(true);
+						else
+							Repository = await repositoryClient.Delete(cancellationToken).ConfigureAwait(true);
+					else if (update != null)
+						Repository = await repositoryClient.Update(update, cancellationToken).ConfigureAwait(true);
 					else
-						Repository = await repositoryClient.Clone(update, cancellationToken).ConfigureAwait(true);
-				else if (update != null)
-					Repository = await repositoryClient.Update(update, cancellationToken).ConfigureAwait(true);
-				else
-					Repository = await repositoryClient.Read(cancellationToken).ConfigureAwait(true);
-
+						Repository = await repositoryClient.Read(cancellationToken).ConfigureAwait(true);
+				}
+				catch (ClientException e)
+				{
+					Error = true;
+					ErrorMessage = e.Message;
+					return;
+				}
 				if (Repository.ActiveJob != null)
 					jobSink.RegisterJob(Repository.ActiveJob);
 
@@ -233,13 +276,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				NewShowTestMergeCommitters = Repository.ShowTestMergeCommitters ?? update.ShowTestMergeCommitters ?? oldRepo.ShowTestMergeCommitters ?? NewShowTestMergeCommitters;
 				NewCommitterEmail = Repository.CommitterEmail;
 				NewCommitterName = Repository.CommitterName;
+
+				CloneAvailable = Repository.Origin == null;
 				
 				//TODO: Test merges
 			}
 			finally
 			{
 				Icon = "resm:Tgstation.Server.ControlPanel.Assets.git.png";
-				loading = false;
+				Refreshing = false;
 				RecheckCommands();
 			}
 		}
@@ -257,16 +302,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case RepositoryCommand.Close:
 					return true;
 				case RepositoryCommand.Refresh:
-					return !loading && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.Read);
+					return !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.Read);
 				case RepositoryCommand.Update:
-					return !loading 
+					return !Refreshing
 						&& (CanAutoUpdate | CanChangeCommitter | CanAccess | CanShowTMCommitters | CanTestMerge | CanSetRef | CanSetSha | CanUpdate)
 						&& !(!String.IsNullOrWhiteSpace(NewAccessUser) ^ !String.IsNullOrWhiteSpace(NewAccessToken))
 						&& !(!String.IsNullOrWhiteSpace(NewSha) && !String.IsNullOrWhiteSpace(NewReference));
 				case RepositoryCommand.Delete:
-					return !loading && CanDelete;
+					return !Refreshing && CanDelete;
 				case RepositoryCommand.Clone:
-					return !loading && CanClone;
+					return !Refreshing && CanClone && !String.IsNullOrWhiteSpace(NewOrigin);
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}

@@ -351,7 +351,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM, this));
 					var urVM = new UsersRootViewModel(serverClient.Users, pageContext, userVM);
 					newChildren.Add(urVM);
-					newChildren.Add(new InstanceRootViewModel(pageContext, serverClient.Instances, userVM, urVM));
+					newChildren.Add(new InstanceRootViewModel(pageContext, serverClient.Instances, userVM, urVM, jobSink));
 				}
 				catch
 				{
