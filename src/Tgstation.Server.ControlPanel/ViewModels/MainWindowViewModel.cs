@@ -126,8 +126,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			ConsoleContent = "Request details will be shown here...";
 
-			Task.Run(CheckForUpdates);
-
 			PageContext = new PageContextViewModel();
 			Jobs = new JobManagerViewModel();
 			Connections = new List<ConnectionManagerViewModel>(settings.Connections.Select(x => CreateConnection(x)));
@@ -135,6 +133,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			AddServerCommand = new EnumCommand<MainWindowCommand>(MainWindowCommand.NewServerConnection, this);
 			CopyConsole = new EnumCommand<MainWindowCommand>(MainWindowCommand.CopyConsole, this);
 			AppUpdate = new EnumCommand<MainWindowCommand>(MainWindowCommand.AppUpdate, this);
+
+			CheckForUpdates();
 		}
 
 		ConnectionManagerViewModel CreateConnection(Connection connection)
@@ -303,15 +303,29 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		async Task CheckForUpdates()
+		async void CheckForUpdates()
 		{
 			if (!updater.Functional)
 				return;
 
 			UpdateText = "Checking for updates: ";
 			UpdateProgress = 0;
-			var newVersion = await updater.LatestVersion(progress => UpdateProgress = progress).ConfigureAwait(true);
-			if (newVersion > Assembly.GetExecutingAssembly().GetName().Version)
+			Version newVersion;
+			try
+			{
+				newVersion = await updater.LatestVersion(progress => UpdateProgress = progress).ConfigureAwait(true);
+			}
+			catch (Exception e)
+			{
+				UpdateText = "Error fetching update information: " + e.Message;
+				return;
+			}
+			finally
+			{
+				UpdateProgress = 0;
+			}
+
+			if (newVersion == null || newVersion > Assembly.GetExecutingAssembly().GetName().Version)
 			{
 				UpdateText = "Update Available!";
 				updateReady = true;

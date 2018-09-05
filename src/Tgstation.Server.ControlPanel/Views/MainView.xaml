@@ -68,12 +68,13 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <TextBlock Text="{Binding Versions, Mode=OneTime}" Foreground="#FFFFFF" DockPanel.Dock="Left" Margin="5,0,0,0" Grid.Column="0"/>
-      <Button Command="{Binding AppUpdate}" IsVisible="{Binding CanUpdate}" Content="{Binding UpdateText}" Grid.Column="2" Background="#007ACC" BorderBrush="#007ACC" Padding="0,0" Foreground="#FFFFFF"/>
-      <ProgressBar Value="{Binding UpdateProgress}" IsVisible="{Binding ShowUpdateProgress}" Grid.Column="3"/>
-      <TextBlock Text="{Binding Meme, Mode=OneTime}" Foreground="#FFFFFF" TextAlignment="Right" DockPanel.Dock="Right" Margin="0,0,5,0" Grid.Column="4"/>
+      <StackPanel Orientation="Horizontal" Grid.Column="2">
+        <Button Command="{Binding AppUpdate}" IsVisible="{Binding CanUpdate}" Content="{Binding UpdateText}" Background="#007ACC" BorderBrush="#007ACC" Padding="0,0" Foreground="#FFFFFF"/>
+        <ProgressBar Value="{Binding UpdateProgress}" IsVisible="{Binding ShowUpdateProgress}" Height="10" Background="#007ACC" Foreground="#FFFFFF"/>
+      </StackPanel>
+      <TextBlock Text="{Binding Meme, Mode=OneTime}" Foreground="#FFFFFF" TextAlignment="Right" DockPanel.Dock="Right" Margin="0,0,5,0" Grid.Column="3"/>
     </Grid>
   </Grid>
 </UserControl>

@@ -2,6 +2,6 @@
 {
 	static class Program
 	{
-		public static void Main() => ControlPanel.Run(new NoopUpdater());
+		public static void Main() => ControlPanel.Run(new Updater());
 	}
 }

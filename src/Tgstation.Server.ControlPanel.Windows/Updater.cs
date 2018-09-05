@@ -8,14 +8,28 @@ namespace Tgstation.Server.ControlPanel.Windows
 	{
 		readonly Task<UpdateManager> updateManagerTask;
 
-		public bool Functional => true;
+		public bool Functional
+		{
+			get
+			{
+				try
+				{
+					using (var mgr = new UpdateManager(null))
+						return mgr.IsInstalledApp;
+				}
+				catch (Exception)
+				{
+					return false;
+				}
+			}
+		}
 
 		public Updater()
 		{
-			updateManagerTask = UpdateManager.GitHubUpdateManager("https://github.com/tgstation/Tgstation.Server.ControlPanel");
+			updateManagerTask = Functional ? UpdateManager.GitHubUpdateManager("https://github.com/tgstation/Tgstation.Server.ControlPanel") : null;
 		}
 
-		public void Dispose() => updateManagerTask.GetAwaiter().GetResult().Dispose();
+		public void Dispose() => updateManagerTask?.GetAwaiter().GetResult().Dispose();
 
 		public async Task ApplyUpdate(Action<int> progress)
 		{
@@ -28,7 +42,15 @@ namespace Tgstation.Server.ControlPanel.Windows
 		public async Task<Version> LatestVersion(Action<int> progress)
 		{
 			var manager = await updateManagerTask.ConfigureAwait(false);
-			var updateInfo = await manager.CheckForUpdate(progress: progress).ConfigureAwait(false);
+			UpdateInfo updateInfo;
+			try
+			{
+				updateInfo = await manager.CheckForUpdate(progress: progress).ConfigureAwait(false);
+			}
+			catch (InvalidOperationException)
+			{
+				return null;
+			}
 			return updateInfo.FutureReleaseEntry?.Version.Version;
 		}
 	}
