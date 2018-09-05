@@ -1,0 +1,39 @@
+version: '{build}'
+pull_requests:
+  do_not_increment_build_number: true
+branches:
+  only:
+    - master
+skip_tags: true
+image: Visual Studio 2017
+configuration:
+  - Debug
+  - Release
+shallow_clone: true
+artifacts:
+  - path: src/Tgstation.Server.ControlPanel.Windows/Releases/Setup.exe
+    name: SetupExe
+  - path: src/Tgstation.Server.ControlPanel.Windows/Releases/Setup.msi
+    name: SetupMsi
+  - path: src/Tgstation.Server.ControlPanel.Windows/Releases/RELEASES
+    name: ReleaseMetadata
+  - path: src/Tgstation.Server.ControlPanel.Windows/Releases/Tgstation.Server.ControlPanel.Windows-*.nupkg
+    name: ReleasePackages
+cache:
+  - ~\.nuget\packages -> **\*.csproj
+install:
+  - nuget restore tgstation-server.sln
+build:
+  project: tgstation-server.sln
+  parallel: false
+  verbosity: minimal
+deploy:
+  - provider: GitHub
+    release: "Tgstation.Server.ControlPanel-v$(TGCPVersion)"
+    description: 'The /tg/station server suite'
+    auth_token:
+      secure: lJNGAXwiB5HlWdthz3K4PetqpTG5IEAyRgKaiKxFMQ8HW8CcOjRtB97B05op7BsK
+    artifact: SetupExe,SetupMsi,ReleaseMetadata,ReleasePackages
+    draft: true
+    on:
+      TGSDeploy: "Do it."
