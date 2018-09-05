@@ -10,7 +10,12 @@ namespace Tgstation.Server.ControlPanel
 		public static void Run(IUpdater updater)
 		{
 			using (var mwvm = new MainWindowViewModel(updater))
-				BuildAvaloniaApp().Start<MainWindow>(() => mwvm);
+			{
+				var app = BuildAvaloniaApp();
+
+				app.BeforeStarting(x => mwvm.LoadData());
+				app.Start<MainWindow>(() => mwvm);
+			}
 		}
 
 		static AppBuilder BuildAvaloniaApp()

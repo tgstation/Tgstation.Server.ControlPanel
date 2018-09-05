@@ -128,13 +128,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			PageContext = new PageContextViewModel();
 			Jobs = new JobManagerViewModel();
-			Connections = new List<ConnectionManagerViewModel>(settings.Connections.Select(x => CreateConnection(x)));
 
 			AddServerCommand = new EnumCommand<MainWindowCommand>(MainWindowCommand.NewServerConnection, this);
 			CopyConsole = new EnumCommand<MainWindowCommand>(MainWindowCommand.CopyConsole, this);
 			AppUpdate = new EnumCommand<MainWindowCommand>(MainWindowCommand.AppUpdate, this);
-
-			CheckForUpdates();
 		}
 
 		ConnectionManagerViewModel CreateConnection(Connection connection)
@@ -303,7 +300,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		async void CheckForUpdates()
+		public async void LoadData()
+		{
+			var updatesTask = CheckForUpdates();
+			Connections = new List<ConnectionManagerViewModel>(settings.Connections.Select(x => CreateConnection(x)));
+			await updatesTask.ConfigureAwait(false);
+		}
+
+		async Task CheckForUpdates()
 		{
 			if (!updater.Functional)
 				return;
