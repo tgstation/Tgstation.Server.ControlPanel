@@ -55,6 +55,24 @@
             <Button Command="{Binding PageContext.ActiveObject.Clone}" Content="Clone" Grid.Column="1"/>
           </Grid>
         </StackPanel>
+        <StackPanel Orientation="Vertical" IsVisible="{Binding !PageContext.ActiveObject.CloneAvailable}">
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Origin URL:"/>
+            <TextBlock Text="{Binding PageContext.ActiveObject.Repository.Origin}" Margin="5,0,0,0"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Sha:"/>
+            <TextBlock Text="{Binding PageContext.ActiveObject.Repository.RevisionInformation.CommitSha}" Margin="5,0,0,0"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Closest Origin Sha:"/>
+            <TextBlock Text="{Binding PageContext.ActiveObject.Repository.RevisionInformation.OriginCommitSha}" Margin="5,0,0,0"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Reference:"/>
+            <TextBlock Text="{Binding PageContext.ActiveObject.Repository.Reference}" Margin="5,0,0,0"/>
+          </StackPanel>
+        </StackPanel>
       </StackPanel>
     </ScrollViewer>
   </Grid>

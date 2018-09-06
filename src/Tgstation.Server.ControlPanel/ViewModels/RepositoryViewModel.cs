@@ -163,7 +163,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IRepositoryClient repositoryClient;
 		readonly IInstanceJobSink jobSink;
 		readonly IInstanceUserRightsProvider rightsProvider;
-
+		
 		Repository repository;
 
 		string newOrigin;
@@ -263,19 +263,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (Repository.ActiveJob != null)
 					jobSink.RegisterJob(Repository.ActiveJob);
 
-				NewOrigin = Repository.Origin;
-
-				NewSha = Repository.RevisionInformation?.CommitSha;
-				NewReference = Repository.Reference;
+				NewOrigin = String.Empty;
+				NewSha = String.Empty;
+				NewReference = String.Empty;
+				NewCommitterEmail = String.Empty;
+				NewCommitterName = String.Empty;
+				NewAccessUser = String.Empty;
+				NewAccessToken = String.Empty;
 
 				NewUpdateFromOrigin = false;
-				NewAccessToken = Repository.AccessUser != null ? "****************" : String.Empty;
-				NewAccessUser = Repository.AccessUser;
 				NewAutoUpdatesKeepTestMerges = Repository.AutoUpdatesKeepTestMerges ?? update.AutoUpdatesKeepTestMerges ?? oldRepo.AutoUpdatesKeepTestMerges ?? NewAutoUpdatesKeepTestMerges;
 				NewAutoUpdatesSynchronize = Repository.AutoUpdatesSynchronize ?? update.AutoUpdatesSynchronize ?? oldRepo.AutoUpdatesSynchronize ?? NewAutoUpdatesSynchronize;
 				NewShowTestMergeCommitters = Repository.ShowTestMergeCommitters ?? update.ShowTestMergeCommitters ?? oldRepo.ShowTestMergeCommitters ?? NewShowTestMergeCommitters;
-				NewCommitterEmail = Repository.CommitterEmail;
-				NewCommitterName = Repository.CommitterName;
 
 				CloneAvailable = Repository.Origin == null;
 				
