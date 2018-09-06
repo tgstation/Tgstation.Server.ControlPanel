@@ -214,7 +214,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						bodyString = JsonConvert.SerializeObject(userModel);
 					}
 				}
-				catch (JsonException) { }
+				catch (JsonException)
+				{
+					try
+					{
+						var repoModel = JsonConvert.DeserializeObject<Repository>(bodyString);
+						if (repoModel.AccessToken != null)
+						{
+							repoModel.AccessToken = String.Join("", Enumerable.Repeat('*', repoModel.AccessToken.Length));
+							bodyString = JsonConvert.SerializeObject(repoModel);
+						}
+					}
+					catch (JsonException) { }
+				}
 				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			}
 			lock (this)
