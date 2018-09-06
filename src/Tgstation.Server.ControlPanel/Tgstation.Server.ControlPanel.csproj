@@ -23,7 +23,6 @@
     <EmbeddedResource Include="Assets\*" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="StyleDefinitions.xaml" />
     <None Remove="Views\Console.xaml" />
     <None Remove="Views\JobViewer.xaml" />
     <None Remove="Views\ObjectBrowserItem.xaml" />
@@ -44,9 +43,9 @@
     <None Remove="Views\ServerBrowser.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.6.2-build6007-beta" />
-    <PackageReference Include="Avalonia.Desktop" Version="0.6.2-build6007-beta" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="0.6.2-build6007-beta" />
+    <PackageReference Include="Avalonia" Version="0.6.2-build6108-beta" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.6.2-build6108-beta" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.6.2-build6108-beta" />
     <PackageReference Include="Octokit" Version="0.31.0" />
     <PackageReference Include="System.Reactive" Version="4.1.0" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.5.0" />
@@ -59,9 +58,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="StyleDefinitions.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
     <EmbeddedResource Update="Views\Console.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
