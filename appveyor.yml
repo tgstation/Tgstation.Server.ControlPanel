@@ -17,8 +17,8 @@ artifacts:
     name: SetupMsi
   - path: src/Tgstation.Server.ControlPanel.Windows/Releases/RELEASES
     name: ReleaseMetadata
-  - path: src/Tgstation.Server.ControlPanel.Windows/Releases/Tgstation.Server.ControlPanel.Windows-*.nupkg
-    name: ReleasePackages
+  - path: src/Tgstation.Server.ControlPanel.Windows/Releases/Tgstation.Server.ControlPanel.Windows-*full.nupkg
+    name: ReleasePackage
 cache:
   - ~\.nuget\packages -> **\*.csproj
 install:
@@ -35,7 +35,7 @@ deploy:
     description: 'The /tg/station server suite'
     auth_token:
       secure: lJNGAXwiB5HlWdthz3K4PetqpTG5IEAyRgKaiKxFMQ8HW8CcOjRtB97B05op7BsK
-    artifact: SetupExe,SetupMsi,ReleaseMetadata,ReleasePackages
+    artifact: SetupExe,SetupMsi,ReleaseMetadata,ReleasePackage
     draft: true
     on:
       TGSDeploy: "Do it."
