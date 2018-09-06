@@ -18,7 +18,7 @@ namespace Tgstation.Server.ControlPanel
 			}
 		}
 
-		static AppBuilder BuildAvaloniaApp()
+		public static AppBuilder BuildAvaloniaApp()
 			=> AppBuilder.Configure<App>()
 				.UsePlatformDetect()
 				.UseReactiveUI()

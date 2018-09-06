@@ -262,6 +262,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							Password = String.Empty
 						},
 						Timeout = TimeSpan.FromSeconds(15),
+						JobRequeryRate = TimeSpan.FromSeconds(10),
 						Url = new Uri("https://localhost:5000")
 					};
 

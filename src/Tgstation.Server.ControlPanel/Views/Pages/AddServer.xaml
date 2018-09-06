@@ -50,41 +50,57 @@
 
           <Grid Margin="0,0,0,5">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="25*"/>
-              <ColumnDefinition Width="30*"/>
-              <ColumnDefinition Width="49*"/>
+              <ColumnDefinition Width="5*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="5*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="5*"/>
             </Grid.ColumnDefinitions>
-            <DockPanel Grid.Column="0">
+            <DockPanel Grid.Column="1">
+              <TextBlock DockPanel.Dock="Left" Text="Connection Timeout (ms):" Margin="0,4,5,0" />
+              <NumericUpDown DockPanel.Dock="Right" Width="75" Height="25" Minimum="0" Value="{Binding PageContext.ActiveObject.TimeoutMs, Mode=TwoWay}"/>
+            </DockPanel>
+            <DockPanel Grid.Column="3">
+              <TextBlock DockPanel.Dock="Left" Text="Job Refresh Rate (ms):" Margin="0,4,5,0" />
+              <NumericUpDown DockPanel.Dock="Right" Width="75" Height="25" Minimum="0" Value="{Binding PageContext.ActiveObject.RequeryMs, Mode=TwoWay}"/>
+            </DockPanel>
+          </Grid>
+
+          <Grid Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="10*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="10*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="10*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="10*"/>
+            </Grid.ColumnDefinitions>
+            <DockPanel Grid.Column="1">
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UsingHttp, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Use Plain HTTP" Margin="5,4,0,0" />
             </DockPanel>
-            <DockPanel Grid.Column="1">
+            <DockPanel Grid.Column="3">
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UsingDefaultCredentials, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Default Credentials" Margin="5,4,0,0" />
             </DockPanel>
-            <DockPanel Grid.Column="2">
-              <TextBlock DockPanel.Dock="Left" Text="Connection Timeout (ms):" Margin="0,4,5,0" />
-              <NumericUpDown DockPanel.Dock="Right" Width="75" Height="25" Value="{Binding PageContext.ActiveObject.TimeoutMs, Mode=TwoWay}"/>
+            <DockPanel Grid.Column="5">
+              <CheckBox DockPanel.Dock="Left" Background="White" IsChecked="{Binding PageContext.ActiveObject.AllowSavingPassword, Mode=TwoWay}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Save Password" Margin="5,5,0,0" />
             </DockPanel>
           </Grid>
-          
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="00,0,0,5"/>
           <Grid>
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="5*"/> 
-              <ColumnDefinition Width="30*"/>
+              <ColumnDefinition Width="10*"/> 
               <ColumnDefinition Width="25*"/>
               <ColumnDefinition Width="5*"/>
               <ColumnDefinition Width="25*"/>
               <ColumnDefinition Width="10*"/>
             </Grid.ColumnDefinitions>
-            <DockPanel Grid.Column="1">
-              <CheckBox DockPanel.Dock="Left" Background="White" IsChecked="{Binding PageContext.ActiveObject.AllowSavingPassword, Mode=TwoWay}"/>
-              <TextBlock DockPanel.Dock="Right" Text="Save Password" Margin="5,5,0,0" />
-            </DockPanel>
-            <Button Content="{Binding PageContext.ActiveObject.ConnectionWord}" Grid.Column="2" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding PageContext.ActiveObject.Connect}"/>
-            <Button Content="{Binding PageContext.ActiveObject.DeleteWord}" Grid.Column="4" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding PageContext.ActiveObject.Delete}"/> 
+            <Button Content="{Binding PageContext.ActiveObject.ConnectionWord}" Grid.Column="1" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding PageContext.ActiveObject.Connect}"/>
+            <Button Content="{Binding PageContext.ActiveObject.DeleteWord}" Grid.Column="3" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding PageContext.ActiveObject.Delete}"/> 
           </Grid>
           <StackPanel Orientation="Vertical" IsVisible="{Binding PageContext.ActiveObject.Errored}" >
             <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>

@@ -57,20 +57,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref children, value);
 		}
 
-		public int TimeoutSeconds
-		{
-			get => (int)Math.Ceiling(connection.Timeout.TotalSeconds);
-			set
-			{
-				var newVal = TimeSpan.FromSeconds(value);
-				if (newVal != connection.Timeout)
-				{
-					connection.Timeout = newVal;
-					this.RaisePropertyChanged();
-				}
-			}
-		}
-
 		public bool Connected => serverClient != null && serverClient.Token.ExpiresAt < DateTimeOffset.Now;
 
 		public bool Connecting { get; private set; }
