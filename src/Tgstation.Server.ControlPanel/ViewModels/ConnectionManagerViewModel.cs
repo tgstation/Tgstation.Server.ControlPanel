@@ -57,7 +57,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref children, value);
 		}
 
-		public bool Connected => serverClient != null && serverClient.Token.ExpiresAt < DateTimeOffset.Now;
+		public bool Connected => serverClient != null && serverClient.Token.ExpiresAt > DateTimeOffset.Now;
 
 		public bool Connecting { get; private set; }
 		public bool InvalidCredentials { get; private set; }
@@ -377,6 +377,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.RaisePropertyChanged(nameof(Icon));
 			this.RaisePropertyChanged(nameof(ErrorMessage));
 			this.RaisePropertyChanged(nameof(Errored));
+			this.RaisePropertyChanged(nameof(ConnectionWord));
+			this.RaisePropertyChanged(nameof(InvalidCredentials));
+			this.RaisePropertyChanged(nameof(AccountLocked));
+			this.RaisePropertyChanged(nameof(ConnectionFailed));
+			this.RaisePropertyChanged(nameof(ServerDown));
+			this.RaisePropertyChanged(nameof(Connected));
 			Connect.Recheck();
 			try
 			{
@@ -388,36 +394,43 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			catch (UnauthorizedException)
 			{
 				InvalidCredentials = true;
+				this.RaisePropertyChanged(nameof(InvalidCredentials));
 				ErrorMessage = "Invalid credentials!";
 			}
 			catch (InsufficientPermissionsException)
 			{
 				AccountLocked = true;
+				this.RaisePropertyChanged(nameof(AccountLocked));
 				ErrorMessage = "Your account is disabled!";
 			}
 			catch (ServiceUnavailableException)
 			{
 				ServerDown = true;
+				this.RaisePropertyChanged(nameof(ServerDown));
 				ErrorMessage = "The server is not available!";
 			}
 			catch (ClientException e)
 			{
 				ConnectionFailed = true;
+				this.RaisePropertyChanged(nameof(ConnectionFailed));
 				ErrorMessage = e.Message;
 			}
 			catch (HttpRequestException e)
 			{
 				ConnectionFailed = true;
+				this.RaisePropertyChanged(nameof(ConnectionFailed));
 				ErrorMessage = String.Format(CultureInfo.InvariantCulture, "An HTTP error occurred: {0}", (e.InnerException ?? e).Message);
 			}
 			finally
 			{
 				Connecting = false;
-				Connect.Recheck();
 				Errored = ErrorMessage != null;
 				this.RaisePropertyChanged(nameof(Icon));
 				this.RaisePropertyChanged(nameof(ErrorMessage));
 				this.RaisePropertyChanged(nameof(Errored));
+				this.RaisePropertyChanged(nameof(Connected));
+				this.RaisePropertyChanged(nameof(ConnectionWord));
+				Connect.Recheck();
 			}
 		}
 
@@ -435,7 +448,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case ConnectionManagerCommand.Close:
 					return true;
 				case ConnectionManagerCommand.Connect:
-					return connection.Valid && !Connected && !Connecting;
+					return connection.Valid && !Connecting;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
