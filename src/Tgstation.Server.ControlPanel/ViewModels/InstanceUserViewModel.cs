@@ -647,6 +647,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newConfigurationRights &= ~right;
 			}
 		}
+		public bool StaticDelete
+		{
+			get => newConfigurationRights.HasFlag(ConfigurationRights.Delete);
+			set
+			{
+				var right = ConfigurationRights.Delete;
+				if (value)
+					newConfigurationRights |= right;
+				else
+					newConfigurationRights &= ~right;
+			}
+		}
 
 		public EnumCommand<InstanceUserCommand> Close { get; }
 		public EnumCommand<InstanceUserCommand> RefreshCommand { get; }

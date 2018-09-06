@@ -390,7 +390,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							break;
 						}
 						pageContext.ActiveObject = null;
-						await instanceManagerClient.Delete(instance, cancellationToken).ConfigureAwait(true);
+						await instanceManagerClient.Detach(instance, cancellationToken).ConfigureAwait(true);
 						await instanceRootViewModel.Refresh(cancellationToken).ConfigureAwait(true);
 						break;
 					case InstanceCommand.FixPerms:

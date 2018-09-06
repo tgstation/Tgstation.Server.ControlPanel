@@ -106,7 +106,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Add.Recheck();
 					try
 					{
-						var newInstance = await instanceManagerClient.Create(new Instance
+						var newInstance = await instanceManagerClient.CreateOrAttach(new Instance
 						{
 							Name = Name,
 							Path = Path
