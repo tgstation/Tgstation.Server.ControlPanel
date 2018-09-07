@@ -373,6 +373,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			ConnectionFailed = false;
 			ErrorMessage = null;
 			Errored = false;
+			Children = null;
 
 			this.RaisePropertyChanged(nameof(Icon));
 			this.RaisePropertyChanged(nameof(ErrorMessage));
@@ -413,7 +414,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				ConnectionFailed = true;
 				this.RaisePropertyChanged(nameof(ConnectionFailed));
-				ErrorMessage = e.Message;
+
+				//FIXME waiting on client update
+				var statusCode = (System.Net.HttpStatusCode)typeof(ClientException).GetProperty("StatusCode", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(e);
+
+				ErrorMessage = String.Format(CultureInfo.InvariantCulture, "{0} (HTTP {1})", e.Message, statusCode);
 			}
 			catch (HttpRequestException e)
 			{
