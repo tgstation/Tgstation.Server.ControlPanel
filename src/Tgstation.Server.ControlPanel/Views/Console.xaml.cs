@@ -17,14 +17,14 @@ namespace Tgstation.Server.ControlPanel.Views
         {
             AvaloniaXamlLoader.Load(this);
 
-			var scrollViewer = this.FindControl<ScrollViewer>("_scrollViewer");
+			var scrollViewer = this.FindControl<TextBox>("_scrollViewer");
 			DispatcherTimer timer = new DispatcherTimer
 			{
 				Interval = TimeSpan.FromSeconds(1)
 			};
 			timer.Tick += ((sender, e) =>
 			{
-				scrollViewer.Offset = new Vector(0, scrollViewer.Extent.Height);
+				scrollViewer.CaretIndex = scrollViewer.Text?.Length ?? 0;
 			});
 			timer.Start();
 		}
