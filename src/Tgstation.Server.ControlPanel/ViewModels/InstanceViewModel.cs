@@ -220,7 +220,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				instanceUserTreeNode,
 				new InstanceUserRootViewModel(pageContext, instanceClient.Users, instanceUserTreeNode, userProvider, this),
-				new RepositoryViewModel(pageContext, instanceClient.Repository, instanceJobSink, instanceUserTreeNode),
+				new RepositoryViewModel(pageContext, instanceClient.Repository, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode),
 				instanceUser.ByondRights != ByondRights.None ? new BasicNode
 				{
 					Title = "TODO: Byond",
@@ -287,7 +287,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public Task HandleDoubleClick(CancellationToken cancellationToken)
+		public Task HandleClick(CancellationToken cancellationToken)
 		{
 			pageContext.ActiveObject = this;
 			return Task.CompletedTask;

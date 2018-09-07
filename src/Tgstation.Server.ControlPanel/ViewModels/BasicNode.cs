@@ -20,6 +20,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public IReadOnlyList<ITreeNode> Children => null;
 
-		public Task HandleDoubleClick(CancellationToken cancellationToken) => Task.CompletedTask;
+		public Task HandleClick(CancellationToken cancellationToken) => Task.CompletedTask;
 	}
 }

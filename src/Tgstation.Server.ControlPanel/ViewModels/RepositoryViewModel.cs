@@ -18,8 +18,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Refresh,
 			Clone,
 			Delete,
-			Update
+			Update,
+			RemoveCredentials
 		}
+
+		const string NoCredentials = "(not set)";
 
 		public string Title => "Repository";
 
@@ -40,6 +43,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref repository, value);
 				this.RaisePropertyChanged(nameof(Available));
+				this.RaisePropertyChanged(nameof(HasCredentials));
 			}
 		}
 
@@ -57,12 +61,22 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string NewSha
 		{
 			get => newSha;
-			set => this.RaiseAndSetIfChanged(ref newSha, value);
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newSha, value);
+				this.RaisePropertyChanged(nameof(CanSetRef));
+				this.RaisePropertyChanged(nameof(UpdateText));
+			}
 		}
 		public string NewReference
 		{
 			get => newReference;
-			set => this.RaiseAndSetIfChanged(ref newReference, value);
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newReference, value);
+				this.RaisePropertyChanged(nameof(CanSetSha));
+				this.RaisePropertyChanged(nameof(UpdateText));
+			}
 		}
 		public string NewCommitterName
 		{
@@ -77,12 +91,22 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string NewAccessUser
 		{
 			get => newAccessUser;
-			set => this.RaiseAndSetIfChanged(ref newAccessUser, value);
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newAccessUser, value);
+				Update.Recheck();
+				Clone.Recheck();
+			}
 		}
 		public string NewAccessToken
 		{
 			get => newAccessToken;
-			set => this.RaiseAndSetIfChanged(ref newAccessToken, value);
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newAccessToken, value);
+				Update.Recheck();
+				Clone.Recheck();
+			}
 		}
 
 		public bool NewUpdateFromOrigin
@@ -93,11 +117,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				newUpdateFromOrigin = value ? (bool?)true : null;
 				this.RaisePropertyChanged(nameof(newUpdateFromOrigin));
 			}
-		}
-		public bool RemoveCredentials
-		{
-			get => removeCredentials;
-			set => this.RaiseAndSetIfChanged(ref removeCredentials, value);
 		}
 
 		public bool NewShowTestMergeCommitters
@@ -118,16 +137,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref newAutoUpdatesSynchronize, value);
 		}
 
-		public bool CanClone => rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetOrigin);
-		public bool CanDelete => rightsProvider.RepositoryRights.HasFlag(RepositoryRights.Delete);
-		public bool CanSetRef => rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetReference);
-		public bool CanSetSha => rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetSha);
-		public bool CanShowTMCommitters => rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeTestMergeCommits);
-		public bool CanChangeCommitter => rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeCommitter);
-		public bool CanAccess => rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeCredentials);
-		public bool CanAutoUpdate => rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeAutoUpdateSettings);
-		public bool CanUpdate => rightsProvider.RepositoryRights.HasFlag(RepositoryRights.UpdateBranch);
-		public bool CanTestMerge => rightsProvider.RepositoryRights.HasFlag(RepositoryRights.MergePullRequest);
+		public bool CanClone => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetOrigin);
+		public bool CanDelete => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.Delete);
+		public bool CanSetRef => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetReference) && String.IsNullOrEmpty(NewSha);
+		public bool CanSetSha => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetSha) && String.IsNullOrEmpty(NewReference);
+		public bool CanShowTMCommitters => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeTestMergeCommits);
+		public bool CanChangeCommitter => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeCommitter);
+		public bool CanAccess => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeCredentials);
+		public bool CanAutoUpdate => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeAutoUpdateSettings);
+		public bool CanUpdate => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.UpdateBranch);
+		public bool CanTestMerge => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.MergePullRequest);
+		public bool CanDeploy => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.Compile);
 
 		public bool Error
 		{
@@ -147,20 +167,32 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref refreshing, value);
 		}
 
+		public string UpdateText => String.IsNullOrEmpty(NewSha) && String.IsNullOrEmpty(NewReference) ? "Fetch and Merge From Tracked Origin Reference" : "Fetch and Hard Reset to Target Origin Object";
+
 		public string ErrorMessage
 		{
 			get => errorMessage;
 			set => this.RaiseAndSetIfChanged(ref errorMessage, value);
 		}
 
+		public bool DeployAfter
+		{
+			get => deployAfter;
+			set => this.RaiseAndSetIfChanged(ref deployAfter, value);
+		}
+
+		public bool HasCredentials => Repository?.AccessUser != null && Repository?.AccessUser != NoCredentials;
+
 		public EnumCommand<RepositoryCommand> Close { get; }
 		public EnumCommand<RepositoryCommand> RefreshCommand { get; }
 		public EnumCommand<RepositoryCommand> Clone { get; }
 		public EnumCommand<RepositoryCommand> Delete { get; }
 		public EnumCommand<RepositoryCommand> Update { get; }
+		public EnumCommand<RepositoryCommand> RemoveCredentials { get; }
 
 		readonly PageContextViewModel pageContext;
 		readonly IRepositoryClient repositoryClient;
+		readonly IDreamMakerClient dreamMakerClient;
 		readonly IInstanceJobSink jobSink;
 		readonly IInstanceUserRightsProvider rightsProvider;
 		
@@ -175,8 +207,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string newAccessToken;
 
 		bool? newUpdateFromOrigin;
-
-		bool removeCredentials;
+		
 		bool newShowTestMergeCommitters;
 		bool newAutoUpdatesKeepTestMerges;
 		bool newAutoUpdatesSynchronize;
@@ -188,11 +219,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		bool refreshing;
 		bool cloneAvailable;
+		bool deployAfter;
 
-		public RepositoryViewModel(PageContextViewModel pageContext, IRepositoryClient repositoryClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider)
+		public RepositoryViewModel(PageContextViewModel pageContext, IRepositoryClient repositoryClient, IDreamMakerClient dreamMakerClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.repositoryClient = repositoryClient ?? throw new ArgumentNullException(nameof(repositoryClient));
+			this.dreamMakerClient = dreamMakerClient ?? throw new ArgumentNullException(nameof(dreamMakerClient));
 			this.jobSink = jobSink ?? throw new ArgumentNullException(nameof(jobSink));
 			this.rightsProvider = rightsProvider ?? throw new ArgumentNullException(nameof(rightsProvider));
 
@@ -201,6 +234,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Clone = new EnumCommand<RepositoryCommand>(RepositoryCommand.Clone, this);
 			Delete = new EnumCommand<RepositoryCommand>(RepositoryCommand.Delete, this);
 			Update = new EnumCommand<RepositoryCommand>(RepositoryCommand.Update, this);
+			RemoveCredentials = new EnumCommand<RepositoryCommand>(RepositoryCommand.RemoveCredentials, this);
 
 			rightsProvider.OnUpdated += (a, b) =>
 			{
@@ -266,7 +300,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (newRepo.Reference == null)
 					newRepo.Reference = "(unknown)";
 				if (newRepo.AccessUser == null)
-					newRepo.AccessUser = "(not set)";
+					newRepo.AccessUser = NoCredentials;
 
 
 				Repository = newRepo;
@@ -296,7 +330,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public Task HandleDoubleClick(CancellationToken cancellationToken)
+		public Task HandleClick(CancellationToken cancellationToken)
 		{
 			pageContext.ActiveObject = this;
 			return Task.CompletedTask;
@@ -313,35 +347,37 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case RepositoryCommand.Update:
 					return !Refreshing
 						&& (CanAutoUpdate | CanChangeCommitter | CanAccess | CanShowTMCommitters | CanTestMerge | CanSetRef | CanSetSha | CanUpdate)
-						&& !(!String.IsNullOrWhiteSpace(NewAccessUser) ^ !String.IsNullOrWhiteSpace(NewAccessToken))
-						&& !(!String.IsNullOrWhiteSpace(NewSha) && !String.IsNullOrWhiteSpace(NewReference));
+						&& !(!String.IsNullOrEmpty(NewAccessUser) ^ !String.IsNullOrEmpty(NewAccessToken));
 				case RepositoryCommand.Delete:
-					return !Refreshing && CanDelete;
+					return CanDelete;
 				case RepositoryCommand.Clone:
-					return !Refreshing && CanClone && !String.IsNullOrWhiteSpace(NewOrigin);
+					return CanClone && !String.IsNullOrEmpty(NewOrigin) && !(!String.IsNullOrEmpty(NewAccessUser) ^ !String.IsNullOrEmpty(NewAccessToken));
+				case RepositoryCommand.RemoveCredentials:
+					return CanAccess;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
 		}
 
-		public Task RunCommand(RepositoryCommand command, CancellationToken cancellationToken)
+		public async Task RunCommand(RepositoryCommand command, CancellationToken cancellationToken)
 		{
 			switch (command)
 			{
 				case RepositoryCommand.Close:
 					pageContext.ActiveObject = null;
-					return Task.CompletedTask;
+					break;
 				case RepositoryCommand.Refresh:
-					return Refresh(null, null, cancellationToken);
+					await Refresh(null, null, cancellationToken).ConfigureAwait(true);
+					break;
 				case RepositoryCommand.Update:
 					var update = new Repository
 					{
-						CheckoutSha = String.IsNullOrWhiteSpace(NewSha) || !CanSetSha ? null : NewSha,
-						Reference = String.IsNullOrWhiteSpace(NewReference) || !CanSetRef ? null : NewReference,
+						CheckoutSha = String.IsNullOrEmpty(NewSha) || !CanSetSha ? null : NewSha,
+						Reference = String.IsNullOrEmpty(NewReference) || !CanSetRef ? null : NewReference,
 						UpdateFromOrigin = CanUpdate ? (bool?)NewUpdateFromOrigin : null,
 
-						AccessToken = String.IsNullOrWhiteSpace(NewAccessToken) || !CanAccess ? null : NewAccessToken,
-						AccessUser = String.IsNullOrWhiteSpace(NewAccessUser) || !CanAccess ? null : NewAccessUser,
+						AccessToken = String.IsNullOrEmpty(NewAccessToken) || !CanAccess ? null : NewAccessToken,
+						AccessUser = String.IsNullOrEmpty(NewAccessUser) || !CanAccess ? null : NewAccessUser,
 
 						AutoUpdatesKeepTestMerges = CanAutoUpdate ? (bool?)NewAutoUpdatesKeepTestMerges : null,
 						AutoUpdatesSynchronize = CanAutoUpdate ? (bool?)NewAutoUpdatesSynchronize : null,
@@ -351,18 +387,32 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						CommitterEmail = CanChangeCommitter ? NewCommitterEmail : null,
 						CommitterName = CanChangeCommitter ? NewCommitterName : null
 					};
-					return Refresh(update, null, cancellationToken);
+					await Refresh(update, null, cancellationToken).ConfigureAwait(true);
+					if (DeployAfter)
+					{
+						var job = await dreamMakerClient.Compile(cancellationToken).ConfigureAwait(true);
+						jobSink.RegisterJob(job);
+					}
+					break;
 				case RepositoryCommand.Delete:
-					return Refresh(null, false, cancellationToken);
+					await Refresh(null, false, cancellationToken).ConfigureAwait(true);
+					break;
 				case RepositoryCommand.Clone:
 					var clone = new Repository
 					{
 						Origin = NewOrigin,
-						Reference = String.IsNullOrWhiteSpace(NewReference) ? null : NewReference,
-						AccessToken = String.IsNullOrWhiteSpace(NewAccessToken) || !CanAccess ? null : NewAccessToken,
-						AccessUser = String.IsNullOrWhiteSpace(NewAccessUser) || !CanAccess ? null : NewAccessUser,
+						Reference = String.IsNullOrEmpty(NewReference) ? null : NewReference,
+						AccessToken = String.IsNullOrEmpty(NewAccessToken) || !CanAccess ? null : NewAccessToken,
+						AccessUser = String.IsNullOrEmpty(NewAccessUser) || !CanAccess ? null : NewAccessUser,
 					};
-					return Refresh(clone, true, cancellationToken);
+					await Refresh(clone, true, cancellationToken).ConfigureAwait(true);
+					break;
+				case RepositoryCommand.RemoveCredentials:
+					await Refresh(new Repository
+					{
+						AccessUser = String.Empty
+					}, null, cancellationToken).ConfigureAwait(true);
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}

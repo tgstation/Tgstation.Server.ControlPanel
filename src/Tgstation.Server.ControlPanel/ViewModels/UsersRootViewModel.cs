@@ -122,7 +122,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			pageContext.ActiveObject = newModel;
 		}
 
-		public Task HandleDoubleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
+		public Task HandleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
 
 		public IReadOnlyList<User> GetUsers() => lastUsers;
 	}

@@ -75,7 +75,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Name = String.Empty;
 		}
 
-		public Task HandleDoubleClick(CancellationToken cancellationToken)
+		public Task HandleClick(CancellationToken cancellationToken)
 		{
 			pageContext.ActiveObject = this;
 			return Task.CompletedTask;

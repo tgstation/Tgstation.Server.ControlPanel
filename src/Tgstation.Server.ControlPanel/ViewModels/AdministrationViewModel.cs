@@ -109,7 +109,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public async Task HandleDoubleClick(CancellationToken cancellationToken)
+		public async Task HandleClick(CancellationToken cancellationToken)
 		{
 			if (!userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.ChangeVersion) && !userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.RestartHost))
 			{

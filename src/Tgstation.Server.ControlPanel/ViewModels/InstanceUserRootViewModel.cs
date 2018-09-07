@@ -152,7 +152,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			pageContext.ActiveObject = rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.ReadUsers) ? newModel : null;
 		}
 
-		public Task HandleDoubleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
+		public Task HandleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
 
 		public IReadOnlyList<User> GetUsers() => userProvider.GetUsers()?.Where(x => x.Id != userProvider.CurrentUser.Id && activeUsers?.Any(y => y.UserId == x.Id) != true).ToList();
 	}

@@ -86,7 +86,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Add = new EnumCommand<AddUserCommand>(AddUserCommand.Add, this);
 		}
 
-		public Task HandleDoubleClick(CancellationToken cancellationToken)
+		public Task HandleClick(CancellationToken cancellationToken)
 		{
 			Username = String.Empty;
 			Password = String.Empty;

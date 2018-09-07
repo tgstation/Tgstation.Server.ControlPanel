@@ -11,9 +11,9 @@ namespace Tgstation.Server.ControlPanel.Views
 		public ObjectBrowserItem()
 		{
 			AvaloniaXamlLoader.Load(this);
-			DoubleTapped += HandleDoubleTap;
+			Tapped += HandleTap;
 		}
 
-		async void HandleDoubleTap(object sender, RoutedEventArgs eventArgs) => await ((ITreeNode)DataContext).HandleDoubleClick(default).ConfigureAwait(false);
+		async void HandleTap(object sender, RoutedEventArgs eventArgs) => await ((ITreeNode)DataContext).HandleClick(default).ConfigureAwait(false);
 	}
 }

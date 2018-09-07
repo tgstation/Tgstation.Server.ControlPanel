@@ -154,6 +154,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			pageContext.ActiveObject = newThing;
 		}
 
-		public Task HandleDoubleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
+		public Task HandleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
 	}
 }
