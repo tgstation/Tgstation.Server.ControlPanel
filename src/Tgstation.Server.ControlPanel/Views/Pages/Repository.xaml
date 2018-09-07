@@ -72,6 +72,50 @@
             <TextBlock Text="Reference:"/>
             <TextBlock Text="{Binding PageContext.ActiveObject.Repository.Reference}" Margin="5,0,0,0"/>
           </StackPanel>
+          <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+            <TextBlock Text="Committer Name:"/>
+            <TextBlock Text="{Binding PageContext.ActiveObject.Repository.CommitterName}" Margin="5,0,0,0"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Committer E-Mail:"/>
+            <TextBlock Text="{Binding PageContext.ActiveObject.Repository.CommitterEmail}" Margin="5,0,0,0"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+            <TextBlock Text="Credentials:"/>
+            <TextBlock Text="{Binding PageContext.ActiveObject.Repository.AccessUser}" Margin="5,0,0,0"/>
+          </StackPanel>
+          <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+          <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="400"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Checkout Sha:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
+            <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.NewSha, Mode=TwoWay}"/>
+            <TextBlock Text="Checkout Reference:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
+            <TextBox Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.NewReference, Mode=TwoWay}"/>
+          </Grid>
+          <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+          <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="400"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Committer Name:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
+            <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.NewCommitterName, Mode=TwoWay}"/>
+            <TextBlock Text="Committer E-Mail:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
+            <TextBox Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.NewCommitterEmail, Mode=TwoWay}"/>
+          </Grid>
         </StackPanel>
       </StackPanel>
     </ScrollViewer>

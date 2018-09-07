@@ -242,17 +242,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			try
 			{
 				var oldRepo = Repository;
+				Repository newRepo;
 				try
 				{
 					if (cloneOrDelete.HasValue)
 						if (cloneOrDelete.Value)
-							Repository = await repositoryClient.Clone(update, cancellationToken).ConfigureAwait(true);
+							newRepo = await repositoryClient.Clone(update, cancellationToken).ConfigureAwait(true);
 						else
-							Repository = await repositoryClient.Delete(cancellationToken).ConfigureAwait(true);
+							newRepo = await repositoryClient.Delete(cancellationToken).ConfigureAwait(true);
 					else if (update != null)
-						Repository = await repositoryClient.Update(update, cancellationToken).ConfigureAwait(true);
+						newRepo = await repositoryClient.Update(update, cancellationToken).ConfigureAwait(true);
 					else
-						Repository = await repositoryClient.Read(cancellationToken).ConfigureAwait(true);
+						newRepo = await repositoryClient.Read(cancellationToken).ConfigureAwait(true);
 				}
 				catch (ClientException e)
 				{
@@ -260,8 +261,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					ErrorMessage = e.Message;
 					return;
 				}
-				if (Repository.ActiveJob != null)
-					jobSink.RegisterJob(Repository.ActiveJob);
+				if (newRepo.ActiveJob != null)
+					jobSink.RegisterJob(newRepo.ActiveJob);
+				if (newRepo.Reference == null)
+					newRepo.Reference = "(unknown)";
+				if (newRepo.AccessUser == null)
+					newRepo.AccessUser = "(not set)";
+
+
+				Repository = newRepo;
 
 				NewOrigin = String.Empty;
 				NewSha = String.Empty;
