@@ -844,6 +844,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					break;
 				case InstanceUserCommand.Refresh:
 					await Refresh(cancellationToken).ConfigureAwait(false);
+					IsExpanded = true;
+					this.RaisePropertyChanged(nameof(IsExpanded));
 					break;
 				case InstanceUserCommand.Save:
 					var update = new InstanceUser
