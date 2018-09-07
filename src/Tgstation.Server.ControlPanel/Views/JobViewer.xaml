@@ -47,7 +47,8 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                           </Grid.ColumnDefinitions>
-                          <ProgressBar Value="{Binding Progress}" IsIndeterminate="{Binding !HasProgress, Mode=OneWay}" Margin="2" Height="25" Grid.Row="0" Grid.Column="0"/>
+                          <ProgressBar Value="{Binding Progress}" IsVisible="{Binding HasProgress}" Margin="2" Height="25" Grid.Row="0" Grid.Column="0"/>
+                          <ProgressBar IsIndeterminate="True" IsVisible="{Binding !HasProgress}" Margin="2" Height="25" Grid.Row="0" Grid.Column="0"/>
                           <Button Content="Cancel" Command="{Binding Cancel}" IsVisible="{Binding !Finished}" Grid.Row="0" Grid.Column="1" Margin ="2" Padding="0,0"/>
                         </Grid>
                         <TextBox Text="{Binding ErrorDetails}" AcceptsReturn="True" IsReadOnly="True" Foreground="#FFFFFF" BorderBrush="#EA4638" Background="#EA4638" IsVisible="{Binding Error}" FontSize="13" TextWrapping="Wrap" />
