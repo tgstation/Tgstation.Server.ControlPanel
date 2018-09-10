@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
@@ -19,7 +20,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Clone,
 			Delete,
 			Update,
-			RemoveCredentials
+			RemoveCredentials,
+			DirectAddPR,
+			RefreshPRs
 		}
 
 		const string NoCredentials = "(not set)";
@@ -181,6 +184,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref deployAfter, value);
 		}
 
+		public IReadOnlyList<TestMergeViewModel> RemotePullRequests
+		{
+			get => remotePullRequests;
+			set => this.RaiseAndSetIfChanged(ref remotePullRequests, value);
+		}
+
+		public IReadOnlyList<TestMergeViewModel> ActivePullRequests
+		{
+			get => activePullRequests;
+			set => this.RaiseAndSetIfChanged(ref activePullRequests, value);
+		}
+
 		public bool HasCredentials => Repository?.AccessUser != null && Repository?.AccessUser != NoCredentials;
 
 		public EnumCommand<RepositoryCommand> Close { get; }
@@ -189,6 +204,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<RepositoryCommand> Delete { get; }
 		public EnumCommand<RepositoryCommand> Update { get; }
 		public EnumCommand<RepositoryCommand> RemoveCredentials { get; }
+		public EnumCommand<RepositoryCommand> DirectAddPR { get; }
+		public EnumCommand<RepositoryCommand> RefreshPRs { get; }
 
 		readonly PageContextViewModel pageContext;
 		readonly IRepositoryClient repositoryClient;
@@ -197,6 +214,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IInstanceUserRightsProvider rightsProvider;
 		
 		Repository repository;
+
+		IReadOnlyList<TestMergeViewModel> remotePullRequests;
+		IReadOnlyList<TestMergeViewModel> activePullRequests;
 
 		string newOrigin;
 		string newSha;
@@ -235,22 +255,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Delete = new EnumCommand<RepositoryCommand>(RepositoryCommand.Delete, this);
 			Update = new EnumCommand<RepositoryCommand>(RepositoryCommand.Update, this);
 			RemoveCredentials = new EnumCommand<RepositoryCommand>(RepositoryCommand.RemoveCredentials, this);
+			DirectAddPR = new EnumCommand<RepositoryCommand>(RepositoryCommand.DirectAddPR, this);
+			RefreshPRs = new EnumCommand<RepositoryCommand>(RepositoryCommand.RefreshPRs, this);
 
-			rightsProvider.OnUpdated += (a, b) =>
-			{
-				RecheckCommands();
-
-				this.RaisePropertyChanged(nameof(CanAutoUpdate));
-				this.RaisePropertyChanged(nameof(CanChangeCommitter));
-				this.RaisePropertyChanged(nameof(CanAccess));
-				this.RaisePropertyChanged(nameof(CanShowTMCommitters));
-				this.RaisePropertyChanged(nameof(CanTestMerge));
-				this.RaisePropertyChanged(nameof(CanSetRef));
-				this.RaisePropertyChanged(nameof(CanSetSha));
-				this.RaisePropertyChanged(nameof(CanUpdate));
-				this.RaisePropertyChanged(nameof(CanDelete));
-				this.RaisePropertyChanged(nameof(CanClone));
-			};
+			rightsProvider.OnUpdated += (a, b) => RecheckCommands();
 
 			async void InitialLoad() => await Refresh(null, null, default).ConfigureAwait(false);
 			if (CanRunCommand(RepositoryCommand.Refresh))
@@ -263,6 +271,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Delete.Recheck();
 			Clone.Recheck();
 			Update.Recheck();
+
+			this.RaisePropertyChanged(nameof(CanAutoUpdate));
+			this.RaisePropertyChanged(nameof(CanChangeCommitter));
+			this.RaisePropertyChanged(nameof(CanAccess));
+			this.RaisePropertyChanged(nameof(CanShowTMCommitters));
+			this.RaisePropertyChanged(nameof(CanTestMerge));
+			this.RaisePropertyChanged(nameof(CanSetRef));
+			this.RaisePropertyChanged(nameof(CanSetSha));
+			this.RaisePropertyChanged(nameof(CanUpdate));
+			this.RaisePropertyChanged(nameof(CanDelete));
+			this.RaisePropertyChanged(nameof(CanClone));
 		}
 
 		async Task Refresh(Repository update, bool? cloneOrDelete, CancellationToken cancellationToken)
@@ -288,39 +307,54 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						newRepo = await repositoryClient.Update(update, cancellationToken).ConfigureAwait(true);
 					else
 						newRepo = await repositoryClient.Read(cancellationToken).ConfigureAwait(true);
+
+					if (newRepo.ActiveJob != null)
+						jobSink.RegisterJob(newRepo.ActiveJob);
+					if (newRepo.Reference == null)
+						newRepo.Reference = "(unknown)";
+					if (newRepo.AccessUser == null)
+						newRepo.AccessUser = NoCredentials;
+
+
+					Repository = newRepo;
+
+					NewOrigin = String.Empty;
+					NewSha = String.Empty;
+					NewReference = String.Empty;
+					NewCommitterEmail = String.Empty;
+					NewCommitterName = String.Empty;
+					NewAccessUser = String.Empty;
+					NewAccessToken = String.Empty;
+
+					NewUpdateFromOrigin = false;
+					NewAutoUpdatesKeepTestMerges = Repository.AutoUpdatesKeepTestMerges ?? update.AutoUpdatesKeepTestMerges ?? oldRepo.AutoUpdatesKeepTestMerges ?? NewAutoUpdatesKeepTestMerges;
+					NewAutoUpdatesSynchronize = Repository.AutoUpdatesSynchronize ?? update.AutoUpdatesSynchronize ?? oldRepo.AutoUpdatesSynchronize ?? NewAutoUpdatesSynchronize;
+					NewShowTestMergeCommitters = Repository.ShowTestMergeCommitters ?? update.ShowTestMergeCommitters ?? oldRepo.ShowTestMergeCommitters ?? NewShowTestMergeCommitters;
+
+					CloneAvailable = Repository.Origin == null;
 				}
 				catch (ClientException e)
 				{
 					Error = true;
 					ErrorMessage = e.Message;
-					return;
 				}
-				if (newRepo.ActiveJob != null)
-					jobSink.RegisterJob(newRepo.ActiveJob);
-				if (newRepo.Reference == null)
-					newRepo.Reference = "(unknown)";
-				if (newRepo.AccessUser == null)
-					newRepo.AccessUser = NoCredentials;
 
+				//TODO: Pull requests
 
-				Repository = newRepo;
+				var client = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("test", "1.0.0")) {
+					Credentials = new Octokit.Credentials("d66de08a0f1c70b3c9a463ef8abe8bee739cf7c9")
+				};
+				var prs = await client.Search.SearchIssues(new Octokit.SearchIssuesRequest
+				{
+					Repos = new Octokit.RepositoryCollection { { "tgstation", "tgstation" } },
+					State = Octokit.ItemState.Open,
+					Type = Octokit.IssueTypeQualifier.PullRequest,
+				}).ConfigureAwait(true);
 
-				NewOrigin = String.Empty;
-				NewSha = String.Empty;
-				NewReference = String.Empty;
-				NewCommitterEmail = String.Empty;
-				NewCommitterName = String.Empty;
-				NewAccessUser = String.Empty;
-				NewAccessToken = String.Empty;
+				var tasks = prs.Items.Select(x => client.PullRequest.Commits("tgstation", "tgstation", x.Number));
+				await Task.WhenAll(tasks).ConfigureAwait(true);
 
-				NewUpdateFromOrigin = false;
-				NewAutoUpdatesKeepTestMerges = Repository.AutoUpdatesKeepTestMerges ?? update.AutoUpdatesKeepTestMerges ?? oldRepo.AutoUpdatesKeepTestMerges ?? NewAutoUpdatesKeepTestMerges;
-				NewAutoUpdatesSynchronize = Repository.AutoUpdatesSynchronize ?? update.AutoUpdatesSynchronize ?? oldRepo.AutoUpdatesSynchronize ?? NewAutoUpdatesSynchronize;
-				NewShowTestMergeCommitters = Repository.ShowTestMergeCommitters ?? update.ShowTestMergeCommitters ?? oldRepo.ShowTestMergeCommitters ?? NewShowTestMergeCommitters;
-
-				CloneAvailable = Repository.Origin == null;
-				
-				//TODO: Test merges
+				RemotePullRequests = Enumerable.Zip(prs.Items, tasks.Select(x => x.Result), (a, b) => new TestMergeViewModel(a, b, x => Task.CompletedTask)).ToList();
 			}
 			finally
 			{
@@ -354,6 +388,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					return CanClone && !String.IsNullOrEmpty(NewOrigin) && !(!String.IsNullOrEmpty(NewAccessUser) ^ !String.IsNullOrEmpty(NewAccessToken));
 				case RepositoryCommand.RemoveCredentials:
 					return CanAccess;
+				case RepositoryCommand.DirectAddPR:
+				case RepositoryCommand.RefreshPRs:
+					return CanTestMerge;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -413,6 +450,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						AccessUser = String.Empty
 					}, null, cancellationToken).ConfigureAwait(true);
 					break;
+				case RepositoryCommand.DirectAddPR:
+					throw new NotImplementedException();
+				case RepositoryCommand.RefreshPRs:
+					throw new NotImplementedException();
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}

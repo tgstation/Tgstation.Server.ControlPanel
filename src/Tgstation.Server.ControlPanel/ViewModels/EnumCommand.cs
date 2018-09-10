@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Avalonia.Threading;
+using System;
 using System.Windows.Input;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
@@ -17,18 +18,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanExecute(object parameter) => commandReceiver.CanRunCommand(command);
 
-		public void Recheck()
-		{
-			try
-			{
-				CanExecuteChanged?.Invoke(this, new EventArgs());
-			}
-			catch (InvalidOperationException)
-			{
-				System.Diagnostics.Debugger.Break();
-			}	//main thread issue
-		}
-
+		public void Recheck() => Dispatcher.UIThread.Post(() => CanExecuteChanged?.Invoke(this, new EventArgs()));
 
 		public async void Execute(object parameter)
 		{
