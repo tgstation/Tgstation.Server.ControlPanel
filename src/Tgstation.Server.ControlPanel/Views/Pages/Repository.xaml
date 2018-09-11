@@ -239,7 +239,7 @@
                           <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Rectangle HorizontalAlignment="Stretch" Fill="#000000" Height="1" Margin="0,5,0,5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
-                        <Button Grid.Column="0" Grid.Row="1" Command="{Binding Link}">
+                        <Button Grid.Column="0" Grid.Row="1" Command="{Binding Link}" HorizontalAlignment="Stretch" Padding="0,0">
                           <Grid>
                             <Grid.ColumnDefinitions>
                               <ColumnDefinition Width="7*"/>
@@ -248,8 +248,8 @@
                             <Grid.RowDefinitions>
                               <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="{Binding Title}" FontWeight="{Binding FontWeight}" Grid.Column="0" Grid.Row="0" TextWrapping="Wrap"/>
-                            <DropDown Items="{Binding Commits}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" Grid.Row="0" Grid.Column="1"/>
+                            <TextBlock Text="{Binding Title}" FontWeight="{Binding FontWeight}" Grid.Column="0" Grid.Row="0" Margin="0,5,0,0"/>
+                            <DropDown Items="{Binding Commits}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0"/>
                           </Grid>
                         </Button>
                         <Button Command="{Binding Activate}" Content="Add" Grid.Column="1" Grid.Row="1" Margin="5,0,0,0"/>
@@ -270,24 +270,34 @@
               </Grid>
             </Grid>
             <TextBlock Text="Active" FontSize="16" Grid.Column="3" Grid.Row="0"/>
-            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Background="#FFFFFF" Grid.Column="3" Grid.Row="1">
-              <ItemsControl Items="{Binding PageContext.ActiveObject.ActivePullRequests}">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#FFFFFF" Grid.Column="3" Grid.Row="1">
+              <ItemsControl Items="{Binding PageContext.ActiveObject.ActiveTestMerges}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
                     <Grid>
                       <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="500"/>
                         <ColumnDefinition Width="Auto"/>
                       </Grid.ColumnDefinitions>
-                      <Grid Grid.Column="0">
-                        <Grid.ColumnDefinitions>
-                          <ColumnDefinition Width="70*"/>
-                          <ColumnDefinition Width="30*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="{Binding Title}" Grid.Column="0"/>
-                        <DropDown Items="{Binding Commits}" SelectedIndex="{Binding SelectedIndex}" Grid.Column="1"/>
-                      </Grid>
-                      <Button Command="{Binding Activate}" Content="Remove" Grid.Column="1"/>
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                      </Grid.RowDefinitions>
+                      <Rectangle HorizontalAlignment="Stretch" Fill="#000000" Height="1" Margin="0,5,0,5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
+                      <Button Grid.Column="0" Grid.Row="1" Command="{Binding Link}" HorizontalAlignment="Stretch" Padding="0,0">
+                        <Grid>
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="7*"/>
+                            <ColumnDefinition Width="3*"/>
+                          </Grid.ColumnDefinitions>
+                          <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                          </Grid.RowDefinitions>
+                          <TextBlock Text="{Binding Title}" FontWeight="{Binding FontWeight}" Grid.Column="0" Grid.Row="0"/>
+                          <TextBlock Text="{Binding ActiveCommit}" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0"/>
+                        </Grid>
+                      </Button>
+                      <Button Command="{Binding Activate}" Content="Remove" Grid.Column="1" Grid.Row="1" Margin="5,0,0,0"/>
                     </Grid>
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>

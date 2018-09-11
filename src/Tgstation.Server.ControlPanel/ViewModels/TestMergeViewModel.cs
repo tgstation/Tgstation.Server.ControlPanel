@@ -43,18 +43,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public EnumCommand<TestMergeCommand> Link { get; }
 
-		readonly Func<CancellationToken, Task> onActivate;
+		readonly Func<int, CancellationToken, Task> onActivate;
 		int selectedIndex;
 
-		TestMergeViewModel(Func<CancellationToken, Task> onActivate)
+		TestMergeViewModel(Func<int, CancellationToken, Task> onActivate)
 		{
-			this.onActivate = onActivate ?? throw new ArgumentNullException(nameof(onActivate));
+			this.onActivate = onActivate;
 
 			Activate = new EnumCommand<TestMergeCommand>(TestMergeCommand.Activate, this);
 			Link = new EnumCommand<TestMergeCommand>(TestMergeCommand.Link, this);
 		}
 
-		public TestMergeViewModel(Issue pullRequest, IReadOnlyList<PullRequestCommit> commits, Func<CancellationToken, Task> onActivate, int? activeCommit = null) : this(onActivate)
+		public TestMergeViewModel(Issue pullRequest, IReadOnlyList<PullRequestCommit> commits, Func<int, CancellationToken, Task> onActivate, int? activeCommit = null) : this(onActivate)
 		{
 			if (pullRequest == null)
 				throw new ArgumentNullException(nameof(pullRequest));
@@ -73,7 +73,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			SelectedIndex = activeCommit ?? (Commits.Count - 1);
 		}
 
-		public TestMergeViewModel(TestMerge testMerge, Func<CancellationToken, Task> onActivate) : this(onActivate)
+		public TestMergeViewModel(TestMerge testMerge, Func<int, CancellationToken, Task> onActivate) : this(onActivate)
 		{
 			TestMerge = testMerge ?? throw new ArgumentNullException(nameof(testMerge));
 
@@ -87,8 +87,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			switch (command)
 			{
 				case TestMergeCommand.Link:
-				case TestMergeCommand.Activate:
 					return true;
+				case TestMergeCommand.Activate:
+					return onActivate != null;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -101,7 +102,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					ControlPanel.LaunchUrl(TestMerge.Url);
 					return Task.CompletedTask;
 				case TestMergeCommand.Activate:
-					return onActivate(cancellationToken);
+					return onActivate(TestMerge.Number.Value, cancellationToken);
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}

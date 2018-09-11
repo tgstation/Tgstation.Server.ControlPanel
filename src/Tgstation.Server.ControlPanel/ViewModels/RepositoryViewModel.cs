@@ -131,6 +131,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaiseAndSetIfChanged(ref updateHard, value);
 				this.RaisePropertyChanged(nameof(UpdateMerge));
 				this.RaisePropertyChanged(nameof(CanUpdateMerge));
+				this.RaisePropertyChanged(nameof(ActiveTestMerges));
 			}
 		}
 
@@ -166,6 +167,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanTestMerge => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.MergePullRequest);
 		public bool CanDeploy => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.Compile);
 
+		public int ManualPR { get; set; }
 		public bool Error
 		{
 			get => error;
@@ -192,6 +194,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref errorMessage, value);
 		}
 
+		public IReadOnlyList<TestMergeViewModel> ActiveTestMerges
+		{
+			get
+			{
+				if (UpdateHard || Repository == null)
+					return ActivePullRequests;
+				var tmp = new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, null)));
+				tmp.AddRange(ActivePullRequests.Where(x => !Repository.RevisionInformation.ActiveTestMerges.Any(y => y.Number == x.TestMerge.Number)));
+				return tmp;
+			}
+		}
+
 		public bool DeployAfter
 		{
 			get => deployAfter;
@@ -207,7 +221,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public IReadOnlyList<TestMergeViewModel> ActivePullRequests
 		{
 			get => activePullRequests;
-			set => this.RaiseAndSetIfChanged(ref activePullRequests, value);
+			set
+			{
+				this.RaiseAndSetIfChanged(ref activePullRequests, value);
+				this.RaisePropertyChanged(nameof(ActiveTestMerges));
+			}
 		}
 
 		public bool HasCredentials => Repository?.AccessUser != null && Repository?.AccessUser != NoCredentials;
@@ -245,7 +263,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		IReadOnlyList<TestMergeViewModel> activePullRequests;
 
 		Dictionary<int, Octokit.Issue> pullRequests;
-		Dictionary<int, IReadOnlyList<Octokit.Label>> pullRequestLabels;
+		Dictionary<int, IReadOnlyList<Octokit.PullRequestCommit>> pullRequestCommits;
 
 		string newOrigin;
 		string newSha;
@@ -267,12 +285,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		string errorMessage;
 		bool error;
+		bool loadingPRs;
 
 		string icon;
 
 		bool refreshing;
 		bool cloneAvailable;
 		bool deployAfter;
+
+		bool modifiedPRList;
 
 		public RepositoryViewModel(PageContextViewModel pageContext, IRepositoryClient repositoryClient, IDreamMakerClient dreamMakerClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider, Octokit.IGitHubClient gitHubClient)
 		{
@@ -293,6 +314,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			RefreshPRs = new EnumCommand<RepositoryCommand>(RepositoryCommand.RefreshPRs, this);
 
 			rightsProvider.OnUpdated += (a, b) => RecheckCommands();
+			ManualPR = 1;
 
 			async void InitialLoad() => await Refresh(null, null, default).ConfigureAwait(false);
 			if (CanRunCommand(RepositoryCommand.Refresh))
@@ -305,6 +327,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Delete.Recheck();
 			Clone.Recheck();
 			Update.Recheck();
+			DirectAddPR.Recheck();
+			RefreshPRs.Recheck();
 
 			this.RaisePropertyChanged(nameof(CanAutoUpdate));
 			this.RaisePropertyChanged(nameof(CanChangeCommitter));
@@ -372,7 +396,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					Error = true;
 					ErrorMessage = e.Message;
+					return;
 				}
+
+				ActivePullRequests = new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, MakeTestMergeInactive)));
+
+				modifiedPRList = false;
 
 				if (pullRequests == null)
 					await RefreshPRList(cancellationToken).ConfigureAwait(true);
@@ -385,42 +414,138 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		void DigestPR(Octokit.Issue pr, IReadOnlyList<Octokit.PullRequestCommit> commits)
+		{
+			if(pullRequests == null)
+			{
+				pullRequests = new Dictionary<int, Octokit.Issue>();
+				pullRequestCommits = new Dictionary<int, IReadOnlyList<Octokit.PullRequestCommit>>();
+			}
+			pullRequests.Add(pr.Number, pr);
+			pullRequestCommits.Add(pr.Number, commits);
+		}
+
+		Task MakeTestMergeActive(int number, CancellationToken cancellationToken)
+		{
+			using (DelayChangeNotifications())
+			{
+				ActivePullRequests = new List<TestMergeViewModel>(ActivePullRequests)
+				{
+					new TestMergeViewModel(pullRequests[number], pullRequestCommits[number], MakeTestMergeInactive)
+				};
+				RebuildRemoteList();
+			}
+			modifiedPRList = true;
+			return Task.CompletedTask;
+		}
+
+		async Task MakeTestMergeInactive(int number, CancellationToken cancellationToken)
+		{
+			ActivePullRequests = new List<TestMergeViewModel>(ActivePullRequests.Where(x => x.TestMerge.Number != number));
+			await DirectAdd(number, true, cancellationToken).ConfigureAwait(true);
+			modifiedPRList = true;
+		}
+
 		async Task RefreshPRList(CancellationToken cancellationToken)
 		{
 			if (!rightsProvider.RepositoryRights.HasFlag(RepositoryRights.MergePullRequest) || Repository?.GitHubOwner == null)
 				return;
 
+			loadingPRs = true;
+			DirectAddPR.Recheck();
+			RefreshPRs.Recheck();
 			try
 			{
 				var prs = await gitHubClient.Search.SearchIssues(new Octokit.SearchIssuesRequest
 				{
 					Repos = new Octokit.RepositoryCollection { { Repository.GitHubOwner, Repository.GitHubName } },
 					State = Octokit.ItemState.Open,
-					Type = Octokit.IssueTypeQualifier.PullRequest,
-					
+					Type = Octokit.IssueTypeQualifier.PullRequest					
 				}).ConfigureAwait(true);
 
 				var tasks = prs.Items.Select(x => gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, x.Number));
 				await Task.WhenAll(tasks).ConfigureAwait(true);
-				RemotePullRequests = Enumerable.Zip(prs.Items, tasks.Select(x => x.Result), (a, b) => new TestMergeViewModel(a, b, x => Task.CompletedTask)).ToList();
+
+				Enumerable.Zip(prs.Items, tasks.Select(x => x.Result), (a, b) =>
+				{
+					DigestPR(a, b);
+					return 0;
+				}).ToList();
+
+				RebuildRemoteList();
 			}
 			catch (Octokit.RateLimitExceededException e)
 			{
-				RateLimited = true;
-				void UpdateSeconds() => RateLimitSeconds = String.Format(CultureInfo.InvariantCulture, "You have been rate limited by GitHub, add a personal access token on the Connection Manager to increase the limit. This will reset in {0}s...", Math.Floor((e.Reset - DateTimeOffset.Now).TotalSeconds));
-				UpdateSeconds();
-				async void ResetRate()
-				{
-					while (DateTimeOffset.Now < e.Reset)
-					{
-						await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(true);
-						UpdateSeconds();
-					}
-					RateLimited = false;
-				}
-				ResetRate();
-				RemotePullRequests = null;
+				HandleRateLimit(e);
 			}
+			finally
+			{
+				loadingPRs = false;
+				DirectAddPR.Recheck();
+				RefreshPRs.Recheck();
+			}
+		}
+
+		void RebuildRemoteList()
+		{
+			var list = Enumerable.Zip(pullRequests, pullRequestCommits, (a, b) =>
+			{
+				if (ActivePullRequests.Any(x => x.TestMerge.Number == a.Key))
+					return null;
+				return new TestMergeViewModel(a.Value, b.Value, MakeTestMergeActive);
+			}).Where(x => x != null).ToList();
+
+			var tmp = new List<TestMergeViewModel>(list.Where(x => x.FontWeight == Avalonia.Media.FontWeight.Bold));
+			tmp.AddRange(list.Where(x => x.FontWeight != Avalonia.Media.FontWeight.Bold));
+			RemotePullRequests = tmp;
+		}
+
+		async Task DirectAdd(int number, bool forceRebuild, CancellationToken cancellationToken)
+		{
+			loadingPRs = true;
+			DirectAddPR.Recheck();
+			RefreshPRs.Recheck();
+			try
+			{
+				var run = pullRequests?.ContainsKey(ManualPR) != true;
+				if (run)
+				{
+					var prTask = gitHubClient.Issue.Get(Repository.GitHubOwner, Repository.GitHubName, ManualPR);
+					var commits = await gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, ManualPR).ConfigureAwait(true);
+					var pr = await prTask.ConfigureAwait(true);
+					DigestPR(pr, commits);
+				}
+				if(run || forceRebuild)
+					RebuildRemoteList();
+			}
+			catch (Octokit.RateLimitExceededException e)
+			{
+				HandleRateLimit(e);
+			}
+			finally
+			{
+				loadingPRs = false;
+				DirectAddPR.Recheck();
+				RefreshPRs.Recheck();
+			}
+		}
+
+		void HandleRateLimit(Octokit.RateLimitExceededException e)
+		{
+			RateLimited = true;
+			void UpdateSeconds() => RateLimitSeconds = String.Format(CultureInfo.InvariantCulture, "You have been rate limited by GitHub, add a personal access token on the Connection Manager to increase the limit. This will reset in {0}s...", Math.Floor((e.Reset - DateTimeOffset.Now).TotalSeconds));
+			UpdateSeconds();
+			async void ResetRate()
+			{
+				while (DateTimeOffset.Now < e.Reset)
+				{
+					await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(true);
+					UpdateSeconds();
+				}
+				RateLimited = false;
+			}
+			ResetRate();
+			RemotePullRequests = null;
 		}
 
 		public Task HandleClick(CancellationToken cancellationToken)
@@ -449,7 +574,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					return CanAccess;
 				case RepositoryCommand.DirectAddPR:
 				case RepositoryCommand.RefreshPRs:
-					return CanTestMerge && !RateLimited;
+					return CanTestMerge && !RateLimited && !loadingPRs;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -483,6 +608,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						CommitterEmail = CanChangeCommitter && !String.IsNullOrEmpty(NewCommitterEmail) ? NewCommitterEmail : null,
 						CommitterName = CanChangeCommitter && !String.IsNullOrEmpty(NewCommitterName) ? NewCommitterName : null
 					};
+
+					if (modifiedPRList || UpdateHard)
+						update.NewTestMerges = ActivePullRequests.Select(x => new TestMergeParameters
+						{
+							Comment = x.TestMerge.Comment,
+							Number = x.TestMerge.Number,
+							PullRequestRevision = x.TestMerge.PullRequestRevision
+						}).ToList();
+
 					await Refresh(update, null, cancellationToken).ConfigureAwait(true);
 					if (DeployAfter)
 					{
@@ -510,7 +644,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}, null, cancellationToken).ConfigureAwait(true);
 					break;
 				case RepositoryCommand.DirectAddPR:
-					throw new NotImplementedException();
+					await DirectAdd(ManualPR, false, cancellationToken).ConfigureAwait(true);
+					break;
 				case RepositoryCommand.RefreshPRs:
 					await RefreshPRList(cancellationToken).ConfigureAwait(true);
 					break;
