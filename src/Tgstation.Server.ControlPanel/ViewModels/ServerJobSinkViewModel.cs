@@ -70,18 +70,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public async Task<IInstanceJobSink> GetSinkForInstance(IInstanceClient instanceClient, CancellationToken cancellationToken)
 		{
-			bool newSink;
 			InstanceJobSink sink;
 			lock (instanceSinks)
 			{
-				newSink = !instanceSinks.TryGetValue(instanceClient.Metadata.Id, out sink);
+				var newSink = !instanceSinks.TryGetValue(instanceClient.Metadata.Id, out sink);
 				if (newSink)
 				{
 					sink = new InstanceJobSink(instanceClient.Metadata, jobManagerViewModel);
 					instanceSinks.Add(instanceClient.Metadata.Id, sink);
 				}
 			}
-			if (newSink && instanceClient.Metadata.Online == true)
+			if (instanceClient.Metadata.Online == true)
 			{
 				await sink.InitialQuery(instanceClient.Jobs, cancellationToken).ConfigureAwait(false);
 				if (sink.Updated.IsCompleted)

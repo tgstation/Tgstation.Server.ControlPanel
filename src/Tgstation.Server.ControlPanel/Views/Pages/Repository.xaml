@@ -183,11 +183,19 @@
               <ColumnDefinition Width="1*"/>
               <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
             <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.NewUpdateFromOrigin, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanUpdate}"/>
-              <TextBlock DockPanel.Dock="Right" Text="{Binding PageContext.ActiveObject.UpdateText}" Margin="5,4,0,0" />
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UpdateMerge, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanUpdateMerge}"/>
+              <TextBlock DockPanel.Dock="Right" Text="Merge From Tracked Origin Reference" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UpdateHard, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanUpdate}"/>
+              <TextBlock DockPanel.Dock="Right" Text="{Binding PageContext.ActiveObject.UpdateText}" Margin="5,4,0,0" />
+            </DockPanel>
+            <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DeployAfter, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanDeploy}"/>
               <TextBlock DockPanel.Dock="Right" Text="Deploy Code After Changes" Margin="5,4,0,0" />
             </DockPanel>

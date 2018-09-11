@@ -69,6 +69,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaiseAndSetIfChanged(ref newSha, value);
 				this.RaisePropertyChanged(nameof(CanSetRef));
 				this.RaisePropertyChanged(nameof(UpdateText));
+				this.RaisePropertyChanged(nameof(CanUpdateMerge));
+				this.RaisePropertyChanged(nameof(UpdateMerge));
 			}
 		}
 		public string NewReference
@@ -79,6 +81,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaiseAndSetIfChanged(ref newReference, value);
 				this.RaisePropertyChanged(nameof(CanSetSha));
 				this.RaisePropertyChanged(nameof(UpdateText));
+				this.RaisePropertyChanged(nameof(CanUpdateMerge));
+				this.RaisePropertyChanged(nameof(UpdateMerge));
 			}
 		}
 		public string NewCommitterName
@@ -112,15 +116,24 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public bool NewUpdateFromOrigin
+		public bool UpdateMerge
 		{
-			get => newUpdateFromOrigin ?? false;
+			get => updateMerge && CanUpdateMerge;
+			set => this.RaiseAndSetIfChanged(ref updateMerge, value && !UpdateHard);
+		}
+
+		public bool UpdateHard
+		{
+			get => updateHard;
 			set
 			{
-				newUpdateFromOrigin = value ? (bool?)true : null;
-				this.RaisePropertyChanged(nameof(newUpdateFromOrigin));
+				this.RaiseAndSetIfChanged(ref updateHard, value);
+				this.RaisePropertyChanged(nameof(UpdateMerge));
+				this.RaisePropertyChanged(nameof(CanUpdateMerge));
 			}
 		}
+
+		public bool CanUpdateMerge => !UpdateHard && String.IsNullOrEmpty(NewReference) && String.IsNullOrEmpty(NewSha);
 
 		public bool NewShowTestMergeCommitters
 		{
@@ -170,7 +183,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref refreshing, value);
 		}
 
-		public string UpdateText => String.IsNullOrEmpty(NewSha) && String.IsNullOrEmpty(NewReference) ? "Fetch and Merge From Tracked Origin Reference" : "Fetch and Hard Reset to Target Origin Object";
+		public string UpdateText => String.IsNullOrEmpty(NewSha) && String.IsNullOrEmpty(NewReference) ? "Fetch and and Hard Reset To Tracked Origin Reference" : "Fetch and Hard Reset to Target Origin Object";
 
 		public string ErrorMessage
 		{
@@ -226,7 +239,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string newAccessUser;
 		string newAccessToken;
 
-		bool? newUpdateFromOrigin;
+		bool updateMerge;
+		bool updateHard;
 		
 		bool newShowTestMergeCommitters;
 		bool newAutoUpdatesKeepTestMerges;
@@ -326,10 +340,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					NewAccessUser = String.Empty;
 					NewAccessToken = String.Empty;
 
-					NewUpdateFromOrigin = false;
-					NewAutoUpdatesKeepTestMerges = Repository.AutoUpdatesKeepTestMerges ?? update.AutoUpdatesKeepTestMerges ?? oldRepo.AutoUpdatesKeepTestMerges ?? NewAutoUpdatesKeepTestMerges;
-					NewAutoUpdatesSynchronize = Repository.AutoUpdatesSynchronize ?? update.AutoUpdatesSynchronize ?? oldRepo.AutoUpdatesSynchronize ?? NewAutoUpdatesSynchronize;
-					NewShowTestMergeCommitters = Repository.ShowTestMergeCommitters ?? update.ShowTestMergeCommitters ?? oldRepo.ShowTestMergeCommitters ?? NewShowTestMergeCommitters;
+				UpdateHard = false;
+				UpdateMerge = false;
+				NewAutoUpdatesKeepTestMerges = Repository.AutoUpdatesKeepTestMerges ?? update.AutoUpdatesKeepTestMerges ?? oldRepo.AutoUpdatesKeepTestMerges ?? NewAutoUpdatesKeepTestMerges;
+				NewAutoUpdatesSynchronize = Repository.AutoUpdatesSynchronize ?? update.AutoUpdatesSynchronize ?? oldRepo.AutoUpdatesSynchronize ?? NewAutoUpdatesSynchronize;
+				NewShowTestMergeCommitters = Repository.ShowTestMergeCommitters ?? update.ShowTestMergeCommitters ?? oldRepo.ShowTestMergeCommitters ?? NewShowTestMergeCommitters;
 
 					CloneAvailable = Repository.Origin == null;
 				}
@@ -411,7 +426,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						CheckoutSha = String.IsNullOrEmpty(NewSha) || !CanSetSha ? null : NewSha,
 						Reference = String.IsNullOrEmpty(NewReference) || !CanSetRef ? null : NewReference,
-						UpdateFromOrigin = CanUpdate ? (bool?)NewUpdateFromOrigin : null,
+						UpdateFromOrigin = UpdateHard || UpdateMerge ? (bool?)true : null,
 
 						AccessToken = String.IsNullOrEmpty(NewAccessToken) || !CanAccess ? null : NewAccessToken,
 						AccessUser = String.IsNullOrEmpty(NewAccessUser) || !CanAccess ? null : NewAccessUser,
@@ -421,8 +436,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 						ShowTestMergeCommitters = CanShowTMCommitters ? (bool?)NewShowTestMergeCommitters : null,
 
-						CommitterEmail = CanChangeCommitter ? NewCommitterEmail : null,
-						CommitterName = CanChangeCommitter ? NewCommitterName : null
+						CommitterEmail = CanChangeCommitter && !String.IsNullOrEmpty(NewCommitterEmail) ? NewCommitterEmail : null,
+						CommitterName = CanChangeCommitter && !String.IsNullOrEmpty(NewCommitterName) ? NewCommitterName : null
 					};
 					await Refresh(update, null, cancellationToken).ConfigureAwait(true);
 					if (DeployAfter)
