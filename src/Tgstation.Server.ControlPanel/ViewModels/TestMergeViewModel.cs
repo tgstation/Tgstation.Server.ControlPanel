@@ -1,11 +1,13 @@
 ﻿using Avalonia.Media;
 using Octokit;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Tgstation.Server.Api.Models;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
@@ -13,31 +15,96 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 	{
 		public enum TestMergeCommand
 		{
-			Activate
+			Activate,
+			Link
 		}
-		public string Title { get; }
+
+		public string Title => String.Format(CultureInfo.InvariantCulture, "#{0} - {1}", TestMerge.Number, TestMerge.TitleAtMerge);
+
+		public TestMerge TestMerge { get; }
 
 		public FontWeight FontWeight { get; }
 
-		public int SelectedIndex { get; set; }
+		public int SelectedIndex
+		{
+			get => selectedIndex;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref selectedIndex, value);
+				TestMerge.PullRequestRevision = Commits[SelectedIndex].Substring(0, 7);
+			}
+		}
 
 		public IReadOnlyList<string> Commits { get; }
 
-		public IReadOnlyList<object> Children => null;
-		
-		readonly Func<CancellationToken, Task> onActivate;
+		public string ActiveCommit => TestMerge.PullRequestRevision;
 
-		public TestMergeViewModel(Issue pullRequest, IReadOnlyList<PullRequestCommit> commits, Func<CancellationToken, Task> onActivate)
+		public EnumCommand<TestMergeCommand> Activate { get; }
+
+		public EnumCommand<TestMergeCommand> Link { get; }
+
+		readonly Func<CancellationToken, Task> onActivate;
+		int selectedIndex;
+
+		TestMergeViewModel(Func<CancellationToken, Task> onActivate)
 		{
-			Title = String.Format(CultureInfo.InvariantCulture, "#{0} - {1}", pullRequest?.Number ?? throw new ArgumentNullException(nameof(pullRequest)), pullRequest.Title);
-			Commits = commits?.Select(x => String.Format(CultureInfo.InvariantCulture, "{0} - {1}", x.Sha.Substring(0, 7), x.Commit.Message.Split('\n').First())).ToList() ?? throw new ArgumentNullException(nameof(commits));
-			FontWeight = pullRequest.Labels.Any(x => x.Name.ToUpperInvariant().Contains("TEST MERGE")) ? FontWeight.Bold : FontWeight.Normal;
-			SelectedIndex = Commits.Count - 1;
-			
 			this.onActivate = onActivate ?? throw new ArgumentNullException(nameof(onActivate));
+
+			Activate = new EnumCommand<TestMergeCommand>(TestMergeCommand.Activate, this);
+			Link = new EnumCommand<TestMergeCommand>(TestMergeCommand.Link, this);
 		}
 
-		public bool CanRunCommand(TestMergeCommand command) => true;
-		public Task RunCommand(TestMergeCommand command, CancellationToken cancellationToken) => onActivate(cancellationToken);
+		public TestMergeViewModel(Issue pullRequest, IReadOnlyList<PullRequestCommit> commits, Func<CancellationToken, Task> onActivate, int? activeCommit = null) : this(onActivate)
+		{
+			if (pullRequest == null)
+				throw new ArgumentNullException(nameof(pullRequest));
+
+			TestMerge = new TestMerge
+			{
+				Author = pullRequest.User.Login,
+				BodyAtMerge = pullRequest.Body,
+				Number = pullRequest.Number,
+				TitleAtMerge = pullRequest.Title,
+				Url = pullRequest.HtmlUrl
+			};
+
+			Commits = commits?.Select(x => String.Format(CultureInfo.InvariantCulture, "{0} - {1}", x.Sha.Substring(0, 7), x.Commit.Message.Split('\n').First())).ToList() ?? throw new ArgumentNullException(nameof(commits));
+			FontWeight = pullRequest.Labels.Any(x => x.Name.ToUpperInvariant().Contains("TEST MERGE")) ? FontWeight.Bold : FontWeight.Normal;
+			SelectedIndex = activeCommit ?? (Commits.Count - 1);
+		}
+
+		public TestMergeViewModel(TestMerge testMerge, Func<CancellationToken, Task> onActivate) : this(onActivate)
+		{
+			TestMerge = testMerge ?? throw new ArgumentNullException(nameof(testMerge));
+
+			Commits = new List<string> { TestMerge.PullRequestRevision.Substring(0, 7) };
+
+			FontWeight = FontWeight.Normal;
+		}
+
+		public bool CanRunCommand(TestMergeCommand command)
+		{
+			switch (command)
+			{
+				case TestMergeCommand.Link:
+				case TestMergeCommand.Activate:
+					return true;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
+			}
+		}
+		public Task RunCommand(TestMergeCommand command, CancellationToken cancellationToken)
+		{
+			switch (command)
+			{
+				case TestMergeCommand.Link:
+					ControlPanel.LaunchUrl(TestMerge.Url);
+					return Task.CompletedTask;
+				case TestMergeCommand.Activate:
+					return onActivate(cancellationToken);
+				default:
+					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
+			}
+		}
 	}
 }

@@ -185,10 +185,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Username
 		{
-			get => connection.Credentials.Username;
+			get => connection.Username;
 			set
 			{
-				connection.Credentials.Username = value;
+				connection.Username = value;
 				this.RaisePropertyChanged();
 				Connect.Recheck();
 			}
@@ -218,6 +218,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly IServerJobSink jobSink;
 
+		readonly Octokit.IGitHubClient gitHubClient;
+
 		IReadOnlyList<ITreeNode> children;
 
 		IServerClient serverClient;
@@ -229,7 +231,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool usingDefaultCredentials;
 		bool isExpanded;
 
-		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, PageContextViewModel pageContext, Action onDelete, IJobSink jobSink)
+		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, PageContextViewModel pageContext, Action onDelete, IJobSink jobSink, Octokit.IGitHubClient gitHubClient)
 		{
 			this.serverClientFactory = serverClientFactory ?? throw new ArgumentNullException(nameof(serverClientFactory));
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -237,6 +239,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.onDelete = onDelete ?? throw new ArgumentNullException(nameof(onDelete));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate, () => connection.Url.ToString()) ?? throw new ArgumentNullException(nameof(jobSink));
+			this.gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
 
 			Connect = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Connect, this);
 			Close = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Close, this);
@@ -246,7 +249,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			if (connection.Credentials.Password != null && connection.Credentials.Password.Length > 0)
 			{
 				AllowSavingPassword = true;
-				if (connection.Credentials.Username == User.AdminName && connection.Credentials.Password == User.DefaultAdminPassword)
+				if (connection.Username == User.AdminName && connection.Credentials.Password == User.DefaultAdminPassword)
 					UsingDefaultCredentials = true;
 			}
 
@@ -254,12 +257,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				serverClient = serverClientFactory.CreateServerClient(connection.Url, connection.LastToken, connection.Timeout);
 				serverClient.AddRequestLogger(requestLogger);
-				PostConnect(default);
-			}
-			else if (connection.Valid)
-			{
-				async void OnLoadConnect() => await BeginConnect(default).ConfigureAwait(false);
-				OnLoadConnect();
 			}
 		}
 
@@ -277,7 +274,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 
-		void PostConnect(CancellationToken cancellationToken)
+		async Task PostConnect(CancellationToken cancellationToken)
 		{
 			IsExpanded = true;
 
@@ -299,7 +296,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Icon = LoadingGif
 			};
 
-			async void GetServerVersionAndUserPerms()
+			async Task GetServerVersionAndUserPerms()
 			{
 				var userInfoTask = serverClient.Users.Read(cancellationToken);
 				try
@@ -337,7 +334,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM, this));
 					var urVM = new UsersRootViewModel(serverClient.Users, pageContext, userVM);
 					newChildren.Add(urVM);
-					newChildren.Add(new InstanceRootViewModel(pageContext, serverClient.Instances, userVM, urVM, jobSink));
+					newChildren.Add(new InstanceRootViewModel(pageContext, serverClient.Instances, userVM, urVM, jobSink, gitHubClient));
 				}
 				catch
 				{
@@ -356,7 +353,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				fakeUserNode
 			};
 			Children = childNodes;
-			GetServerVersionAndUserPerms();
+			await GetServerVersionAndUserPerms().ConfigureAwait(true);
+		}
+
+		public Task OnLoadConnect(CancellationToken cancellationToken)
+		{
+			if (connection.LastToken?.ExpiresAt != null && connection.LastToken.ExpiresAt.Value > DateTimeOffset.Now)
+				return PostConnect(cancellationToken);
+			else if (connection.Valid)
+				return BeginConnect(cancellationToken);
+			return Task.CompletedTask;
 		}
 
 		public async Task BeginConnect(CancellationToken cancellationToken)
@@ -385,12 +391,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.RaisePropertyChanged(nameof(ServerDown));
 			this.RaisePropertyChanged(nameof(Connected));
 			Connect.Recheck();
+			var postConnect = false;
 			try
 			{
-				serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Credentials.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
+				serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
 				serverClient.AddRequestLogger(requestLogger);
 				connection.LastToken = serverClient.Token;
-				PostConnect(cancellationToken);
+				postConnect = true;
 			}
 			catch (UnauthorizedException)
 			{
@@ -415,10 +422,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				ConnectionFailed = true;
 				this.RaisePropertyChanged(nameof(ConnectionFailed));
 
-				//FIXME waiting on client update
-				var statusCode = (System.Net.HttpStatusCode)typeof(ClientException).GetProperty("StatusCode", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(e);
-
-				ErrorMessage = String.Format(CultureInfo.InvariantCulture, "{0} (HTTP {1})", e.Message, statusCode);
+				ErrorMessage = String.Format(CultureInfo.InvariantCulture, "{0} (HTTP {1})", e.Message, e.StatusCode);
 			}
 			catch (HttpRequestException e)
 			{
@@ -437,6 +441,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(ConnectionWord));
 				Connect.Recheck();
 			}
+			if (postConnect)
+				await PostConnect(cancellationToken).ConfigureAwait(true);
 		}
 
 		public Task HandleClick(CancellationToken cancellationToken)

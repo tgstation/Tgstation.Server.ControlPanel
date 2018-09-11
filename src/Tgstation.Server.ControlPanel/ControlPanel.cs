@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Logging.Serilog;
+using System.Diagnostics;
 using Tgstation.Server.ControlPanel.ViewModels;
 using Tgstation.Server.ControlPanel.Views;
 
@@ -13,7 +14,7 @@ namespace Tgstation.Server.ControlPanel
 			{
 				var app = BuildAvaloniaApp();
 
-				app.BeforeStarting(x => mwvm.LoadData());
+				app.BeforeStarting(x => mwvm.AsyncStart());
 				app.Start<MainWindow>(() => mwvm);
 			}
 		}
@@ -23,5 +24,25 @@ namespace Tgstation.Server.ControlPanel
 				.UsePlatformDetect()
 				.UseReactiveUI()
 				.LogToDebug();
+
+		public static void LaunchUrl(string url)
+		{
+			try
+			{
+				Process.Start(new ProcessStartInfo
+				{
+					FileName = url,
+					UseShellExecute = true
+				}).Dispose();
+			}
+			catch
+			{
+				try
+				{
+					Process.Start("xdg-open", url).Dispose();
+				}
+				catch { }
+			}
+		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using Avalonia.Threading;
 using System;
+using System.Globalization;
 using System.Windows.Input;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
@@ -18,7 +19,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanExecute(object parameter) => commandReceiver.CanRunCommand(command);
 
-		public void Recheck() => Dispatcher.UIThread.Post(() => CanExecuteChanged?.Invoke(this, new EventArgs()));
+		public void Recheck()
+		{
+			void Invoke() => CanExecuteChanged?.Invoke(this, new EventArgs());
+			if (Dispatcher.UIThread == null)
+				Invoke();
+			else
+				Dispatcher.UIThread.Post(Invoke);
+		}
 
 		public async void Execute(object parameter)
 		{
@@ -26,7 +34,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				await commandReceiver.RunCommand(command, default).ConfigureAwait(false);
 			}
-			catch { }	//TODO
+			catch (Exception e)
+			{
+				lock (MainWindowViewModel.Singleton)
+					MainWindowViewModel.Singleton.ConsoleContent = String.Format(CultureInfo.InvariantCulture, "{0}{1}[{2}]: UNCAUGHT COMMAND EXCEPTION! Type: {3} Action: {4} Exception: {5}", MainWindowViewModel.Singleton.ConsoleContent, Environment.NewLine, DateTimeOffset.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture), typeof(TCommand).Name, command, e);
+			}
 		}
 	}
 }

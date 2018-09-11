@@ -37,19 +37,21 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IUserRightsProvider userRightsProvider;
 		readonly IUserProvider userProvider;
 		readonly IServerJobSink serverJobSink;
+		readonly Octokit.IGitHubClient gitHubClient;
 
 		IReadOnlyList<ITreeNode> children;
 		string icon;
 		bool loading;
 		bool isExpanded;
 
-		public InstanceRootViewModel(PageContextViewModel pageContext, IInstanceManagerClient instanceManagerClient, IUserRightsProvider userRightsProvider, IUserProvider userProvider, IServerJobSink serverJobSink)
+		public InstanceRootViewModel(PageContextViewModel pageContext, IInstanceManagerClient instanceManagerClient, IUserRightsProvider userRightsProvider, IUserProvider userProvider, IServerJobSink serverJobSink, Octokit.IGitHubClient gitHubClient)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.instanceManagerClient = instanceManagerClient ?? throw new ArgumentNullException(nameof(instanceManagerClient));
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
 			this.userProvider = userProvider ?? throw new ArgumentNullException(nameof(userProvider));
 			this.serverJobSink = serverJobSink ?? throw new ArgumentNullException(nameof(serverJobSink));
+			this.gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
 
 			async void InitalLoad() => await Refresh(default).ConfigureAwait(false);
 			InitalLoad();
@@ -106,7 +108,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						newChildren = new List<ITreeNode>();
 						if (hasCreateRight)
 							newChildren.Add(auvm);
-						newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x, userRightsProvider, this, userProvider, serverJobSink)));
+						newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x, userRightsProvider, this, userProvider, serverJobSink, gitHubClient)));
 						if (instances.Count == 1)
 							newChildren[1].IsExpanded = true;
 						Children = newChildren;
@@ -148,7 +150,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public void DirectAddInstance(Instance instance)
 		{
 			var newChildren = new List<ITreeNode>(Children);
-			var newThing = new InstanceViewModel(instanceManagerClient, pageContext, instance, userRightsProvider, this, userProvider, serverJobSink);
+			var newThing = new InstanceViewModel(instanceManagerClient, pageContext, instance, userRightsProvider, this, userProvider, serverJobSink, gitHubClient);
 			newChildren.Add(newThing);
 			Children = newChildren;
 			pageContext.ActiveObject = newThing;

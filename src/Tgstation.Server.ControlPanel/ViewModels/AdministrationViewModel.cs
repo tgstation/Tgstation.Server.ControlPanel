@@ -203,22 +203,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					await connectionManagerViewModel.BeginConnect(cancellationToken).ConfigureAwait(true);
 					break;
 				case AdministrationCommand.OpenGitHub:
-					try
-					{
-						Process.Start(new ProcessStartInfo
-						{
-							FileName = GitHubUrl,
-							UseShellExecute = true
-						}).Dispose();
-					}
-					catch
-					{
-						try
-						{
-							Process.Start("xdg-open", GitHubUrl).Dispose();
-						}
-						catch { }
-					}
+					ControlPanel.LaunchUrl(GitHubUrl);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");

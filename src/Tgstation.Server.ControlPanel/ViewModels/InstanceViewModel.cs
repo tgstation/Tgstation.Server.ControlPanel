@@ -94,6 +94,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IUserRightsProvider userRightsProvider;
 		readonly InstanceRootViewModel instanceRootViewModel;
 		readonly IUserProvider userProvider;
+		readonly Octokit.IGitHubClient gitHubClient;
 
 		IInstanceJobSink instanceJobSink;
 
@@ -112,7 +113,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		InstanceUser instanceUser;
 
-		public InstanceViewModel(IInstanceManagerClient instanceManagerClient, PageContextViewModel pageContext, Instance instance, IUserRightsProvider userRightsProvider, InstanceRootViewModel instanceRootViewModel, IUserProvider userProvider, IServerJobSink serverJobSink)
+		public InstanceViewModel(IInstanceManagerClient instanceManagerClient, PageContextViewModel pageContext, Instance instance, IUserRightsProvider userRightsProvider, InstanceRootViewModel instanceRootViewModel, IUserProvider userProvider, IServerJobSink serverJobSink, Octokit.IGitHubClient gitHubClient)
 		{
 			this.instanceManagerClient = instanceManagerClient ?? throw new ArgumentNullException(nameof(instanceManagerClient));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
@@ -120,6 +121,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
 			this.instanceRootViewModel = instanceRootViewModel ?? throw new ArgumentNullException(nameof(instanceRootViewModel));
 			this.userProvider = userProvider ?? throw new ArgumentNullException(nameof(userProvider));
+			this.gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
 
 			instanceClient = instanceManagerClient.CreateClient(instance);
 
@@ -220,7 +222,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				instanceUserTreeNode,
 				new InstanceUserRootViewModel(pageContext, instanceClient.Users, instanceUserTreeNode, userProvider, this),
-				new RepositoryViewModel(pageContext, instanceClient.Repository, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode),
+				new RepositoryViewModel(pageContext, instanceClient.Repository, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode, gitHubClient),
 				instanceUser.ByondRights != ByondRights.None ? new BasicNode
 				{
 					Title = "TODO: Byond",

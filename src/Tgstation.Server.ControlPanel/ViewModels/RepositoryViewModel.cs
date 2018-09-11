@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -211,6 +212,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool HasCredentials => Repository?.AccessUser != null && Repository?.AccessUser != NoCredentials;
 
+		public bool RateLimited
+		{
+			get => rateLimited;
+			set => this.RaiseAndSetIfChanged(ref rateLimited, value);
+		}
+		public string RateLimitSeconds
+		{
+			get => rateLimitSeconds;
+			set => this.RaiseAndSetIfChanged(ref rateLimitSeconds, value);
+		}
+
 		public EnumCommand<RepositoryCommand> Close { get; }
 		public EnumCommand<RepositoryCommand> RefreshCommand { get; }
 		public EnumCommand<RepositoryCommand> Clone { get; }
@@ -225,11 +237,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IDreamMakerClient dreamMakerClient;
 		readonly IInstanceJobSink jobSink;
 		readonly IInstanceUserRightsProvider rightsProvider;
+		readonly Octokit.IGitHubClient gitHubClient;
 		
 		Repository repository;
 
 		IReadOnlyList<TestMergeViewModel> remotePullRequests;
 		IReadOnlyList<TestMergeViewModel> activePullRequests;
+
+		Dictionary<int, Octokit.Issue> pullRequests;
+		Dictionary<int, IReadOnlyList<Octokit.Label>> pullRequestLabels;
 
 		string newOrigin;
 		string newSha;
@@ -239,12 +255,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string newAccessUser;
 		string newAccessToken;
 
+		string rateLimitSeconds;
+
 		bool updateMerge;
 		bool updateHard;
 		
 		bool newShowTestMergeCommitters;
 		bool newAutoUpdatesKeepTestMerges;
 		bool newAutoUpdatesSynchronize;
+		bool rateLimited;
 
 		string errorMessage;
 		bool error;
@@ -255,13 +274,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool cloneAvailable;
 		bool deployAfter;
 
-		public RepositoryViewModel(PageContextViewModel pageContext, IRepositoryClient repositoryClient, IDreamMakerClient dreamMakerClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider)
+		public RepositoryViewModel(PageContextViewModel pageContext, IRepositoryClient repositoryClient, IDreamMakerClient dreamMakerClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider, Octokit.IGitHubClient gitHubClient)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.repositoryClient = repositoryClient ?? throw new ArgumentNullException(nameof(repositoryClient));
 			this.dreamMakerClient = dreamMakerClient ?? throw new ArgumentNullException(nameof(dreamMakerClient));
 			this.jobSink = jobSink ?? throw new ArgumentNullException(nameof(jobSink));
 			this.rightsProvider = rightsProvider ?? throw new ArgumentNullException(nameof(rightsProvider));
+			this.gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
 
 			Close = new EnumCommand<RepositoryCommand>(RepositoryCommand.Close, this);
 			RefreshCommand = new EnumCommand<RepositoryCommand>(RepositoryCommand.Refresh, this);
@@ -340,11 +360,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					NewAccessUser = String.Empty;
 					NewAccessToken = String.Empty;
 
-				UpdateHard = false;
-				UpdateMerge = false;
-				NewAutoUpdatesKeepTestMerges = Repository.AutoUpdatesKeepTestMerges ?? update.AutoUpdatesKeepTestMerges ?? oldRepo.AutoUpdatesKeepTestMerges ?? NewAutoUpdatesKeepTestMerges;
-				NewAutoUpdatesSynchronize = Repository.AutoUpdatesSynchronize ?? update.AutoUpdatesSynchronize ?? oldRepo.AutoUpdatesSynchronize ?? NewAutoUpdatesSynchronize;
-				NewShowTestMergeCommitters = Repository.ShowTestMergeCommitters ?? update.ShowTestMergeCommitters ?? oldRepo.ShowTestMergeCommitters ?? NewShowTestMergeCommitters;
+					UpdateHard = false;
+					UpdateMerge = false;
+					NewAutoUpdatesKeepTestMerges = Repository.AutoUpdatesKeepTestMerges ?? update.AutoUpdatesKeepTestMerges ?? oldRepo.AutoUpdatesKeepTestMerges ?? NewAutoUpdatesKeepTestMerges;
+					NewAutoUpdatesSynchronize = Repository.AutoUpdatesSynchronize ?? update.AutoUpdatesSynchronize ?? oldRepo.AutoUpdatesSynchronize ?? NewAutoUpdatesSynchronize;
+					NewShowTestMergeCommitters = Repository.ShowTestMergeCommitters ?? update.ShowTestMergeCommitters ?? oldRepo.ShowTestMergeCommitters ?? NewShowTestMergeCommitters;
 
 					CloneAvailable = Repository.Origin == null;
 				}
@@ -354,28 +374,52 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					ErrorMessage = e.Message;
 				}
 
-				//TODO: Pull requests
-
-				var client = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("test", "1.0.0")) {
-					Credentials = new Octokit.Credentials("d66de08a0f1c70b3c9a463ef8abe8bee739cf7c9")
-				};
-				var prs = await client.Search.SearchIssues(new Octokit.SearchIssuesRequest
-				{
-					Repos = new Octokit.RepositoryCollection { { "tgstation", "tgstation" } },
-					State = Octokit.ItemState.Open,
-					Type = Octokit.IssueTypeQualifier.PullRequest,
-				}).ConfigureAwait(true);
-
-				var tasks = prs.Items.Select(x => client.PullRequest.Commits("tgstation", "tgstation", x.Number));
-				await Task.WhenAll(tasks).ConfigureAwait(true);
-
-				RemotePullRequests = Enumerable.Zip(prs.Items, tasks.Select(x => x.Result), (a, b) => new TestMergeViewModel(a, b, x => Task.CompletedTask)).ToList();
+				if (pullRequests == null)
+					await RefreshPRList(cancellationToken).ConfigureAwait(true);
 			}
 			finally
 			{
 				Icon = "resm:Tgstation.Server.ControlPanel.Assets.git.png";
 				Refreshing = false;
 				RecheckCommands();
+			}
+		}
+
+		async Task RefreshPRList(CancellationToken cancellationToken)
+		{
+			if (!rightsProvider.RepositoryRights.HasFlag(RepositoryRights.MergePullRequest) || Repository?.GitHubOwner == null)
+				return;
+
+			try
+			{
+				var prs = await gitHubClient.Search.SearchIssues(new Octokit.SearchIssuesRequest
+				{
+					Repos = new Octokit.RepositoryCollection { { Repository.GitHubOwner, Repository.GitHubName } },
+					State = Octokit.ItemState.Open,
+					Type = Octokit.IssueTypeQualifier.PullRequest,
+					
+				}).ConfigureAwait(true);
+
+				var tasks = prs.Items.Select(x => gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, x.Number));
+				await Task.WhenAll(tasks).ConfigureAwait(true);
+				RemotePullRequests = Enumerable.Zip(prs.Items, tasks.Select(x => x.Result), (a, b) => new TestMergeViewModel(a, b, x => Task.CompletedTask)).ToList();
+			}
+			catch (Octokit.RateLimitExceededException e)
+			{
+				RateLimited = true;
+				void UpdateSeconds() => RateLimitSeconds = String.Format(CultureInfo.InvariantCulture, "You have been rate limited by GitHub, add a personal access token on the Connection Manager to increase the limit. This will reset in {0}s...", Math.Floor((e.Reset - DateTimeOffset.Now).TotalSeconds));
+				UpdateSeconds();
+				async void ResetRate()
+				{
+					while (DateTimeOffset.Now < e.Reset)
+					{
+						await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(true);
+						UpdateSeconds();
+					}
+					RateLimited = false;
+				}
+				ResetRate();
+				RemotePullRequests = null;
 			}
 		}
 
@@ -405,7 +449,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					return CanAccess;
 				case RepositoryCommand.DirectAddPR:
 				case RepositoryCommand.RefreshPRs:
-					return CanTestMerge;
+					return CanTestMerge && !RateLimited;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -468,7 +512,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case RepositoryCommand.DirectAddPR:
 					throw new NotImplementedException();
 				case RepositoryCommand.RefreshPRs:
-					throw new NotImplementedException();
+					await RefreshPRList(cancellationToken).ConfigureAwait(true);
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}

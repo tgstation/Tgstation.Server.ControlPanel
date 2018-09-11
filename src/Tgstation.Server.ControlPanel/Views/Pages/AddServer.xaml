@@ -33,6 +33,7 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
@@ -44,6 +45,8 @@
             <TextBox Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" IsEnabled="{Binding !PageContext.ActiveObject.UsingDefaultCredentials, Mode=OneWay}" Text="{Binding PageContext.ActiveObject.Username, Mode=TwoWay}"/>
             <TextBlock Text="Password:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="2" />
             <TextBox PasswordChar="*" Grid.Column="1" Grid.Row="2" Margin="50,0,0,5" IsEnabled="{Binding !PageContext.ActiveObject.UsingDefaultCredentials}" Text="{Binding PageContext.ActiveObject.Password, Mode=TwoWay}"/>
+            <TextBlock Text="GitHub Token (global, optional):" Margin="0,5,0,0" Grid.Column="0" Grid.Row="4" />
+            <TextBox PasswordChar="*" Grid.Column="1" Grid.Row="4" Margin="50,0,0,5" Text="{Binding GitHubToken, Mode=TwoWay}"/>
           </Grid>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

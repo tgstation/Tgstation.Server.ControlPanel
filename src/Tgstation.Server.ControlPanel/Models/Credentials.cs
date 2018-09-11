@@ -7,8 +7,6 @@ namespace Tgstation.Server.ControlPanel.Models
 {
 	public class Credentials
 	{
-		public string Username { get; set; }
-
 		[JsonIgnore]
 		public bool AllowSavingPassword { get; set; }
 
