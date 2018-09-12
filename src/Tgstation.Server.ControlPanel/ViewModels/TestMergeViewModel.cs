@@ -15,11 +15,32 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 	{
 		public enum TestMergeCommand
 		{
-			Activate,
 			Link
 		}
 
 		public string Title => String.Format(CultureInfo.InvariantCulture, "#{0} - {1}", TestMerge.Number, TestMerge.TitleAtMerge);
+
+		public bool Selected
+		{
+			get => selected;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref selected, value);
+				onActivate();
+			}
+		}
+
+		public bool CanEdit
+		{
+			get => canEdit;
+			set => this.RaiseAndSetIfChanged(ref canEdit, value);
+		}
+
+		public string Comment
+		{
+			get => TestMerge.Comment;
+			set => TestMerge.Comment = value;
+		}
 
 		public TestMerge TestMerge { get; }
 
@@ -39,22 +60,21 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string ActiveCommit => TestMerge.PullRequestRevision;
 
-		public EnumCommand<TestMergeCommand> Activate { get; }
-
 		public EnumCommand<TestMergeCommand> Link { get; }
 
-		readonly Func<int, CancellationToken, Task> onActivate;
+		readonly Action onActivate;
 		int selectedIndex;
+		bool canEdit;
+		bool selected;
 
-		TestMergeViewModel(Func<int, CancellationToken, Task> onActivate)
+		TestMergeViewModel(Action onActivate)
 		{
-			this.onActivate = onActivate;
-
-			Activate = new EnumCommand<TestMergeCommand>(TestMergeCommand.Activate, this);
+			this.onActivate = onActivate ?? throw new ArgumentNullException(nameof(onActivate));
+			
 			Link = new EnumCommand<TestMergeCommand>(TestMergeCommand.Link, this);
 		}
 
-		public TestMergeViewModel(Issue pullRequest, IReadOnlyList<PullRequestCommit> commits, Func<int, CancellationToken, Task> onActivate, int? activeCommit = null) : this(onActivate)
+		public TestMergeViewModel(Issue pullRequest, IReadOnlyList<PullRequestCommit> commits, Action onActivate, int? activeCommit = null) : this(onActivate)
 		{
 			if (pullRequest == null)
 				throw new ArgumentNullException(nameof(pullRequest));
@@ -71,15 +91,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Commits = commits?.Select(x => String.Format(CultureInfo.InvariantCulture, "{0} - {1}", x.Sha.Substring(0, 7), x.Commit.Message.Split('\n').First())).ToList() ?? throw new ArgumentNullException(nameof(commits));
 			FontWeight = pullRequest.Labels.Any(x => x.Name.ToUpperInvariant().Contains("TEST MERGE")) ? FontWeight.Bold : FontWeight.Normal;
 			SelectedIndex = activeCommit ?? (Commits.Count - 1);
+			CanEdit = true;
 		}
 
-		public TestMergeViewModel(TestMerge testMerge, Func<int, CancellationToken, Task> onActivate) : this(onActivate)
+		public TestMergeViewModel(TestMerge testMerge, Action onActivate) : this(onActivate)
 		{
 			TestMerge = testMerge ?? throw new ArgumentNullException(nameof(testMerge));
 
 			Commits = new List<string> { TestMerge.PullRequestRevision.Substring(0, 7) };
 
 			FontWeight = FontWeight.Normal;
+			Selected = true;
 		}
 
 		public bool CanRunCommand(TestMergeCommand command)
@@ -88,8 +110,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				case TestMergeCommand.Link:
 					return true;
-				case TestMergeCommand.Activate:
-					return onActivate != null;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -101,8 +121,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case TestMergeCommand.Link:
 					ControlPanel.LaunchUrl(TestMerge.Url);
 					return Task.CompletedTask;
-				case TestMergeCommand.Activate:
-					return onActivate(TestMerge.Number.Value, cancellationToken);
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}

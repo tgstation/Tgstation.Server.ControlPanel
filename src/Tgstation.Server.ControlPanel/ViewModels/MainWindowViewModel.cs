@@ -35,16 +35,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			get
 			{
-				var memes = new List<string>
+				var memes = new string[]
 				{
 					"Proudly created by Cyberboss",
 					"True Canadian Beer",
 					"Brainlet Resistant",
 					"Need Milk",
 					"Absolute Seperation",
-					"Deleting Data Directory..."
+					"Deleting Data Directory...",
+					"When You Code It",
+					"Contains Technical Debt"
 				};
-				return memes[new Random().Next(memes.Count)];
+				return memes[new Random().Next(memes.Length)];
 			}
 		}
 

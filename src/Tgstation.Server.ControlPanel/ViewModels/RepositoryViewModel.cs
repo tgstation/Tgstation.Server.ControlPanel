@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Media;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -128,10 +129,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => updateHard;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref updateHard, value);
-				this.RaisePropertyChanged(nameof(UpdateMerge));
-				this.RaisePropertyChanged(nameof(CanUpdateMerge));
-				this.RaisePropertyChanged(nameof(ActiveTestMerges));
+				using (DelayChangeNotifications())
+				{
+					this.RaiseAndSetIfChanged(ref updateHard, value);
+					this.RaisePropertyChanged(nameof(UpdateMerge));
+					this.RaisePropertyChanged(nameof(CanUpdateMerge));
+					RebuildTestMergeList();
+				}
 			}
 		}
 
@@ -194,38 +198,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref errorMessage, value);
 		}
 
-		public IReadOnlyList<TestMergeViewModel> ActiveTestMerges
-		{
-			get
-			{
-				if (UpdateHard || Repository == null)
-					return ActivePullRequests;
-				var tmp = new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, null)));
-				tmp.AddRange(ActivePullRequests.Where(x => !Repository.RevisionInformation.ActiveTestMerges.Any(y => y.Number == x.TestMerge.Number)));
-				return tmp;
-			}
-		}
-
 		public bool DeployAfter
 		{
 			get => deployAfter;
 			set => this.RaiseAndSetIfChanged(ref deployAfter, value);
 		}
 
-		public IReadOnlyList<TestMergeViewModel> RemotePullRequests
+		public IReadOnlyList<TestMergeViewModel> TestMerges
 		{
-			get => remotePullRequests;
-			set => this.RaiseAndSetIfChanged(ref remotePullRequests, value);
-		}
-
-		public IReadOnlyList<TestMergeViewModel> ActivePullRequests
-		{
-			get => activePullRequests;
-			set
-			{
-				this.RaiseAndSetIfChanged(ref activePullRequests, value);
-				this.RaisePropertyChanged(nameof(ActiveTestMerges));
-			}
+			get => testMerges;
+			set => this.RaiseAndSetIfChanged(ref testMerges, value);
 		}
 
 		public bool HasCredentials => Repository?.AccessUser != null && Repository?.AccessUser != NoCredentials;
@@ -259,8 +241,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		
 		Repository repository;
 
-		IReadOnlyList<TestMergeViewModel> remotePullRequests;
-		IReadOnlyList<TestMergeViewModel> activePullRequests;
+		IReadOnlyList<TestMergeViewModel> testMerges;
 
 		Dictionary<int, Octokit.Issue> pullRequests;
 		Dictionary<int, IReadOnlyList<Octokit.PullRequestCommit>> pullRequestCommits;
@@ -399,12 +380,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					return;
 				}
 
-				ActivePullRequests = new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, MakeTestMergeInactive)));
-
-				modifiedPRList = false;
-
 				if (pullRequests == null)
+				{
+					TestMerges = new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, () => modifiedPRList = true)));
 					await RefreshPRList(cancellationToken).ConfigureAwait(true);
+				}
+				else
+					RebuildTestMergeList();
+				modifiedPRList = false;
 			}
 			finally
 			{
@@ -423,27 +406,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 			pullRequests.Add(pr.Number, pr);
 			pullRequestCommits.Add(pr.Number, commits);
-		}
-
-		Task MakeTestMergeActive(int number, CancellationToken cancellationToken)
-		{
-			using (DelayChangeNotifications())
-			{
-				ActivePullRequests = new List<TestMergeViewModel>(ActivePullRequests)
-				{
-					new TestMergeViewModel(pullRequests[number], pullRequestCommits[number], MakeTestMergeInactive)
-				};
-				RebuildRemoteList();
-			}
-			modifiedPRList = true;
-			return Task.CompletedTask;
-		}
-
-		async Task MakeTestMergeInactive(int number, CancellationToken cancellationToken)
-		{
-			ActivePullRequests = new List<TestMergeViewModel>(ActivePullRequests.Where(x => x.TestMerge.Number != number));
-			await DirectAdd(number, true, cancellationToken).ConfigureAwait(true);
-			modifiedPRList = true;
 		}
 
 		async Task RefreshPRList(CancellationToken cancellationToken)
@@ -465,14 +427,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				var tasks = prs.Items.Select(x => gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, x.Number));
 				await Task.WhenAll(tasks).ConfigureAwait(true);
-
+				pullRequests = null;
 				Enumerable.Zip(prs.Items, tasks.Select(x => x.Result), (a, b) =>
 				{
 					DigestPR(a, b);
 					return 0;
 				}).ToList();
 
-				RebuildRemoteList();
+				RebuildTestMergeList();
 			}
 			catch (Octokit.RateLimitExceededException e)
 			{
@@ -486,18 +448,25 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		void RebuildRemoteList()
+		void RebuildTestMergeList()
 		{
-			var list = Enumerable.Zip(pullRequests, pullRequestCommits, (a, b) =>
+			void Modified() => modifiedPRList = true;
+			var tmp = Repository == null ? new List<TestMergeViewModel>() : new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, Modified)
 			{
-				if (ActivePullRequests.Any(x => x.TestMerge.Number == a.Key))
-					return null;
-				return new TestMergeViewModel(a.Value, b.Value, MakeTestMergeActive);
-			}).Where(x => x != null).ToList();
-
-			var tmp = new List<TestMergeViewModel>(list.Where(x => x.FontWeight == Avalonia.Media.FontWeight.Bold));
-			tmp.AddRange(list.Where(x => x.FontWeight != Avalonia.Media.FontWeight.Bold));
-			RemotePullRequests = tmp;
+				CanEdit = UpdateHard
+			}));
+			if (!RateLimited && pullRequests != null)
+			{
+				var enumerable = Enumerable.Zip(pullRequests, pullRequestCommits, (a, b) =>
+				{
+					if (tmp.Any(x => x.TestMerge.Number == a.Key))
+						return null;
+					return new TestMergeViewModel(a.Value, b.Value, Modified);
+				}).Where(x => x != null).ToList();
+				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Bold));
+				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Normal));
+			}
+			TestMerges = tmp;
 		}
 
 		async Task DirectAdd(int number, bool forceRebuild, CancellationToken cancellationToken)
@@ -516,7 +485,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					DigestPR(pr, commits);
 				}
 				if(run || forceRebuild)
-					RebuildRemoteList();
+					RebuildTestMergeList();
 			}
 			catch (Octokit.RateLimitExceededException e)
 			{
@@ -545,7 +514,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				RateLimited = false;
 			}
 			ResetRate();
-			RemotePullRequests = null;
+			RebuildTestMergeList();
 		}
 
 		public Task HandleClick(CancellationToken cancellationToken)
@@ -610,7 +579,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					};
 
 					if (modifiedPRList || UpdateHard)
-						update.NewTestMerges = ActivePullRequests.Select(x => new TestMergeParameters
+						update.NewTestMerges = TestMerges.Where(x => x.CanEdit && x.Selected).Select(x => new TestMergeParameters
 						{
 							Comment = x.TestMerge.Comment,
 							Number = x.TestMerge.Number,

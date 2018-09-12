@@ -1,5 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views.Pages">
   <Grid Background="#CFD6E5">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -174,7 +175,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" Grid.Row="0"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5" Grid.Row="1"/>
@@ -202,111 +202,10 @@
           </Grid>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" Grid.Row="3"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5" Grid.Row="4"/>
-          <DockPanel Margin="0,0,0,10" LastChildFill="False" Grid.Row="5">
-            <TextBlock Text="Test Merges" FontSize="20" DockPanel.Dock="Left"/>
-            <Button Content="Refresh" Command="{Binding PageContext.ActiveObject.RefreshPRs}" DockPanel.Dock="Right"/>
-            <TextBlock Text="{Binding PageContext.ActiveObject.RateLimitSeconds}" IsVisible="{Binding PageContext.ActiveObject.RateLimited}" DockPanel.Dock="Right" Margin="0,5,5,0"/>
-          </DockPanel>
-          <Grid IsEnabled="{Binding PageContext.ActiveObject.CanTestMerge}" Grid.Row="6">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="5"/>
-              <ColumnDefinition Width="50*"/>
-              <ColumnDefinition Width="3*"/>
-              <ColumnDefinition Width="50*"/>
-              <ColumnDefinition Width="5"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="400"/>
-            </Grid.RowDefinitions>
-            <TextBlock Text="Inactive" FontSize="16" Grid.Column="1" Grid.Row="0"/>
-            <Grid Grid.Column="1" Grid.Row="1">
-              <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
-              <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#FFFFFF" Grid.Row="0">
-                <ItemsControl Items="{Binding PageContext.ActiveObject.RemotePullRequests}">
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                      <Grid>
-                        <Grid.ColumnDefinitions>
-                          <ColumnDefinition Width="500"/>
-                          <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                          <RowDefinition Height="Auto"/>
-                          <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Rectangle HorizontalAlignment="Stretch" Fill="#000000" Height="1" Margin="0,5,0,5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
-                        <Button Grid.Column="0" Grid.Row="1" Command="{Binding Link}" HorizontalAlignment="Stretch" Padding="0,0">
-                          <Grid>
-                            <Grid.ColumnDefinitions>
-                              <ColumnDefinition Width="7*"/>
-                              <ColumnDefinition Width="3*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                              <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="{Binding Title}" FontWeight="{Binding FontWeight}" Grid.Column="0" Grid.Row="0" Margin="0,5,0,0"/>
-                            <DropDown Items="{Binding Commits}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0"/>
-                          </Grid>
-                        </Button>
-                        <Button Command="{Binding Activate}" Content="Add" Grid.Column="1" Grid.Row="1" Margin="5,0,0,0"/>
-                      </Grid>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-              </ScrollViewer>
-              <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="Auto"/>
-                  <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="Add Closed PR#:" Margin="0,5,5,0" Grid.Column="0"/>
-                <NumericUpDown Minimum="1" Height="25" Value="{Binding PageContext.ActiveObject.ManualPR}" Margin="0,0,5,0" Grid.Column="1"/>
-                <Button Content="Add" Command="{Binding PageContext.ActiveObject.DirectAddPR}" Grid.Column="2"/>
-              </Grid>
-            </Grid>
-            <TextBlock Text="Active" FontSize="16" Grid.Column="3" Grid.Row="0"/>
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#FFFFFF" Grid.Column="3" Grid.Row="1">
-              <ItemsControl Items="{Binding PageContext.ActiveObject.ActiveTestMerges}">
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate>
-                    <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="500"/>
-                        <ColumnDefinition Width="Auto"/>
-                      </Grid.ColumnDefinitions>
-                      <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                      </Grid.RowDefinitions>
-                      <Rectangle HorizontalAlignment="Stretch" Fill="#000000" Height="1" Margin="0,5,0,5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
-                      <Button Grid.Column="0" Grid.Row="1" Command="{Binding Link}" HorizontalAlignment="Stretch" Padding="0,0">
-                        <Grid>
-                          <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="7*"/>
-                            <ColumnDefinition Width="3*"/>
-                          </Grid.ColumnDefinitions>
-                          <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                          </Grid.RowDefinitions>
-                          <TextBlock Text="{Binding Title}" FontWeight="{Binding FontWeight}" Grid.Column="0" Grid.Row="0"/>
-                          <TextBlock Text="{Binding ActiveCommit}" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0"/>
-                        </Grid>
-                      </Button>
-                      <Button Command="{Binding Activate}" Content="Remove" Grid.Column="1" Grid.Row="1" Margin="5,0,0,0"/>
-                    </Grid>
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-            </ScrollViewer>
-          </Grid>
-          <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" Grid.Row="7"/>
-          <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5" Grid.Row="8"/>
-          <Grid Grid.Row="9">
+          <local:TestMergeManager Grid.Row="5"/>
+          <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" Grid.Row="6"/>
+          <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5" Grid.Row="7"/>
+          <Grid Grid.Row="8">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="10*"/>
               <ColumnDefinition Width="20*"/>

@@ -38,6 +38,7 @@
     <None Remove="Views\Pages\InstanceUser.xaml" />
     <None Remove="Views\Pages\Repository.xaml" />
     <None Remove="Views\Pages\StaticFiles.xaml" />
+    <None Remove="Views\Pages\TestMergeManager.xaml" />
     <None Remove="Views\Pages\UserManager.xaml" />
     <None Remove="Views\Pages\Watchdog.xaml" />
     <None Remove="Views\ServerBrowser.xaml" />
@@ -101,6 +102,9 @@
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\Pages\StaticFiles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\TestMergeManager.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\Pages\UserManager.xaml">
