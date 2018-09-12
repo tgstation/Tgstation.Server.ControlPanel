@@ -26,7 +26,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set
 			{
 				this.RaiseAndSetIfChanged(ref selected, value);
-				onActivate();
+				onActivate(TestMerge.Number.Value);
 			}
 		}
 
@@ -62,19 +62,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public EnumCommand<TestMergeCommand> Link { get; }
 
-		readonly Action onActivate;
+		readonly Action<int> onActivate;
 		int selectedIndex;
 		bool canEdit;
 		bool selected;
 
-		TestMergeViewModel(Action onActivate)
+		TestMergeViewModel(Action<int> onActivate)
 		{
 			this.onActivate = onActivate ?? throw new ArgumentNullException(nameof(onActivate));
 			
 			Link = new EnumCommand<TestMergeCommand>(TestMergeCommand.Link, this);
 		}
 
-		public TestMergeViewModel(Issue pullRequest, IReadOnlyList<PullRequestCommit> commits, Action onActivate, int? activeCommit = null) : this(onActivate)
+		public TestMergeViewModel(Issue pullRequest, IReadOnlyList<PullRequestCommit> commits, Action<int> onActivate, int? activeCommit = null) : this(onActivate)
 		{
 			if (pullRequest == null)
 				throw new ArgumentNullException(nameof(pullRequest));
@@ -94,14 +94,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			CanEdit = true;
 		}
 
-		public TestMergeViewModel(TestMerge testMerge, Action onActivate) : this(onActivate)
+		public TestMergeViewModel(TestMerge testMerge, Action<int> onActivate) : this(onActivate)
 		{
 			TestMerge = testMerge ?? throw new ArgumentNullException(nameof(testMerge));
 
 			Commits = new List<string> { TestMerge.PullRequestRevision.Substring(0, 7) };
 
 			FontWeight = FontWeight.Normal;
-			Selected = true;
+			selected = true;	//do not use the property here or you'll cause a StackOverflow
 		}
 
 		public bool CanRunCommand(TestMergeCommand command)

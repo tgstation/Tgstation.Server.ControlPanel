@@ -134,6 +134,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaiseAndSetIfChanged(ref updateHard, value);
 					this.RaisePropertyChanged(nameof(UpdateMerge));
 					this.RaisePropertyChanged(nameof(CanUpdateMerge));
+					this.RaisePropertyChanged(nameof(CanSetRef));
+					if (value)
+						NewReference = Repository.Reference;
+					else
+						NewReference = String.Empty;
 					RebuildTestMergeList();
 				}
 			}
@@ -161,7 +166,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanClone => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetOrigin);
 		public bool CanDelete => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.Delete);
-		public bool CanSetRef => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetReference) && String.IsNullOrEmpty(NewSha);
+		public bool CanSetRef => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetReference) && String.IsNullOrEmpty(NewSha) && !UpdateHard;
 		public bool CanSetSha => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetSha) && String.IsNullOrEmpty(NewReference);
 		public bool CanShowTMCommitters => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeTestMergeCommits);
 		public bool CanChangeCommitter => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeCommitter);
@@ -382,7 +387,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				if (pullRequests == null)
 				{
-					TestMerges = new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, () => modifiedPRList = true)));
+					TestMerges = new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, DeactivatePR)));
 					await RefreshPRList(cancellationToken).ConfigureAwait(true);
 				}
 				else
@@ -448,12 +453,28 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		async void DeactivatePR(int number)
+		{
+			try
+			{
+				await DirectAdd(number, true, default).ConfigureAwait(true);
+			}
+			catch { }
+		}
+
 		void RebuildTestMergeList()
 		{
-			void Modified() => modifiedPRList = true;
-			var tmp = Repository == null ? new List<TestMergeViewModel>() : new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, Modified)
+			var tmp = Repository == null ? new List<TestMergeViewModel>() : new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x =>
 			{
-				CanEdit = UpdateHard
+				if (!(updateHard && pullRequests?.ContainsKey(x.Number.Value) == true))
+					return new TestMergeViewModel(x, DeactivatePR);
+				var result = new TestMergeViewModel(pullRequests[x.Number.Value], pullRequestCommits[x.Number.Value], y => { })
+				{
+					Selected = true,
+					Comment = x.Comment
+				};
+				result.SelectedIndex = result.Commits.ToList().IndexOf(result.Commits.First(y => y.Substring(0, 7).ToUpperInvariant() == x.PullRequestRevision.Substring(0, 7).ToUpperInvariant()));
+				return result;
 			}));
 			if (!RateLimited && pullRequests != null)
 			{
@@ -461,7 +482,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					if (tmp.Any(x => x.TestMerge.Number == a.Key))
 						return null;
-					return new TestMergeViewModel(a.Value, b.Value, Modified);
+					return new TestMergeViewModel(a.Value, b.Value, x => { });
 				}).Where(x => x != null).ToList();
 				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Bold));
 				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Normal));
@@ -562,20 +583,20 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case RepositoryCommand.Update:
 					var update = new Repository
 					{
-						CheckoutSha = String.IsNullOrEmpty(NewSha) || !CanSetSha ? null : NewSha,
-						Reference = String.IsNullOrEmpty(NewReference) || !CanSetRef ? null : NewReference,
+						CheckoutSha = String.IsNullOrEmpty(NewSha) ? null : NewSha,
+						Reference = String.IsNullOrEmpty(NewReference) ? null : NewReference,
 						UpdateFromOrigin = UpdateHard || UpdateMerge ? (bool?)true : null,
 
-						AccessToken = String.IsNullOrEmpty(NewAccessToken) || !CanAccess ? null : NewAccessToken,
-						AccessUser = String.IsNullOrEmpty(NewAccessUser) || !CanAccess ? null : NewAccessUser,
+						AccessToken = String.IsNullOrEmpty(NewAccessToken) ? null : NewAccessToken,
+						AccessUser = String.IsNullOrEmpty(NewAccessUser) ? null : NewAccessUser,
 
 						AutoUpdatesKeepTestMerges = CanAutoUpdate ? (bool?)NewAutoUpdatesKeepTestMerges : null,
 						AutoUpdatesSynchronize = CanAutoUpdate ? (bool?)NewAutoUpdatesSynchronize : null,
 
 						ShowTestMergeCommitters = CanShowTMCommitters ? (bool?)NewShowTestMergeCommitters : null,
 
-						CommitterEmail = CanChangeCommitter && !String.IsNullOrEmpty(NewCommitterEmail) ? NewCommitterEmail : null,
-						CommitterName = CanChangeCommitter && !String.IsNullOrEmpty(NewCommitterName) ? NewCommitterName : null
+						CommitterEmail = !String.IsNullOrEmpty(NewCommitterEmail) ? NewCommitterEmail : null,
+						CommitterName = !String.IsNullOrEmpty(NewCommitterName) ? NewCommitterName : null
 					};
 
 					if (modifiedPRList || UpdateHard)
