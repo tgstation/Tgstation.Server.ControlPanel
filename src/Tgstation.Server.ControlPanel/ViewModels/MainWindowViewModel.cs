@@ -24,7 +24,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			NewServerConnection,
 			CopyConsole,
-			AppUpdate
+			AppUpdate,
+			ReportIssue
 		}
 
 		readonly ProductHeaderValue productHeaderValue;
@@ -61,6 +62,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public ICommand CopyConsole { get; }
 
 		public EnumCommand<MainWindowCommand> AppUpdate { get; }
+
+		public ICommand ReportIssue { get; }
 
 		public static MainWindowViewModel Singleton { get; private set; }
 
@@ -106,6 +109,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly IUpdater updater;
 		readonly IServerClientFactory serverClientFactory;
+		readonly IUrlEncoder urlEncoder;
 		readonly CancellationTokenSource settingsSaveLoopCts;
 		readonly Task settingsSaveLoop;
 		readonly UserSettings settings;
@@ -125,9 +129,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool updateInstalled;
 		bool noUpdatesAvailable;
 
-		public MainWindowViewModel(IUpdater updater)
+		public MainWindowViewModel(IUrlEncoder urlEncoder, IUpdater updater)
 		{
 			Singleton = this;
+			this.urlEncoder = urlEncoder ?? throw new ArgumentNullException(nameof(urlEncoder));
 			this.updater = updater ?? throw new ArgumentNullException(nameof(updater));
 
 			var assemblyName = Assembly.GetExecutingAssembly().GetName();
@@ -154,6 +159,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			AddServerCommand = new EnumCommand<MainWindowCommand>(MainWindowCommand.NewServerConnection, this);
 			CopyConsole = new EnumCommand<MainWindowCommand>(MainWindowCommand.CopyConsole, this);
 			AppUpdate = new EnumCommand<MainWindowCommand>(MainWindowCommand.AppUpdate, this);
+			ReportIssue = new EnumCommand<MainWindowCommand>(MainWindowCommand.ReportIssue, this);
 		}
 
 		void UpdateGitHubClient()
@@ -288,6 +294,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				case MainWindowCommand.NewServerConnection:
 				case MainWindowCommand.CopyConsole:
+				case MainWindowCommand.ReportIssue:
 					return true;
 				case MainWindowCommand.AppUpdate:
 					return updater.Functional && updateReady;
@@ -347,6 +354,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}
 					else
 						updater.RestartApp();
+					break;
+				case MainWindowCommand.ReportIssue:
+					var body = String.Format("<Please describe your issue here>{0}{0}{0}Console:{0}```{0}{1}{0}```{0}Reported from version {2}", Environment.NewLine, ConsoleContent, Assembly.GetExecutingAssembly().GetName().Version);
+					ControlPanel.LaunchUrl(String.Format(CultureInfo.InvariantCulture, "https://github.com/tgstation/Tgstation.Server.ControlPanel/issues/new?body={0}", urlEncoder.UrlEncode(body)));
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
