@@ -223,15 +223,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				instanceUserTreeNode,
 				new InstanceUserRootViewModel(pageContext, instanceClient.Users, instanceUserTreeNode, userProvider, this),
 				new RepositoryViewModel(pageContext, instanceClient.Repository, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode, gitHubClient),
-				instanceUser.ByondRights != ByondRights.None ? new BasicNode
-				{
-					Title = "TODO: Byond",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.byond.jpg"
-				} : new BasicNode
-				{
-					Title = "Byond",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				},
+				new ByondViewModel(pageContext, instanceClient.Byond, instanceJobSink, instanceUserTreeNode),
 				instanceUser.DreamMakerRights != DreamMakerRights.None ? new BasicNode
 				{
 					Title = "TODO: Compiler",
