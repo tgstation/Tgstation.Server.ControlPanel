@@ -50,7 +50,7 @@
           <page:Watchdog/>
           <page:ChatBot/>
           <page:DreamMaker/>
-          <page:Byond/>
+          <page:Byond IsVisible="{Binding PageContext.IsByond}" IsEnabled="{Binding PageContext.IsByond}"/>
         </Panel>
         <GridSplitter HorizontalAlignment="Right"
                       VerticalAlignment="Stretch"

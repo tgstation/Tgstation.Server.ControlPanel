@@ -16,7 +16,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public enum ByondCommand
 		{
 			Update,
-			Refresh
+			Refresh,
+			Close
 		}
 		public string Title => "Byond";
 
@@ -57,6 +58,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public EnumCommand<ByondCommand> Refresh { get; }
 		public EnumCommand<ByondCommand> Update { get; }
+		public EnumCommand<ByondCommand> Close { get; }
 
 		readonly PageContextViewModel pageContext;
 		readonly IByondClient byondClient;
@@ -88,11 +90,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Update.Recheck();
 			};
 
+			NewMajor = 511;
+			NewMinor = 1385;
+
 			async void InitialLoad() => await Load(default).ConfigureAwait(false);
 			InitialLoad();
 		}
 
-		static string FormatByondVersion(Byond byond) => String.Format(CultureInfo.InvariantCulture, "{0}.{1}", byond.Version.Major, byond.Version.Minor);
+		static string FormatByondVersion(Byond byond) => byond.Version == null ? "None" : String.Format(CultureInfo.InvariantCulture, "{0}.{1}", byond.Version.Major, byond.Version.Minor);
 
 		async Task Load(CancellationToken cancellationToken)
 		{
@@ -136,6 +141,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					return !Refreshing && (CanRead || CanList);
 				case ByondCommand.Update:
 					return !Refreshing && CanInstall;
+				case ByondCommand.Close:
+					return true;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -168,6 +175,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						Refresh.Recheck();
 						Update.Recheck();
 					}
+					break;
+				case ByondCommand.Close:
+					pageContext.ActiveObject = null;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
