@@ -20,6 +20,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Title => String.Format(CultureInfo.InvariantCulture, "#{0} - {1}", TestMerge.Number, TestMerge.TitleAtMerge);
 
+		public string MergedBy => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", TestMerge.MergedBy.Name, TestMerge.MergedBy.Id);
+		public string MergedAt => TestMerge.MergedAt.ToString();
+
 		public bool Selected
 		{
 			get => selected;
@@ -58,7 +61,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public IReadOnlyList<string> Commits { get; }
 
-		public string ActiveCommit => TestMerge.PullRequestRevision;
+		public string ActiveCommit => TestMerge.PullRequestRevision.Substring(0, 7);
 
 		public EnumCommand<TestMergeCommand> Link { get; }
 

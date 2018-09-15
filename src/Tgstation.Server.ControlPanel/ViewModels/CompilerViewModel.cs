@@ -32,8 +32,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public IReadOnlyList<ITreeNode> Children => null;
 
-		public IReadOnlyList<CompileJob> CurrentPage => jobPages[SelectedPage];
-
+		public IReadOnlyList<CompileJobViewModel> CurrentPage => jobPages.ContainsKey(selectedPage) ? jobPages[selectedPage] : null;
 		public bool Refreshing
 		{
 			get => refreshing;
@@ -81,8 +80,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Update.Recheck();
 			}
 		}
-
-		public int SelectedPage { get; set; }
+		public int ViewSelectedPage => selectedPage + 1;
+		public int ViewNumPages => numPages + 1;
 
 		public bool CanCompile => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.Compile);
 		public bool CanRead => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.Read);
@@ -102,10 +101,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IInstanceJobSink jobSink;
 		readonly IInstanceUserRightsProvider rightsProvider;
 		
-		readonly Dictionary<int, IReadOnlyList<CompileJob>> jobPages;
-		int numPages;
+		readonly Dictionary<int, IReadOnlyList<CompileJobViewModel>> jobPages;
 
 		IReadOnlyList<CompileJob> jobIds;
+		int selectedPage;
+		int numPages;
 
 		DreamMaker model;
 
@@ -135,8 +135,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(Icon));
 			};
 
-			jobPages = new Dictionary<int, IReadOnlyList<CompileJob>>();
-		
+			jobPages = new Dictionary<int, IReadOnlyList<CompileJobViewModel>>();
+
+			async void InitialLoad() => await DoRefresh(default).ConfigureAwait(true);
+			InitialLoad();
 		}
 
 		void RecheckCommands()
@@ -169,9 +171,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				var jobsTask = CanGetJobs ? dreamMakerClient.GetJobIds(cancellationToken) : Task.FromResult<IReadOnlyList<CompileJob>>(null);
 				
 				jobIds = await jobsTask.ConfigureAwait(true);
-				numPages = (jobIds.Count / JobsPerPage) + (jobIds.Count % JobsPerPage) > 0 ? 1 : 0;
+				numPages = (jobIds.Count / JobsPerPage) + (jobIds.Count > JobsPerPage && ((jobIds.Count % JobsPerPage) > 0) ? 1 : 0);
+				this.RaisePropertyChanged(nameof(ViewNumPages));
 				jobPages.Clear();
-				SelectedPage = 0;
+				selectedPage = 0;
 
 				await LoadPage(cancellationToken).ConfigureAwait(true);
 
@@ -188,23 +191,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Refreshing = true;
 			try
 			{
-				if (jobPages.ContainsKey(SelectedPage))
+				if (jobPages.ContainsKey(selectedPage))
 					return;
 
 				var tasks = new List<Task<CompileJob>>();
-				var baseIndex = JobsPerPage * SelectedPage;
+				var baseIndex = JobsPerPage * selectedPage;
 				var limitIndex = Math.Min(baseIndex + JobsPerPage, jobIds.Count);
 				for (var I = baseIndex; I < limitIndex; ++I)
 					tasks.Add(dreamMakerClient.GetCompileJob(jobIds[I], cancellationToken));
 
 				await Task.WhenAll(tasks).ConfigureAwait(true);
-				jobPages.Add(SelectedPage, tasks.Select(x => x.Result).ToList());
+				jobPages.Add(selectedPage, tasks.Select(x => new CompileJobViewModel(x.Result)).ToList());
 			}
 			finally
 			{
 				Refreshing = false;
 				this.RaisePropertyChanged(nameof(CurrentPage));
-				this.RaisePropertyChanged(nameof(SelectedPage));
+				this.RaisePropertyChanged(nameof(ViewSelectedPage));
 			}
 		}
 
@@ -225,14 +228,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						&& (CanPort || CanDme) 
 						&& (
 						//either a new dme name is set, or the checkbox is different than the model
-						(!String.IsNullOrEmpty(NewDme) || (AutoDetectDme ^ (Model.ProjectName == null))) 
+						(!String.IsNullOrEmpty(NewDme) || (AutoDetectDme ^ (Model?.ProjectName == null))) 
 						|| NewPort != 0);
 				case CompilerCommand.Compile:
 					return !Refreshing && CanCompile;
 				case CompilerCommand.LastPage:
-					return !Refreshing && CanGetJobs && SelectedPage > 0;
+					return !Refreshing && CanGetJobs && selectedPage > 0;
 				case CompilerCommand.NextPage:
-					return !Refreshing && SelectedPage < numPages && CanGetJobs;
+					return !Refreshing && selectedPage < numPages && CanGetJobs;
 				case CompilerCommand.Refresh:
 					return !Refreshing && (CanGetJobs | CanRead);
 				default:
@@ -260,11 +263,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}
 					break;
 				case CompilerCommand.LastPage:
-					--SelectedPage;
+					--selectedPage;
 					await LoadPage(cancellationToken).ConfigureAwait(true);
 					break;
 				case CompilerCommand.NextPage:
-					++SelectedPage;
+					++selectedPage;
 					await LoadPage(cancellationToken).ConfigureAwait(true);
 					break;
 				case CompilerCommand.Refresh:
