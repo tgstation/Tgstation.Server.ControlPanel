@@ -23,13 +23,15 @@ namespace Tgstation.Server.ControlPanel
 		readonly Dictionary<long, Job> trackedJobs;
 		readonly CancellationTokenSource cancellationTokenSource;
 		readonly List<Job> newestJobs;
+		readonly Func<User> currentUserProvider;
 
 		TaskCompletionSource<object> updated;
 
-		public InstanceJobSink(Instance instance, JobManagerViewModel jobManagerViewModel)
+		public InstanceJobSink(Instance instance, JobManagerViewModel jobManagerViewModel, Func<User> currentUserProvider)
 		{
 			Instance = instance;
 			this.jobManagerViewModel = jobManagerViewModel;
+			this.currentUserProvider = currentUserProvider ?? throw new ArgumentNullException(nameof(currentUserProvider));
 
 			trackedJobs = new Dictionary<long, Job>();
 			cancellationTokenSource = new CancellationTokenSource();
@@ -56,6 +58,9 @@ namespace Tgstation.Server.ControlPanel
 
 		public void RegisterJob(Job job)
 		{
+			if (job == null)
+				throw new ArgumentNullException(nameof(job));
+			job.StartedBy = currentUserProvider() ?? job.StartedBy;
 			lock (trackedJobs)
 			{
 				if (!trackedJobs.ContainsKey(job.Id))

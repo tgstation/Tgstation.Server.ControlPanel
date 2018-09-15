@@ -36,16 +36,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly Task updateTask;
 
+		readonly Func<User> currentUserProvider;
+
 		TaskCompletionSource<object> updated;
 
 		IReadOnlyList<JobViewModel> jobs;
 
-		public ServerJobSinkViewModel(Func<IServerClient> clientProvider, Func<TimeSpan> requeryRateProvider, Func<string> nameProvider, JobManagerViewModel jobManagerViewModel, Action onDisposed)
+		public ServerJobSinkViewModel(Func<IServerClient> clientProvider, Func<TimeSpan> requeryRateProvider, Func<string> nameProvider, JobManagerViewModel jobManagerViewModel, Func<User> currentUserProvider, Action onDisposed)
 		{
 			this.clientProvider = clientProvider ?? throw new ArgumentNullException(nameof(clientProvider));
 			this.requeryRateProvider = requeryRateProvider ?? throw new ArgumentNullException(nameof(requeryRateProvider));
 			this.nameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
 			this.jobManagerViewModel = jobManagerViewModel ?? throw new ArgumentNullException(nameof(jobManagerViewModel));
+			this.currentUserProvider = currentUserProvider ?? throw new ArgumentNullException(nameof(currentUserProvider));
 			this.onDisposed = onDisposed ?? throw new ArgumentNullException(nameof(onDisposed));
 
 			instanceSinks = new Dictionary<long, InstanceJobSink>();
@@ -76,7 +79,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				var newSink = !instanceSinks.TryGetValue(instanceClient.Metadata.Id, out sink);
 				if (newSink)
 				{
-					sink = new InstanceJobSink(instanceClient.Metadata, jobManagerViewModel);
+					sink = new InstanceJobSink(instanceClient.Metadata, jobManagerViewModel, currentUserProvider);
 					instanceSinks.Add(instanceClient.Metadata.Id, sink);
 				}
 			}

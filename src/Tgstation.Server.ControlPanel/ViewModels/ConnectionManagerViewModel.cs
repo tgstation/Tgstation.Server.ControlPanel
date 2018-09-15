@@ -226,6 +226,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		DateTimeOffset? startedConnectingAt;
 
+		UserViewModel userVM;
+
 		bool usingHttp;
 		bool confirmingDelete;
 		bool usingDefaultCredentials;
@@ -238,7 +240,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.requestLogger = requestLogger ?? throw new ArgumentNullException(nameof(requestLogger));
 			this.onDelete = onDelete ?? throw new ArgumentNullException(nameof(onDelete));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
-			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate, () => connection.Url.ToString()) ?? throw new ArgumentNullException(nameof(jobSink));
+			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate, () => connection.Url.ToString(), () => userVM?.User) ?? throw new ArgumentNullException(nameof(jobSink));
 			this.gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
 
 			Connect = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Connect, this);
@@ -270,6 +272,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		void Disconnect()
 		{
 			serverClient?.Dispose();
+			userVM = null;
 			serverClient = null;
 		}
 
@@ -321,8 +324,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				}
 				versionNode.RaisePropertyChanged(nameof(Icon));
 				apiVersionNode.RaisePropertyChanged(nameof(Icon));
-
-				UserViewModel userVM = null;
+				
 				List<ITreeNode> newChildren;
 				try
 				{

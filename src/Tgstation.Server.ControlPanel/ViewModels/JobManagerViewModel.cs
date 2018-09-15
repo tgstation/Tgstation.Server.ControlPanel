@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
@@ -27,10 +28,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				jobSinks[0].Dispose();
 		}
 
-		public IServerJobSink GetServerSink(Func<IServerClient> clientProvider, Func<TimeSpan> timeSpanProvider, Func<string> nameProvider)
+		public IServerJobSink GetServerSink(Func<IServerClient> clientProvider, Func<TimeSpan> timeSpanProvider, Func<string> nameProvider, Func<User> getCurrentUser)
 		{
 			ServerJobSinkViewModel sink = null;
-			sink = new ServerJobSinkViewModel(clientProvider, timeSpanProvider, nameProvider, this, () =>
+			sink = new ServerJobSinkViewModel(clientProvider, timeSpanProvider, nameProvider, this, getCurrentUser, () =>
 			{
 				lock (this)
 					Sinks = new List<ServerJobSinkViewModel>(jobSinks.Where(x => x != sink));
