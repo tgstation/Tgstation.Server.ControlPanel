@@ -107,7 +107,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				return;
 			}
 
-			Icon = "resm:Tgstation.Server.ControlPanel.Assets.loading.png";
+			Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png";
 			Refreshing = true;
 			Refresh.Recheck();
 			Update.Recheck();

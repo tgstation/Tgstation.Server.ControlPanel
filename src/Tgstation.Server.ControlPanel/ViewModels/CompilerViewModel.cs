@@ -26,13 +26,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Title => "Deployment";
 
-		public string Icon => !(CanRead || CanDme || CanCompile || CanGetJobs || CanPort) ? "resm:Tgstation.Server.ControlPanel.Assets.denied.png" : Refreshing ? "resm:Tgstation.Server.ControlPanel.Assets.loading.png" : "resm:Tgstation.Server.ControlPanel.Assets.dreammaker.ico";
+		public string Icon => !(CanRead || CanDme || CanCompile || CanGetJobs || CanPort) ? "resm:Tgstation.Server.ControlPanel.Assets.denied.png" : Refreshing ? "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png" : "resm:Tgstation.Server.ControlPanel.Assets.dreammaker.ico";
 
 		public bool IsExpanded { get; set; }
 
 		public IReadOnlyList<ITreeNode> Children => null;
 
-		public IReadOnlyList<CompileJob> CurrentPage => jobPages[selectedPage];
+		public IReadOnlyList<CompileJob> CurrentPage => jobPages[SelectedPage];
 
 		public bool Refreshing
 		{
@@ -82,7 +82,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public int SelectedPage => selectedPage;
+		public int SelectedPage { get; set; }
 
 		public bool CanCompile => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.Compile);
 		public bool CanRead => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.Read);
@@ -104,9 +104,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		
 		readonly Dictionary<int, IReadOnlyList<CompileJob>> jobPages;
 		int numPages;
-		int selectedPage;
 
-		IReadOnlyList<long> jobIds;
+		IReadOnlyList<CompileJob> jobIds;
 
 		DreamMaker model;
 
@@ -167,12 +166,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				var readTask = AssignModel();
 
-				var jobsTask = CanGetJobs ? dreamMakerClient.CompileJobs(cancellationToken) : Task.FromResult<IReadOnlyList<CompileJob>>(null);
+				var jobsTask = CanGetJobs ? dreamMakerClient.GetJobIds(cancellationToken) : Task.FromResult<IReadOnlyList<CompileJob>>(null);
 				
 				jobIds = await jobsTask.ConfigureAwait(true);
 				numPages = (jobIds.Count / JobsPerPage) + (jobIds.Count % JobsPerPage) > 0 ? 1 : 0;
 				jobPages.Clear();
-				selectedPage = 0;
+				SelectedPage = 0;
 
 				await LoadPage(cancellationToken).ConfigureAwait(true);
 
@@ -189,17 +188,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Refreshing = true;
 			try
 			{
-				if (jobPages.ContainsKey(selectedPage))
+				if (jobPages.ContainsKey(SelectedPage))
 					return;
 
 				var tasks = new List<Task<CompileJob>>();
-				var baseIndex = JobsPerPage * selectedPage;
+				var baseIndex = JobsPerPage * SelectedPage;
 				var limitIndex = Math.Min(baseIndex + JobsPerPage, jobIds.Count);
 				for (var I = baseIndex; I < limitIndex; ++I)
-					tasks.Add(dreamMakerClient.CompileJob(jobIds[I], cancellationToken));
+					tasks.Add(dreamMakerClient.GetCompileJob(jobIds[I], cancellationToken));
 
 				await Task.WhenAll(tasks).ConfigureAwait(true);
-				jobPages.Add(selectedPage, tasks.Select(x => x.Result).ToList());
+				jobPages.Add(SelectedPage, tasks.Select(x => x.Result).ToList());
 			}
 			finally
 			{
@@ -231,9 +230,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case CompilerCommand.Compile:
 					return !Refreshing && CanCompile;
 				case CompilerCommand.LastPage:
-					return !Refreshing && CanGetJobs && selectedPage > 0;
+					return !Refreshing && CanGetJobs && SelectedPage > 0;
 				case CompilerCommand.NextPage:
-					return !Refreshing && selectedPage < numPages && CanGetJobs;
+					return !Refreshing && SelectedPage < numPages && CanGetJobs;
 				case CompilerCommand.Refresh:
 					return !Refreshing && (CanGetJobs | CanRead);
 				default:
@@ -261,11 +260,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}
 					break;
 				case CompilerCommand.LastPage:
-					--selectedPage;
+					--SelectedPage;
 					await LoadPage(cancellationToken).ConfigureAwait(true);
 					break;
 				case CompilerCommand.NextPage:
-					++selectedPage;
+					++SelectedPage;
 					await LoadPage(cancellationToken).ConfigureAwait(true);
 					break;
 				case CompilerCommand.Refresh:
