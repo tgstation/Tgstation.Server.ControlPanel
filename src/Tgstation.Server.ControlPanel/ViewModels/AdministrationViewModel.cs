@@ -1,7 +1,6 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -22,7 +21,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Close,
 			Restart,
 			Update,
-			OpenGitHub
+			OpenGitHub,
+			Refresh
 		}
 
 		public string Title => "Administration";
@@ -39,9 +39,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string RestartText { get; set; }
 		public string UpdateText { get; set; }
 
-		public string LatestVersionString => model.LatestVersion.ToString();
-		public string WindowsHostMachine => model.WindowsHost ? "Yes" : "No";
-		public string GitHubUrl => model.TrackedRepositoryUrl.ToString();
+		public string LatestVersionString => model?.LatestVersion?.ToString() ?? "Unknown";
+		public string WindowsHostMachine => model == null ? "Unknown" : model.WindowsHost ? "Yes" : "No";
+		public string GitHubUrl => model?.TrackedRepositoryUrl.ToString() ?? "Unknown";
 
 		public string NewVersion
 		{
@@ -53,8 +53,31 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public bool Error => ErrorMessage != null;
+
+		public string ErrorMessage
+		{
+			get => errorMessage;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref errorMessage, value);
+				this.RaisePropertyChanged(nameof(Error));
+			}
+		}
+
+		public bool Refreshing
+		{
+			get => refreshing;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref refreshing, value);
+				RefreshCmd.Recheck();
+			}
+		}
+
 		public ICommand Close { get; }
 		public EnumCommand<AdministrationCommand> Restart { get; }
+		public EnumCommand<AdministrationCommand> RefreshCmd { get; }
 		public EnumCommand<AdministrationCommand> Update { get; }
 		public EnumCommand<AdministrationCommand> OpenGitHub { get; }
 
@@ -66,9 +89,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		Administration model;
 		string newVersion;
 		string icon;
+		string errorMessage;
 
 		bool confirmingRestart;
 		bool confirmingUpdate;
+		bool refreshing;
 
 		public AdministrationViewModel(PageContextViewModel pageContext, IAdministrationClient administrationClient, IUserRightsProvider userRightsProvider, ConnectionManagerViewModel connectionManagerViewModel)
 		{
@@ -80,45 +105,65 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			UpdateText = InitialUpdateText;
 			RestartText = InitialRestartText;
 
-			Icon = "resm:Tgstation.Server.ControlPanel.Assets.gear.png";
-
 			Close = new EnumCommand<AdministrationCommand>(AdministrationCommand.Close, this);
 			Restart = new EnumCommand<AdministrationCommand>(AdministrationCommand.Restart, this);
 			Update = new EnumCommand<AdministrationCommand>(AdministrationCommand.Update, this);
 			OpenGitHub = new EnumCommand<AdministrationCommand>(AdministrationCommand.OpenGitHub, this);
+			RefreshCmd = new EnumCommand<AdministrationCommand>(AdministrationCommand.Refresh, this);
 
 			userRightsProvider.OnUpdated += (a, b) =>
 			{
 				Restart.Recheck();
 				Update.Recheck();
+				RecheckIcon();
 			};
+			RecheckIcon();
+
+			async void InitialLoad() => await Refresh(default).ConfigureAwait(true);
+			InitialLoad();
 		}
 
 		async Task Refresh(CancellationToken cancellationToken)
 		{
-			model = await administrationClient.Read(cancellationToken).ConfigureAwait(true);
-			using (DelayChangeNotifications())
+			Refreshing = true;
+			Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png";
+			ErrorMessage = null;
+			try
 			{
-				Icon = "resm:Tgstation.Server.ControlPanel.Assets.gear.png";
-				if (NewVersion == null)
-					NewVersion = model.LatestVersion?.ToString();
-				this.RaisePropertyChanged(nameof(GitHubUrl));
-				this.RaisePropertyChanged(nameof(WindowsHostMachine));
-				this.RaisePropertyChanged(nameof(LatestVersionString));
-				OpenGitHub.Recheck();
+				model = await administrationClient.Read(cancellationToken).ConfigureAwait(true);
+			}
+			catch(ClientException e)
+			{
+				ErrorMessage = e.Message;
+			}
+			finally
+			{
+				using (DelayChangeNotifications())
+				{
+					Refreshing = false;
+					RecheckIcon();
+					if (NewVersion == null)
+						NewVersion = model.LatestVersion?.ToString();
+					this.RaisePropertyChanged(nameof(GitHubUrl));
+					this.RaisePropertyChanged(nameof(WindowsHostMachine));
+					this.RaisePropertyChanged(nameof(LatestVersionString));
+					OpenGitHub.Recheck();
+				}
 			}
 		}
 
-		public async Task HandleClick(CancellationToken cancellationToken)
+		void RecheckIcon()
 		{
 			if (!userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.ChangeVersion) && !userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.RestartHost))
-			{
 				Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg";
-				return;
-			}
-			Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png";
+			else
+				Icon = "resm:Tgstation.Server.ControlPanel.Assets.gear.png";
+		}
+
+		public Task HandleClick(CancellationToken cancellationToken)
+		{
 			pageContext.ActiveObject = this;
-			await Refresh(cancellationToken).ConfigureAwait(true);
+			return Task.CompletedTask;
 		}
 
 		public bool CanRunCommand(AdministrationCommand command)
@@ -127,6 +172,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				case AdministrationCommand.Close:
 					return true;
+				case AdministrationCommand.Refresh:
+					return !Refreshing;
 				case AdministrationCommand.Restart:
 					return userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.RestartHost);
 				case AdministrationCommand.Update:
@@ -179,6 +226,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						return;
 					}
 					await connectionManagerViewModel.BeginConnect(cancellationToken).ConfigureAwait(true);
+					break;
+				case AdministrationCommand.Refresh:
+					await Refresh(cancellationToken).ConfigureAwait(true);
 					break;
 				case AdministrationCommand.Update:
 					if (!confirmingUpdate)
