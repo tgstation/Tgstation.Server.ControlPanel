@@ -224,15 +224,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				new InstanceUserRootViewModel(pageContext, instanceClient.Users, instanceUserTreeNode, userProvider, this),
 				new RepositoryViewModel(pageContext, instanceClient.Repository, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode, gitHubClient),
 				new ByondViewModel(pageContext, instanceClient.Byond, instanceJobSink, instanceUserTreeNode),
-				instanceUser.DreamMakerRights != DreamMakerRights.None ? new BasicNode
-				{
-					Title = "TODO: Compiler",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.dreammaker.ico"
-				} : new BasicNode
-				{
-					Title = "Compiler",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				},
+				new CompilerViewModel(pageContext, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode),
 				ddNode,
 				instanceUser.ChatBotRights != ChatBotRights.None ? new BasicNode
 				{
