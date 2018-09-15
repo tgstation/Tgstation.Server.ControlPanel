@@ -49,7 +49,7 @@
             <TextBlock Text="Byond Version" Grid.Column="1"/>
             <TextBlock Text="Started By" Grid.Column="2"/>
             <TextBlock Text="Completed At" Grid.Column="3"/>
-            <TextBlock Text="Duration(s)" Grid.Column="4"/>
+            <TextBlock Text="Duration" Grid.Column="4"/>
             <TextBlock Text="Project Name" Grid.Column="5"/>
             <TextBlock Text="Revision" Grid.Column="6"/>
             <TextBlock Text="Origin Revision" Grid.Column="7"/>

@@ -13,9 +13,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string User => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", CompileJob.Job.StartedBy.Name, CompileJob.Job.StartedBy.Id);
 
-		public string StoppedAt => CompileJob.Job.StoppedAt.Value.ToString();
+		public string StoppedAt => CompileJob.Job.StoppedAt.Value.ToLocalTime().ToString("g");
 
-		public string Duration => ((int)Math.Floor((CompileJob.Job.StoppedAt.Value - CompileJob.Job.StartedAt.Value).TotalSeconds)).ToString(CultureInfo.InvariantCulture);
+		public string Duration => (CompileJob.Job.StoppedAt.Value - CompileJob.Job.StartedAt.Value).ToString("hh\\:mm\\:ss");
 
 		public string Revision => CompileJob.RevisionInformation.CommitSha.Substring(0, 7);
 		public string OriginRevision => CompileJob.RevisionInformation.OriginCommitSha.Substring(0, 7);

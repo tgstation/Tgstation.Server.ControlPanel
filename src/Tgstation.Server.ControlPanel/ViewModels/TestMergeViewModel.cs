@@ -21,7 +21,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string Title => String.Format(CultureInfo.InvariantCulture, "#{0} - {1}", TestMerge.Number, TestMerge.TitleAtMerge);
 
 		public string MergedBy => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", TestMerge.MergedBy.Name, TestMerge.MergedBy.Id);
-		public string MergedAt => TestMerge.MergedAt.ToString();
+		public string MergedAt => TestMerge.MergedAt.ToLocalTime().ToString("g");
 
 		public bool Selected
 		{

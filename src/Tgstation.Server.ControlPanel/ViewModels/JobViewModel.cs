@@ -32,7 +32,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string Description => job.Description;
 
 		public string StartedBy => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", job.StartedBy.Name, job.StartedBy.Id);
-		public string StartedAt => job.StartedAt.Value.ToString("s");
+		public string StartedAt => job.StartedAt.Value.ToLocalTime().ToString("g");
 
 		public bool Cancelled => job.Cancelled == true;
 
