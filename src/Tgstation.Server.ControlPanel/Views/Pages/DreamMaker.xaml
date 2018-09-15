@@ -28,8 +28,6 @@
           <Image Grid.Column="2" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding PageContext.ActiveObject.Refreshing}" Margin="0,0,5,0"/>
           <Button Grid.Column="3" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
-        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
-        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
         <StackPanel IsVisible="{Binding PageContext.ActiveObject.HasInstalledVersions}">
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -125,7 +123,7 @@
               </TreeView.Styles>
             </TreeView>
           </Panel>
-          <Grid>
+          <Grid IsVisible="{Binding PageContext.ActiveObject.CanRead}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="50*"/>
               <ColumnDefinition Width="5*"/>
@@ -145,7 +143,6 @@
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-        <TextBlock Text="New Version:"/>
         <Grid>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -156,20 +153,45 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
-          <TextBlock Text="Major:" Grid.Row="0" Grid.Column="0" Margin="0,5,0,0"/>
-          <NumericUpDown Minimum="1" Height="25" Value="{Binding PageContext.ActiveObject.NewMajor}" Margin="0,0,5,0" Grid.Row="0" Grid.Column="1"/>
-          <TextBlock Text="Minor:" Grid.Row="2" Grid.Column="0" Margin="0,5,0,0"/>
-          <NumericUpDown Minimum="1" Height="25" Value="{Binding PageContext.ActiveObject.NewMinor}" Margin="0,0,5,0" Grid.Row="2" Grid.Column="1"/>
+          <TextBlock Text="Project Name:" Grid.Row="0" Grid.Column="0"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.ProjectName}" Margin="5,0,0,0" Grid.Row="0" Grid.Column="1"/>
+          <TextBlock Text="DMAPI Port:" Grid.Row="2" Grid.Column="0"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.Model.ApiValidationPort}" Margin="5,0,0,0" Grid.Row="2" Grid.Column="1"/>
+        </Grid>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="400" />
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="New Project Name (without '.dme'):" Grid.Row="2" Grid.Column="0" Margin="0,5,0,0"/>
+          <TextBox Text="{Binding PageContext.ActiveObject.NewDme}" IsEnabled="{Binding PageContext.ActiveObject.CanDmeView}" Margin="5,0,0,0" Grid.Row="2" Grid.Column="1"/>
+          <DockPanel Grid.Row="0" Grid.Column="0">
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AutoDetectDme}" IsEnabled="{Binding PageContext.ActiveObject.CanDme}" DockPanel.Dock="Left"/>
+            <TextBlock Text="Auto Detect Project Name" Margin="5,0,0,0" DockPanel.Dock="Right"/>
+          </DockPanel>
+          <TextBlock Text="Port Used For TGS DMAPI Validation (should be private, 0 doesn't change):" Grid.Row="3" Grid.Column="0" Margin="0,5,0,0"/>
+          <NumericUpDown Minimum="0" Maximum="65535" Height="25" Value="{Binding PageContext.ActiveObject.NewPort}" IsEnabled="{Binding PageContext.ActiveObject.CanPort}" Margin="5,0,0,0" Grid.Row="3" Grid.Column="1"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
         <Grid>
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="40*"/>
+            <ColumnDefinition Width="30*"/>
             <ColumnDefinition Width="20*"/>
-            <ColumnDefinition Width="40*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="30*"/>
           </Grid.ColumnDefinitions>
-          <Button Content="Set Active Version" Command="{Binding PageContext.ActiveObject.Update}" Grid.Column="1"/>
+          <Button Content="Save Changes" Command="{Binding PageContext.ActiveObject.Update}" Grid.Column="3"/>
+          <Button Content="Deploy Repository Code To Server" Command="{Binding PageContext.ActiveObject.Compile}" Grid.Column="1"/>
         </Grid>
       </StackPanel>
     </ScrollViewer>

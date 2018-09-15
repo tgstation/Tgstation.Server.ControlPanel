@@ -40,14 +40,22 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref refreshing, value);
 				this.RaisePropertyChanged(nameof(Icon));
+				this.RaisePropertyChanged(nameof(CanDmeView));
+				this.RaisePropertyChanged(nameof(CanPortView));
 				RecheckCommands();
 			}
 		}
 
+		public string ProjectName => Model != null ? Model.ProjectName ?? "<Auto Detect>" : "<Unknown>";
+
 		public DreamMaker Model
 		{
 			get => model;
-			set => this.RaiseAndSetIfChanged(ref model, value);
+			set
+			{
+				this.RaiseAndSetIfChanged(ref model, value);
+				this.RaisePropertyChanged(nameof(ProjectName));
+			}
 		}
 
 		public int NewPort
@@ -77,6 +85,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaiseAndSetIfChanged(ref autoDetectDme, value);
 				if (value)
 					NewDme = String.Empty;
+				this.RaisePropertyChanged(nameof(CanDmeView));
 				Update.Recheck();
 			}
 		}
@@ -88,6 +97,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanGetJobs => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.CompileJobs);
 		public bool CanPort => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.SetApiValidationPort);
 		public bool CanDme => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.SetDme);
+		public bool CanDmeView => !Refreshing && CanDme && !AutoDetectDme;
+		public bool CanPortView => !Refreshing && CanPort;
 
 		public EnumCommand<CompilerCommand> Close { get; }
 		public EnumCommand<CompilerCommand> Refresh { get; }
@@ -133,6 +144,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				RecheckCommands();
 				this.RaisePropertyChanged(nameof(Icon));
+				this.RaisePropertyChanged(nameof(CanDmeView));
+				this.RaisePropertyChanged(nameof(CanPortView));
+				this.RaisePropertyChanged(nameof(CanRead));
 			};
 
 			jobPages = new Dictionary<int, IReadOnlyList<CompileJobViewModel>>();
@@ -147,12 +161,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			NextPage.Recheck();
 			LastPage.Recheck();
 			Compile.Recheck();
+			Update.Recheck();
 		}
 
 		void ResetFields()
 		{
 			NewDme = String.Empty;
 			NewPort = 0;
+			AutoDetectDme = Model?.ProjectName == null;
 		}
 
 		async Task DoRefresh(CancellationToken cancellationToken)
@@ -179,6 +195,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				await LoadPage(cancellationToken).ConfigureAwait(true);
 
 				await readTask.ConfigureAwait(true);
+				ResetFields();
 			}
 			finally
 			{
