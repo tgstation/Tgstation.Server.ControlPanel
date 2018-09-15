@@ -4,7 +4,7 @@
     <Panel DockPanel.Dock="Top" Background="#4D6082" Margin="1">
       <TextBlock DockPanel.Dock="Top" Text="Jobs" Margin="3" Foreground="White"/>
     </Panel>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Background="#FFFFFF" Margin="3">
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#FFFFFF" Margin="3">
       <ItemsControl Items="{Binding Jobs.Sinks}">
         <ItemsControl.ItemTemplate>
           <DataTemplate>
