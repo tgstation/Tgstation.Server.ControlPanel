@@ -49,7 +49,7 @@
           <page:StaticFiles/>
           <page:Watchdog/>
           <page:ChatBot/>
-          <page:DreamMaker/>
+          <page:DreamMaker IsVisible="{Binding PageContext.IsCompiler}" IsEnabled="{Binding PageContext.IsCompiler}"/>
           <page:Byond IsVisible="{Binding PageContext.IsByond}" IsEnabled="{Binding PageContext.IsByond}"/>
         </Panel>
         <GridSplitter HorizontalAlignment="Right"
