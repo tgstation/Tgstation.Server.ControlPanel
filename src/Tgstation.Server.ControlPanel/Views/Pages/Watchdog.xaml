@@ -1,3 +1,122 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid Background="#CFD6E5">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid Margin="1" Grid.Row="0" Background="#4D6082">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+    </Grid>
+    <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Grid.Row="1">
+      <StackPanel Orientation="Vertical" IsEnabled="{Bindinig !PageContext.ActiveObject.Refreshing}">
+        <Grid >
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="150"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="0" Text="Dream Daemon" FontSize="26" />
+          <Image Grid.Column="2" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding PageContext.ActiveObject.Refreshing}" Margin="0,0,5,0"/>
+          <Button Grid.Column="3" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+        </Grid>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+          <TextBlock Grid.Column="0" Text="Status:" FontSize="20" />
+          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.StatusString}" Foreground="{Binding PageContext.ActiveObject.StatusColour}" FontSize="20" Margin="5,0,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Grid.Column="0" Text="Port:" />
+          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Port}" Margin="5,0,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Grid.Column="0" Text="Security Level:"/>
+          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.CurrentSecurity}" Margin="5,0,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Grid.Column="0" Text="Web Client Allowed:"/>
+          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.WebClient}" Margin="5,0,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Grid.Column="0" Text="Graceful Action:"/>
+          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Graceful}" Margin="5,0,0,0"/>
+        </StackPanel>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="400"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <TextBlock Text="Public Game Port:" Grid.Row="0" Grid.Column="0"/>
+          <NumericUpDown Minimum="1" Maximum="65535" Height="25" IsEnabled="{Binding PageContext.ActiveObject.CanPort}" Value="{Binding PageContext.ActiveObject.NewPrimaryPort}" Grid.Row="0" Grid.Column="1"/>
+          <TextBlock Text="Internal Communication Port:" Grid.Row="1" Grid.Column="0"/>
+          <NumericUpDown Minimum="1" Maximum="65535" Height="25" IsEnabled="{Binding PageContext.ActiveObject.CanPort}" Value="{Binding PageContext.ActiveObject.NewSecondaryPort}" Grid.Row="1" Grid.Column="1"/>
+          <CheckBox Content="Allow Web Client Connections" Grid.Column="0" Grid.Row="3" IsChecked="{Binding PageContext.ActiveObject.NewAllowWebClient}" IsEnabled="{Binding PageContext.ActiveObject.CanWebClient}" Background="White"/>
+          <CheckBox Content="Automatically Start Server with Instance" Grid.Column="1" Grid.Row="3" IsChecked="{Binding PageContext.ActiveObject.NewAutoStart}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoStart}" Background="White"/>
+          <TextBlock Text="Launch Inactivity Timeout Period (seconds):" Margin="0,0,5,0" Grid.Column="0" Grid.Row="5"/>
+          <NumericUpDown Minimum="1" Height="25" Value="{Binding PageContext.ActiveObject.NewStartupTimeout}" Grid.Column="1" Grid.Row="5" IsEnabled="{Binding PageContext.ActiveObject.CanTimeout}" />
+        </Grid>
+        <Grid Margin="0,5,0,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*"/>
+            <ColumnDefinition Width="30*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="30*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="30*"/>
+            <ColumnDefinition Width="10*"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="Security Level:" Grid.Row="0" Grid.Column="0" />
+          <TextBlock Text="Graceful Action:" Grid.Row="2" Grid.Column="0" />
+          <RadioButton GroupName="Trust" Content="Ultrasafe (Not currently supported)" IsEnabled="False" Grid.Row="1" Grid.Column="1" IsChecked="False" />
+          <RadioButton GroupName="Trust" Content="Safe" Grid.Row="1" Grid.Column="3" IsChecked="{Binding PageContext.ActiveObject.Safe}" />
+          <RadioButton GroupName="Trust" Content="Trusted" Grid.Row="1" Grid.Column="5" IsChecked="{Binding PageContext.ActiveObject.Trusted}" />
+          <RadioButton GroupName="GA" Content="None" Grid.Row="3" Grid.Column="1" IsChecked="{Binding PageContext.ActiveObject.ClearSoft}" IsEnabled="{Binding PageContext.ActiveObject.Model.Running}"/>
+          <RadioButton GroupName="GA" Content="Restart" Grid.Row="3" Grid.Column="3" IsChecked="{Binding PageContext.ActiveObject.SoftRestart}" IsEnabled="{Binding PageContext.ActiveObject.Model.Running}" />
+          <RadioButton GroupName="GA" Content="Shutdown" Grid.Row="3" Grid.Column="5" IsChecked="{Binding PageContext.ActiveObject.SoftStop}" IsEnabled="{Binding PageContext.ActiveObject.Model.Running}" />
+        </Grid>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="15*"/>
+            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="15*"/>
+          </Grid.ColumnDefinitions>
+          <Button Content="Apply Changes" Command="{Binding PageContext.ActiveObject.Update}" Grid.Column="1"/>
+          <Button Content="Start Server" Command="{Binding PageContext.ActiveObject.Start}" Grid.Column="3"/>
+          <Button Content="{Binding PageContext.ActiveObject.RestartWord}" Command="{Binding PageContext.ActiveObject.Restart}" Grid.Column="5"/>
+          <Button Content="{Binding PageContext.ActiveObject.RestartWord}" Command="{Binding PageContext.ActiveObject.Stop}" Grid.Column="7"/>
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
 </UserControl>

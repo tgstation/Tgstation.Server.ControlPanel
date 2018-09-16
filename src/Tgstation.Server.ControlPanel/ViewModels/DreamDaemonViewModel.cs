@@ -1,7 +1,8 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Media;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
@@ -18,10 +19,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Refresh,
 			Start,
 			Stop,
-			Update
+			Update,
+			Restart
 		}
 
-		public string Title => "DreamDaemon";
+		public string Title => "Dream Daemon";
 
 		public string Icon => Refreshing ? "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png" : rightsProvider.DreamDaemonRights == DreamDaemonRights.None ? "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg" : Model?.Running != false ? "resm:Tgstation.Server.ControlPanel.Assets.dd.ico" : "resm:Tgstation.Server.ControlPanel.Assets.dd_down.ico";
 
@@ -36,9 +38,33 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref model, value);
 				this.RaisePropertyChanged(nameof(Icon));
+				this.RaisePropertyChanged(nameof(ActiveCompileJob));
+				this.RaisePropertyChanged(nameof(StatusString));
+				this.RaisePropertyChanged(nameof(StatusColour));
+				this.RaisePropertyChanged(nameof(Port));
+				this.RaisePropertyChanged(nameof(WebClient));
+				this.RaisePropertyChanged(nameof(CurrentSecurity));
+				this.RaisePropertyChanged(nameof(StagedCompileJob));
+				this.RaisePropertyChanged(nameof(Trusted));
+				this.RaisePropertyChanged(nameof(Safe));
 				onRunningChanged(model?.Running != false);
 			}
 		}
+
+		public string RestartWord => confirmingRestart ? "Confirm?" : "Restart Server";
+		public string StopWord => confirmingRestart ? "Confirm?" : "Stop Server";
+
+		public string WebClient => (Model?.CurrentAllowWebclient ?? Model?.AllowWebClient)?.ToString(CultureInfo.InvariantCulture) ?? "Unknown";
+		public string Port => (Model?.CurrentPort ?? Model?.PrimaryPort)?.ToString(CultureInfo.InvariantCulture) ?? "Unknown";
+		public string Graceful => Model == null || !CanRevision ? "Unknown" : Model.SoftRestart.Value ? "Restart" : Model.SoftShutdown.Value ? "Stop" : "None";
+
+		public string CurrentSecurity => !(Model?.CurrentSecurity ?? Model?.SecurityLevel).HasValue ? "Unknown" : Model.CurrentSecurity == DreamDaemonSecurity.Safe ? "Safe" : Model.CurrentSecurity == DreamDaemonSecurity.Ultrasafe ? "Ultrasafe" : "Trusted";
+		public string StatusString => !(Model?.Running).HasValue ? "Unknown" : Model.Running.Value ? "Active" : "Inactive";
+
+		public IBrush StatusColour => new SolidColorBrush(!(Model?.Running).HasValue ? Colors.Black : Model.Running.Value ? Colors.Green : Colors.Red);
+
+		public CompileJobViewModel ActiveCompileJob => Model?.ActiveCompileJob != null ? new CompileJobViewModel(Model.ActiveCompileJob) : null;
+		public CompileJobViewModel StagedCompileJob => Model?.StagedCompileJob != null ? new CompileJobViewModel(Model.StagedCompileJob) : null;
 
 		public bool Refreshing
 		{
@@ -101,8 +127,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => Model?.SecurityLevel == DreamDaemonSecurity.Safe;
 			set
 			{
+				if (!value)
+					return;
 				Model.SecurityLevel = DreamDaemonSecurity.Safe;
 				this.RaisePropertyChanged(nameof(Trusted));
+				this.RaisePropertyChanged(nameof(Safe));
 			}
 		}
 
@@ -111,11 +140,52 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => Model?.SecurityLevel == DreamDaemonSecurity.Trusted;
 			set
 			{
+				if (!value)
+					return;
 				Model.SecurityLevel = DreamDaemonSecurity.Trusted;
 				this.RaisePropertyChanged(nameof(Safe));
+				this.RaisePropertyChanged(nameof(Trusted));
 			}
 		}
-		
+
+		public uint NewStartupTimeout
+		{
+			get => newStartupTimeout;
+			set => this.RaiseAndSetIfChanged(ref newStartupTimeout, value);
+		}
+		public ushort NewPrimaryPort
+		{
+			get => newPrimaryPort;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newPrimaryPort, value);
+				Update.Recheck();
+			}
+		}
+
+		public ushort NewSecondaryPort
+		{
+			get => newSecondaryPort;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newSecondaryPort, value);
+				Update.Recheck();
+			}
+		}
+
+		public bool NewAllowWebClient
+		{
+			get => newAllowWebClient;
+			set => this.RaiseAndSetIfChanged(ref newAllowWebClient, value);
+		}
+
+		public bool NewAutoStart
+		{
+			get => newAutoStart;
+			set => this.RaiseAndSetIfChanged(ref newAutoStart, value);
+		}
+
+
 		public bool CanPort => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetPorts);
 		public bool CanAutoStart => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetAutoStart);
 		public bool CanSecurity => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetSecurity);
@@ -131,6 +201,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<DreamDaemonCommand> Start { get; }
 		public EnumCommand<DreamDaemonCommand> Stop { get; }
 		public EnumCommand<DreamDaemonCommand> Update { get; }
+		public EnumCommand<DreamDaemonCommand> Restart { get; }
 
 		readonly PageContextViewModel pageContext;
 		readonly IDreamDaemonClient dreamDaemonClient;
@@ -139,8 +210,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly Action<bool> onRunningChanged;
 
 		DreamDaemon model;
+		
+		uint newStartupTimeout;
+		ushort newPrimaryPort;
+		ushort newSecondaryPort;
+		bool newAutoStart;
+		bool newAllowWebClient;
 
 		bool refreshing;
+
+		bool confirmingRestart;
+		bool confirmingShutdown;
 
 		bool softRestart;
 		bool softStop;
@@ -159,6 +239,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Start = new EnumCommand<DreamDaemonCommand>(DreamDaemonCommand.Start, this);
 			Stop = new EnumCommand<DreamDaemonCommand>(DreamDaemonCommand.Stop, this);
 			Update = new EnumCommand<DreamDaemonCommand>(DreamDaemonCommand.Update, this);
+			Restart = new EnumCommand<DreamDaemonCommand>(DreamDaemonCommand.Restart, this);
 
 			rightsProvider.OnUpdated += (a, b) =>
 			{
@@ -186,6 +267,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			InitialLoad();
 		}
 
+		void LoadModel(DreamDaemon model)
+		{
+			using (DelayChangeNotifications())
+			{
+				Model = model;
+				NewStartupTimeout = Model.StartupTimeout ?? 0;
+				NewPrimaryPort = Model.PrimaryPort ?? 0;
+				NewSecondaryPort = Model.SecondaryPort ?? 0;
+				NewAutoStart = Model.AutoStart ?? false;
+				NewAllowWebClient = Model.AllowWebClient ?? false;
+			}
+		}
+
 		async Task DoRefresh(CancellationToken cancellationToken)
 		{
 			Refreshing = true;
@@ -199,11 +293,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						return;
 					}
 
-				Model = await dreamDaemonClient.Read(cancellationToken).ConfigureAwait(true);
 				using (DelayChangeNotifications())
 				{
-					this.RaisePropertyChanged(nameof(Trusted));
-					this.RaisePropertyChanged(nameof(Safe));
+					LoadModel(await dreamDaemonClient.Read(cancellationToken).ConfigureAwait(true));
 
 					ClearSoft = true;
 					if (CanMetadata)
@@ -234,11 +326,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case DreamDaemonCommand.Refresh:
 					return !Refreshing;
 				case DreamDaemonCommand.Start:
-					return !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Start);
+					return !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Start) && Model?.Running != true;
 				case DreamDaemonCommand.Stop:
-					return !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Shutdown);
+					return !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Shutdown) && Model?.Running != false;
+				case DreamDaemonCommand.Restart:
+					return !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Restart) && Model?.Running != false;
 				case DreamDaemonCommand.Update:
-					return !Refreshing && (CanAutoStart || CanPort || CanWebClient || CanSecurity || CanSoftRestart || CanSoftStop || CanTimeout);
+					return !Refreshing && (CanAutoStart || CanPort || CanWebClient || CanSecurity || CanSoftRestart || CanSoftStop || CanTimeout) && !(NewPrimaryPort != 0 && NewPrimaryPort == NewSecondaryPort);
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -267,6 +361,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}
 					break;
 				case DreamDaemonCommand.Stop:
+					if (!confirmingShutdown)
+					{
+						async void ResetShutdown()
+						{
+							await Task.Delay(TimeSpan.FromSeconds(3), default);
+							confirmingShutdown = false;
+							this.RaisePropertyChanged(nameof(StopWord));
+						}
+						confirmingShutdown = true;
+						this.RaisePropertyChanged(nameof(StopWord));
+						ResetShutdown();
+					}
 					await dreamDaemonClient.Shutdown(cancellationToken).ConfigureAwait(true);
 					await DoRefresh(cancellationToken).ConfigureAwait(true);
 					break;
@@ -276,12 +382,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						var newModel = new DreamDaemon
 						{
-							AllowWebClient = CanWebClient ? Model.AllowWebClient : null,
-							AutoStart = CanAutoStart ? Model.AutoStart : null,
-							PrimaryPort = CanPort ? Model.PrimaryPort : null,
-							SecondaryPort = CanPort ? Model.SecondaryPort : null,
+							AllowWebClient = CanWebClient ? (bool?)NewAllowWebClient : null,
+							AutoStart = CanAutoStart ? (bool?)NewAutoStart : null,
+							PrimaryPort = CanPort ? (ushort?)NewPrimaryPort : null,
+							SecondaryPort = CanPort ? (ushort?)NewSecondaryPort : null,
 							SecurityLevel = CanSecurity ? Model.SecurityLevel : null,
-							StartupTimeout = CanTimeout ? Model.StartupTimeout : null
+							StartupTimeout = CanTimeout ? (uint?)NewStartupTimeout : null
 						};
 
 						if (CanSoftRestart)
@@ -289,12 +395,28 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						if (CanSoftStop)
 							newModel.SoftShutdown = SoftStop;
 
-						Model = await dreamDaemonClient.Update(newModel, cancellationToken).ConfigureAwait(true);
+						LoadModel(await dreamDaemonClient.Update(newModel, cancellationToken).ConfigureAwait(true));
 					}
 					finally
 					{
 						Refreshing = false;
 					}
+					break;
+				case DreamDaemonCommand.Restart:
+					if (!confirmingRestart)
+					{
+						async void ResetRestart()
+						{
+							await Task.Delay(TimeSpan.FromSeconds(3), default);
+							confirmingRestart = false;
+							this.RaisePropertyChanged(nameof(RestartWord));
+						}
+						confirmingRestart = true;
+						this.RaisePropertyChanged(nameof(RestartWord));
+						ResetRestart();
+					}
+					await dreamDaemonClient.Restart(cancellationToken).ConfigureAwait(true);
+					await DoRefresh(cancellationToken).ConfigureAwait(true);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
