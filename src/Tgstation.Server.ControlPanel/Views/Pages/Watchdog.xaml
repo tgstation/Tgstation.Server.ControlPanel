@@ -114,7 +114,7 @@
           <Button Content="Apply Changes" Command="{Binding PageContext.ActiveObject.Update}" Grid.Column="1"/>
           <Button Content="Start Server" Command="{Binding PageContext.ActiveObject.Start}" Grid.Column="3"/>
           <Button Content="{Binding PageContext.ActiveObject.RestartWord}" Command="{Binding PageContext.ActiveObject.Restart}" Grid.Column="5"/>
-          <Button Content="{Binding PageContext.ActiveObject.RestartWord}" Command="{Binding PageContext.ActiveObject.Stop}" Grid.Column="7"/>
+          <Button Content="{Binding PageContext.ActiveObject.StopWord}" Command="{Binding PageContext.ActiveObject.Stop}" Grid.Column="7"/>
         </Grid>
       </StackPanel>
     </ScrollViewer>

@@ -52,7 +52,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		public string RestartWord => confirmingRestart ? "Confirm?" : "Restart Server";
-		public string StopWord => confirmingRestart ? "Confirm?" : "Stop Server";
+		public string StopWord => confirmingShutdown ? "Confirm?" : "Stop Server";
 
 		public string WebClient => (Model?.CurrentAllowWebclient ?? Model?.AllowWebClient)?.ToString(CultureInfo.InvariantCulture) ?? "Unknown";
 		public string Port => (Model?.CurrentPort ?? Model?.PrimaryPort)?.ToString(CultureInfo.InvariantCulture) ?? "Unknown";
