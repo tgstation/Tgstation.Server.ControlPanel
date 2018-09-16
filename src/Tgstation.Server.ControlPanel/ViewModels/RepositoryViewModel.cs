@@ -387,7 +387,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				if (pullRequests == null)
 				{
-					TestMerges = new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, DeactivatePR)));
+					TestMerges = Repository?.RevisionInformation?.ActiveTestMerges == null ? new List<TestMergeViewModel>() : new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, DeactivatePR)));
 					await RefreshPRList(cancellationToken).ConfigureAwait(true);
 				}
 				else
