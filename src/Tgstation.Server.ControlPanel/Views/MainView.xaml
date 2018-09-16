@@ -47,7 +47,7 @@
           <page:InstanceUser IsVisible="{Binding PageContext.IsInstanceUser}" IsEnabled="{Binding PageContext.IsInstanceUser}"/>
           <page:Repository IsVisible="{Binding PageContext.IsRepository}" IsEnabled="{Binding PageContext.IsRepository}"/>
           <page:StaticFiles/>
-          <page:Watchdog/>
+          <page:Watchdog IsVisible="{Binding PageContext.IsDreamDaemon}" IsEnabled="{Binding PageContext.IsDreamDaemon}"/>
           <page:ChatBot/>
           <page:DreamMaker IsVisible="{Binding PageContext.IsCompiler}" IsEnabled="{Binding PageContext.IsCompiler}"/>
           <page:Byond IsVisible="{Binding PageContext.IsByond}" IsEnabled="{Binding PageContext.IsByond}"/>

@@ -199,25 +199,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, this, userRightsProvider, instanceClient.Users, instanceUser, InstanceUserRootViewModel.GetDisplayNameForInstanceUser(userProvider, instanceUser), null, null);
 
 			instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad(null);
-
-			var canReadDD = instanceUser.DreamDaemonRights.Value.HasFlag(DreamDaemonRights.ReadMetadata);
-			ITreeNode ddNode;
-			if (canReadDD)
-				ddNode = new BasicNode
-				{
-					Title = "TODO: DreamDaemon",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png"
-				};
-			else
-			{
-				ddNode = new BasicNode
-				{
-					Title = "DreamDaemon",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				};
-				SetDDRunning(true); //vOv
-			}
-
+			
 			var newChildren = new List<ITreeNode>
 			{
 				instanceUserTreeNode,
@@ -225,7 +207,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				new RepositoryViewModel(pageContext, instanceClient.Repository, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode, gitHubClient),
 				new ByondViewModel(pageContext, instanceClient.Byond, instanceJobSink, instanceUserTreeNode),
 				new CompilerViewModel(pageContext, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode),
-				ddNode,
+				new DreamDaemonViewModel(pageContext, instanceClient.DreamDaemon, instanceJobSink, instanceUserTreeNode, x => SetDDRunning(x)),
 				instanceUser.ChatBotRights != ChatBotRights.None ? new BasicNode
 				{
 					Title = "TODO: Chat Bots",
@@ -250,26 +232,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				Children = newChildren;
 				this.RaisePropertyChanged(nameof(Icon));
-			}
-
-			if (canReadDD)
-			{
-				var dd = await instanceClient.DreamDaemon.Read(cancellationToken).ConfigureAwait(false);
-				using (DelayChangeNotifications())
-				{
-					SetDDRunning(dd.Running.Value);
-					var ddIndex = newChildren.IndexOf(ddNode);
-					ddNode = new BasicNode
-					{
-						Title = "TODO: DreamDaemon",
-						Icon = dd.Running.Value ? "resm:Tgstation.Server.ControlPanel.Assets.dd.ico" : "resm:Tgstation.Server.ControlPanel.Assets.dd_down.ico"
-					};
-					newChildren = new List<ITreeNode>(newChildren)
-					{
-						[ddIndex] = ddNode
-					};
-					Children = newChildren;
-				}
 			}
 		}
 
