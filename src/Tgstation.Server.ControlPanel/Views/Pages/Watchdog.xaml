@@ -14,7 +14,7 @@
       <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Grid.Row="1">
-      <StackPanel Orientation="Vertical" IsEnabled="{Bindinig !PageContext.ActiveObject.Refreshing}">
+      <StackPanel Orientation="Vertical" IsEnabled="{Binding !PageContext.ActiveObject.Refreshing}">
         <Grid >
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
