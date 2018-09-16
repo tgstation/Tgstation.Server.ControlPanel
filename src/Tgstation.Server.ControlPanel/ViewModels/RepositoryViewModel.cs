@@ -464,7 +464,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		void RebuildTestMergeList()
 		{
-			var tmp = Repository == null ? new List<TestMergeViewModel>() : new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x =>
+			var tmp = Repository?.RevisionInformation?.ActiveTestMerges == null ? new List<TestMergeViewModel>() : new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x =>
 			{
 				if (!(updateHard && pullRequests?.ContainsKey(x.Number.Value) == true))
 					return new TestMergeViewModel(x, DeactivatePR);
