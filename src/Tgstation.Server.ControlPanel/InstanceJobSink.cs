@@ -21,6 +21,7 @@ namespace Tgstation.Server.ControlPanel
 
 		readonly JobManagerViewModel jobManagerViewModel;
 		readonly Dictionary<long, Job> trackedJobs;
+		readonly Dictionary<long, Func<CancellationToken, Task>> postActions;
 		readonly CancellationTokenSource cancellationTokenSource;
 		readonly List<Job> newestJobs;
 		readonly Func<User> currentUserProvider;
@@ -37,6 +38,7 @@ namespace Tgstation.Server.ControlPanel
 			cancellationTokenSource = new CancellationTokenSource();
 			updated = new TaskCompletionSource<object>();
 			newestJobs = new List<Job>();
+			postActions = new Dictionary<long, Func<CancellationToken, Task>>();
 		}
 
 		public IObservable<Job> NewJobs()
@@ -56,7 +58,7 @@ namespace Tgstation.Server.ControlPanel
 			cancellationTokenSource.Dispose();
 		}
 
-		public void RegisterJob(Job job)
+		public void RegisterJob(Job job, Func<CancellationToken, Task> onStopped = null)
 		{
 			if (job == null)
 				throw new ArgumentNullException(nameof(job));
@@ -66,6 +68,7 @@ namespace Tgstation.Server.ControlPanel
 				if (!trackedJobs.ContainsKey(job.Id))
 				{
 					trackedJobs.Add(job.Id, job);
+					postActions.Add(job.Id, onStopped);
 					lock (newestJobs)
 						newestJobs.Add(job);
 				}
@@ -74,10 +77,20 @@ namespace Tgstation.Server.ControlPanel
 			}
 		}
 
-		public bool DeregisterJob(Job job)
+		public bool DeregisterJob(Job job, out Func<CancellationToken, Task> postAction)
 		{
 			lock (trackedJobs)
-				return trackedJobs.Remove(job.Id);
+			{
+				var result = trackedJobs.Remove(job.Id);
+				if (result)
+				{
+					postAction = postActions[job.Id];
+					postActions.Remove(job.Id);
+				}
+				else
+					postAction = null;
+				return result;
+			}
 		}
 
 		public bool TracksJob(Job job)

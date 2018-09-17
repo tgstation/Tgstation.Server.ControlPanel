@@ -105,12 +105,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return observables.Merge();
 		}
 
-		long? DeregisterJob(Job job)
+		long? DeregisterJob(Job job, out Func<CancellationToken, Task> postAction)
 		{
 			lock (instanceSinks)
 				foreach (var I in instanceSinks)
-					if (I.Value.DeregisterJob(job))
+					if (I.Value.DeregisterJob(job, out postAction))
 						return I.Key;
+			postAction = null;
 			return null;
 		}
 
@@ -120,8 +121,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				return;
 
 			long? instanceId = null;
+			Func<CancellationToken, Task> deregTaskInvoker = null;
 			if (job.StoppedAt.HasValue)
-				instanceId = DeregisterJob(job);
+				instanceId = DeregisterJob(job, out deregTaskInvoker);
 			else
 				lock (instanceSinks)
 					foreach (var I in instanceSinks)
@@ -143,7 +145,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					JobViewModel newModel = null;
 					newModel = new JobViewModel(job, () =>
 					{
-						DeregisterJob(job);
+						DeregisterJob(job, out var innerDeregTask);
 						lock (jobModelMap)
 						{
 							jobModelMap.Remove(job.Id);
@@ -157,7 +159,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					};
 					return;
 				}
-			await Dispatcher.UIThread.InvokeAsync(() => viewModel.Update(job, client)).ConfigureAwait(false);
+			await Dispatcher.UIThread.InvokeAsync(async () =>
+			{
+				viewModel.Update(job, client);
+				if (deregTaskInvoker != null)
+					await deregTaskInvoker(default).ConfigureAwait(true);
+			}).ConfigureAwait(false);
 		}
 
 		IObservable<Job> NewJobs()
