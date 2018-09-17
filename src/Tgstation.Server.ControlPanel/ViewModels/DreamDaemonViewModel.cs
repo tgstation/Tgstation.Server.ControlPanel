@@ -356,7 +356,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					try
 					{
 						var job = await dreamDaemonClient.Start(cancellationToken).ConfigureAwait(true);
-						jobSink.RegisterJob(job);
+						jobSink.RegisterJob(job, DoRefresh);
 					}
 					finally
 					{

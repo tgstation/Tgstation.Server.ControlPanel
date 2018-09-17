@@ -166,7 +166,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							Version = new Version(NewMajor, NewMinor)
 						}, cancellationToken).ConfigureAwait(true);
 						if (data.InstallJob != null)
-							jobSink.RegisterJob(data.InstallJob);
+							jobSink.RegisterJob(data.InstallJob, Load);
 						this.RaisePropertyChanged(CurrentVersion);
 					}
 					finally

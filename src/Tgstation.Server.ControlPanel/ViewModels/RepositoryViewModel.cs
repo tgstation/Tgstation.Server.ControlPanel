@@ -353,7 +353,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						newRepo = await repositoryClient.Read(cancellationToken).ConfigureAwait(true);
 
 					if (newRepo.ActiveJob != null)
-						jobSink.RegisterJob(newRepo.ActiveJob);
+						jobSink.RegisterJob(newRepo.ActiveJob, ct => Refresh(null, null, ct));
 					if (newRepo.Reference == null)
 						newRepo.Reference = "(unknown)";
 					if (newRepo.AccessUser == null)
