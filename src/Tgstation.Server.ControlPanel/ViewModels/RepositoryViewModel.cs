@@ -458,6 +458,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			try
 			{
 				await DirectAdd(number, true, default).ConfigureAwait(true);
+				modifiedPRList = true;
 			}
 			catch { }
 		}
@@ -482,7 +483,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					if (tmp.Any(x => x.TestMerge.Number == a.Key))
 						return null;
-					return new TestMergeViewModel(a.Value, b.Value, x => { });
+					return new TestMergeViewModel(a.Value, b.Value, x => modifiedPRList = true);
 				}).Where(x => x != null).ToList();
 				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Bold));
 				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Normal));
