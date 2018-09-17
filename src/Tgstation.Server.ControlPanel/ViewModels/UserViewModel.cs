@@ -36,7 +36,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newInstanceManagerRights = user.InstanceManagerRights.Value;
 					newAdministrationRights = user.AdministrationRights.Value;
 
-					this.RaisePropertyChanged(nameof(AdminEditUsers));
+					this.RaisePropertyChanged(nameof(AdminWriteUsers));
+					this.RaisePropertyChanged(nameof(AdminReadUsers));
 					this.RaisePropertyChanged(nameof(AdminEditPassword));
 					this.RaisePropertyChanged(nameof(AdminChangeVersion));
 					this.RaisePropertyChanged(nameof(AdminRestartServer));
@@ -104,12 +105,24 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref enabled, value);
 		}
 
-		public bool AdminEditUsers
+		public bool AdminWriteUsers
 		{
 			get => newAdministrationRights.HasFlag(AdministrationRights.WriteUsers);
 			set
 			{
 				var right = AdministrationRights.WriteUsers;
+				if (value)
+					newAdministrationRights |= right;
+				else
+					newAdministrationRights &= ~right;
+			}
+		}
+		public bool AdminReadUsers
+		{
+			get => newAdministrationRights.HasFlag(AdministrationRights.ReadUsers);
+			set
+			{
+				var right = AdministrationRights.ReadUsers;
 				if (value)
 					newAdministrationRights |= right;
 				else

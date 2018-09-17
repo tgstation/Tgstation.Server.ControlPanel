@@ -76,10 +76,11 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
           </Grid.RowDefinitions>
           <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminEditUsers, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Edit All Users" Margin="5,4,0,0" />
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminWriteUsers, Mode=TwoWay}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Edit Users" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminEditPassword, Mode=TwoWay}"/>
@@ -92,6 +93,10 @@
           <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminChangeVersion, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Change Server Version" Margin="5,4,0,0" />
+          </DockPanel>
+          <DockPanel Grid.Column="1" Grid.Row="2" Margin="2">
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminReadUsers, Mode=TwoWay}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Read Users" Margin="5,4,0,0" />
           </DockPanel>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
