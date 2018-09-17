@@ -210,6 +210,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly Action<bool> onRunningChanged;
 
 		DreamDaemon model;
+
+		DreamDaemonSecurity? initalSecurityLevel;
 		
 		uint newStartupTimeout;
 		ushort newPrimaryPort;
@@ -277,6 +279,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				NewSecondaryPort = Model.SecondaryPort ?? 0;
 				NewAutoStart = Model.AutoStart ?? false;
 				NewAllowWebClient = Model.AllowWebClient ?? false;
+				initalSecurityLevel = Model.SecurityLevel;
 			}
 		}
 
@@ -382,12 +385,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						var newModel = new DreamDaemon
 						{
-							AllowWebClient = CanWebClient ? (bool?)NewAllowWebClient : null,
-							AutoStart = CanAutoStart ? (bool?)NewAutoStart : null,
-							PrimaryPort = CanPort ? (ushort?)NewPrimaryPort : null,
-							SecondaryPort = CanPort ? (ushort?)NewSecondaryPort : null,
-							SecurityLevel = CanSecurity ? Model.SecurityLevel : null,
-							StartupTimeout = CanTimeout ? (uint?)NewStartupTimeout : null
+							AllowWebClient = CanWebClient && Model.AllowWebClient != NewAllowWebClient ? (bool?)NewAllowWebClient : null,
+							AutoStart = CanAutoStart && Model.AutoStart != NewAutoStart ? (bool?)NewAutoStart : null,
+							PrimaryPort = CanPort && NewPrimaryPort != Model.PrimaryPort ? (ushort?)NewPrimaryPort : null,
+							SecondaryPort = CanPort && NewSecondaryPort != Model.SecondaryPort ? (ushort?)NewSecondaryPort : null,
+							SecurityLevel = CanSecurity && Model.SecurityLevel != initalSecurityLevel ? Model.SecurityLevel : null,
+							StartupTimeout = CanTimeout && Model.StartupTimeout != NewStartupTimeout ? (uint?)NewStartupTimeout : null
 						};
 
 						if (CanSoftRestart)
