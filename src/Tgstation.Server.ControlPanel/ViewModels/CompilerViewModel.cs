@@ -111,7 +111,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Update.Recheck();
 			}
 		}
-		public string SecurityLevel => Model?.ApiValidationSecurityLevel.HasValue ? Model.ApiValidationSecurityLevel.ToString() : "Unknown";
+		public string SecurityLevel => (Model?.ApiValidationSecurityLevel).HasValue ? Model.ApiValidationSecurityLevel.ToString() : "Unknown";
 
 		public int ViewSelectedPage => selectedPage + 1;
 		public int ViewNumPages => numPages + 1;

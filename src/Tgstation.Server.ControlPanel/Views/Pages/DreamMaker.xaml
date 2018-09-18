@@ -80,7 +80,7 @@
                         <TextBlock Text="{Binding CompileJob.DmeName}" Grid.Column="5"/>
                         <TextBlock Text="{Binding Revision}" Grid.Column="6"/>
                         <TextBlock Text="{Binding OriginRevision}" Grid.Column="7"/>
-                        <TextBlock Text="{Binding MinimumSecurity}" Grid.Column="7"/>
+                        <TextBlock Text="{Binding MinimumSecurity}" Grid.Column="8"/>
                       </Grid>
                       <Grid IsVisible="{Binding HasTestMerges}" Margin="10,0,0,0">
                         <Grid.ColumnDefinitions>
@@ -191,6 +191,7 @@
         <Grid IsEnabled="{Binding PageContext.ActiveObject.CanSecurityView}">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
@@ -202,10 +203,10 @@
             <ColumnDefinition Width="30*"/>
             <ColumnDefinition Width="10*"/>
           </Grid.ColumnDefinitions>
-          <TextBlock Text="API Validation Security Level:" Grid.Row="0" Grid.Column="0" />
-          <RadioButton GroupName="Trust" Content="Ultrasafe (Not currently supported)" IsEnabled="False" Grid.Row="1" Grid.Column="1" IsChecked="False" />
-          <RadioButton GroupName="Trust" Content="Safe" Grid.Row="1" Grid.Column="3" IsChecked="{Binding PageContext.ActiveObject.Safe}" />
-          <RadioButton GroupName="Trust" Content="Trusted" Grid.Row="1" Grid.Column="5" IsChecked="{Binding PageContext.ActiveObject.Trusted}" />
+          <TextBlock Text="API Validation Security Level:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="7" />
+          <RadioButton GroupName="Trust" Content="Ultrasafe (Not currently supported)" IsEnabled="False" Grid.Row="2" Grid.Column="1" IsChecked="False" />
+          <RadioButton GroupName="Trust" Content="Safe" Grid.Row="2" Grid.Column="3" IsChecked="{Binding PageContext.ActiveObject.Safe}" />
+          <RadioButton GroupName="Trust" Content="Trusted" Grid.Row="2" Grid.Column="5" IsChecked="{Binding PageContext.ActiveObject.Trusted}" />
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
