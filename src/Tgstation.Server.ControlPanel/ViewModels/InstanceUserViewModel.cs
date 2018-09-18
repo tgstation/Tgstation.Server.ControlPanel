@@ -356,6 +356,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newDreamMakerRights &= ~right;
 			}
 		}
+		public bool CompSec
+		{
+			get => newDreamMakerRights.HasFlag(DreamMakerRights.SetSecurityLevel);
+			set
+			{
+				var right = DreamMakerRights.SetSecurityLevel;
+				if (value)
+					newDreamMakerRights |= right;
+				else
+					newDreamMakerRights &= ~right;
+			}
+		}
 
 		public bool DDRead
 		{
@@ -756,6 +768,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(CompDme));
 				this.RaisePropertyChanged(nameof(CompVali));
 				this.RaisePropertyChanged(nameof(CompList));
+				this.RaisePropertyChanged(nameof(CompSec));
 
 				this.RaisePropertyChanged(nameof(DDRead));
 				this.RaisePropertyChanged(nameof(DDPort));

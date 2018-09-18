@@ -42,6 +42,7 @@
               <ColumnDefinition Width="1*" />
               <ColumnDefinition Width="1*" />
               <ColumnDefinition Width="1*" />
+              <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
             <TextBlock Text="Id" Grid.Column="0"/>
             <TextBlock Text="Byond Version" Grid.Column="1"/>
@@ -51,6 +52,7 @@
             <TextBlock Text="Project Name" Grid.Column="5"/>
             <TextBlock Text="Revision" Grid.Column="6"/>
             <TextBlock Text="Origin Revision" Grid.Column="7"/>
+            <TextBlock Text="Minimum Security" Grid.Column="7"/>
           </Grid>
           <Panel Background="Black">
             <TreeView Items="{Binding PageContext.ActiveObject.CurrentPage}" Background="White" Margin="1">
@@ -68,6 +70,7 @@
                           <ColumnDefinition Width="1*" />
                           <ColumnDefinition Width="1*" />
                           <ColumnDefinition Width="1*" />
+                          <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding CompileJob.Id}" Grid.Column="0"/>
                         <TextBlock Text="{Binding CompileJob.ByondVersion}" Grid.Column="1"/>
@@ -77,6 +80,7 @@
                         <TextBlock Text="{Binding CompileJob.DmeName}" Grid.Column="5"/>
                         <TextBlock Text="{Binding Revision}" Grid.Column="6"/>
                         <TextBlock Text="{Binding OriginRevision}" Grid.Column="7"/>
+                        <TextBlock Text="{Binding MinimumSecurity}" Grid.Column="7"/>
                       </Grid>
                       <Grid IsVisible="{Binding HasTestMerges}" Margin="10,0,0,0">
                         <Grid.ColumnDefinitions>
@@ -148,6 +152,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="5"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -157,6 +163,8 @@
           <TextBlock Text="{Binding PageContext.ActiveObject.ProjectName}" Margin="5,0,0,0" Grid.Row="0" Grid.Column="1"/>
           <TextBlock Text="DMAPI Port:" Grid.Row="2" Grid.Column="0"/>
           <TextBlock Text="{Binding PageContext.ActiveObject.Model.ApiValidationPort}" Margin="5,0,0,0" Grid.Row="2" Grid.Column="1"/>
+          <TextBlock Text="Validation Security Level:" Grid.Row="2" Grid.Column="0"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.SecurityLevel}" Margin="5,0,0,0" Grid.Row="2" Grid.Column="1"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -174,11 +182,30 @@
           <TextBlock Text="New Project Name (without '.dme'):" Grid.Row="2" Grid.Column="0" Margin="0,5,0,0"/>
           <TextBox Text="{Binding PageContext.ActiveObject.NewDme}" IsEnabled="{Binding PageContext.ActiveObject.CanDmeView}" Margin="5,0,0,0" Grid.Row="2" Grid.Column="1"/>
           <DockPanel Grid.Row="0" Grid.Column="0">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AutoDetectDme}" IsEnabled="{Binding PageContext.ActiveObject.CanDme}" DockPanel.Dock="Left"/>
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AutoDetectDme}" IsEnabled="{Binding PageContext.ActiveObject.CanDmeView}" DockPanel.Dock="Left"/>
             <TextBlock Text="Auto Detect Project Name" Margin="5,0,0,0" DockPanel.Dock="Right"/>
           </DockPanel>
           <TextBlock Text="Port Used For TGS DMAPI Validation (should be private, 0 doesn't change):" Grid.Row="3" Grid.Column="0" Margin="0,5,0,0"/>
-          <NumericUpDown Minimum="0" Maximum="65535" Height="25" Value="{Binding PageContext.ActiveObject.NewPort}" IsEnabled="{Binding PageContext.ActiveObject.CanPort}" Margin="5,0,0,0" Grid.Row="3" Grid.Column="1"/>
+          <NumericUpDown Minimum="0" Maximum="65535" Height="25" Value="{Binding PageContext.ActiveObject.NewPort}" IsEnabled="{Binding PageContext.ActiveObject.CanPortView}" Margin="5,0,0,0" Grid.Row="3" Grid.Column="1"/>
+        </Grid>
+        <Grid IsEnabled="{Binding PageContext.ActiveObject.CanSecurityView}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*"/>
+            <ColumnDefinition Width="30*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="30*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="30*"/>
+            <ColumnDefinition Width="10*"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="API Validation Security Level:" Grid.Row="0" Grid.Column="0" />
+          <RadioButton GroupName="Trust" Content="Ultrasafe (Not currently supported)" IsEnabled="False" Grid.Row="1" Grid.Column="1" IsChecked="False" />
+          <RadioButton GroupName="Trust" Content="Safe" Grid.Row="1" Grid.Column="3" IsChecked="{Binding PageContext.ActiveObject.Safe}" />
+          <RadioButton GroupName="Trust" Content="Trusted" Grid.Row="1" Grid.Column="5" IsChecked="{Binding PageContext.ActiveObject.Trusted}" />
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

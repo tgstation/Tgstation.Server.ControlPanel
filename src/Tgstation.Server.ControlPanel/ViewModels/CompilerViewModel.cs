@@ -41,12 +41,33 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaiseAndSetIfChanged(ref refreshing, value);
 				this.RaisePropertyChanged(nameof(Icon));
 				this.RaisePropertyChanged(nameof(CanDmeView));
+				this.RaisePropertyChanged(nameof(CanSecurityView));
 				this.RaisePropertyChanged(nameof(CanPortView));
 				RecheckCommands();
 			}
 		}
 
 		public string ProjectName => Model != null ? Model.ProjectName ?? "<Auto Detect>" : "<Unknown>";
+
+		public bool Safe
+		{
+			get => newSecurityLevel == DreamDaemonSecurity.Safe;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newSecurityLevel, DreamDaemonSecurity.Safe);
+				this.RaisePropertyChanged(nameof(Trusted));
+			}
+		}
+
+		public bool Trusted
+		{
+			get => newSecurityLevel == DreamDaemonSecurity.Trusted;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newSecurityLevel, DreamDaemonSecurity.Trusted);
+				this.RaisePropertyChanged(nameof(Safe));
+			}
+		}
 
 		public DreamMaker Model
 		{
@@ -55,6 +76,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref model, value);
 				this.RaisePropertyChanged(nameof(ProjectName));
+				this.RaisePropertyChanged(nameof(SecurityLevel));
 			}
 		}
 
@@ -89,6 +111,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Update.Recheck();
 			}
 		}
+		public string SecurityLevel => Model?.ApiValidationSecurityLevel.HasValue ? Model.ApiValidationSecurityLevel.ToString() : "Unknown";
+
 		public int ViewSelectedPage => selectedPage + 1;
 		public int ViewNumPages => numPages + 1;
 
@@ -98,6 +122,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanPort => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.SetApiValidationPort);
 		public bool CanDme => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.SetDme);
 		public bool CanDmeView => !Refreshing && CanDme && !AutoDetectDme;
+		public bool CanSecurity => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.SetSecurityLevel);
+		public bool CanSecurityView => !Refreshing && CanSecurity;
 		public bool CanPortView => !Refreshing && CanPort;
 
 		public EnumCommand<CompilerCommand> Close { get; }
@@ -119,6 +145,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		int numPages;
 
 		DreamMaker model;
+
+		DreamDaemonSecurity newSecurityLevel;
 
 		string newDme;
 		int newPort;
@@ -147,9 +175,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(CanDmeView));
 				this.RaisePropertyChanged(nameof(CanPortView));
 				this.RaisePropertyChanged(nameof(CanRead));
+				this.RaisePropertyChanged(nameof(CanSecurity));
+				this.RaisePropertyChanged(nameof(CanSecurityView));
+				this.RaisePropertyChanged(nameof(CanCompile));
+				this.RaisePropertyChanged(nameof(CanGetJobs));
+				this.RaisePropertyChanged(nameof(CanPort));
+				this.RaisePropertyChanged(nameof(CanDme));
 			};
 
 			jobPages = new Dictionary<int, IReadOnlyList<CompileJobViewModel>>();
+
+			newSecurityLevel = DreamDaemonSecurity.Safe;
 
 			async void InitialLoad() => await DoRefresh(default).ConfigureAwait(true);
 			InitialLoad();
@@ -295,13 +331,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					try
 					{
 						var newModel = new DreamMaker();
-						if (!String.IsNullOrEmpty(NewDme))
-							newModel.ProjectName = NewDme;
-						else if (AutoDetectDme)
-							newModel.ProjectName = String.Empty;
+						if (CanDme)
+							if (!String.IsNullOrEmpty(NewDme))
+								newModel.ProjectName = NewDme;
+							else if (AutoDetectDme)
+								newModel.ProjectName = String.Empty;
 
-						if (NewPort != 0)
+						if (CanPort && NewPort != 0)
 							newModel.ApiValidationPort = (ushort)NewPort;
+
+						if (CanSecurity && newSecurityLevel != Model.ApiValidationSecurityLevel)
+							newModel.ApiValidationSecurityLevel = newSecurityLevel;
 
 						Model = await dreamMakerClient.Update(newModel, cancellationToken).ConfigureAwait(true);
 						ResetFields();

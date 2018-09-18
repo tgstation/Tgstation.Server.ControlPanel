@@ -51,7 +51,7 @@
     <PackageReference Include="System.Reactive" Version="4.1.0" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.5.0" />
     <PackageReference Include="TextCopy" Version="1.5.0" />
-    <PackageReference Include="Tgstation.Server.Client" Version="4.0.0-preview9109" />
+    <PackageReference Include="Tgstation.Server.Client" Version="4.0.0-preview9110" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\Pages\UserManager.xaml.cs">

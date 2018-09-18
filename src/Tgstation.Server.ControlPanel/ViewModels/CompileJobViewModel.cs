@@ -32,6 +32,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public string MinimumSecurity => CompileJob.MinimumSecurityLevel.ToString();
+
 		public IReadOnlyList<TestMergeViewModel> TestMerges { get; }
 
 		bool isExpanded;

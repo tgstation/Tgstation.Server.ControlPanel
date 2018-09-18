@@ -191,6 +191,10 @@
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.CompList, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="List and View Compile Jobs" Margin="5,4,0,0" />
           </DockPanel>
+          <DockPanel Grid.Column="0" Grid.Row="3" Margin="2">
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.CompSec, Mode=TwoWay}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Change Compilation Security Level" Margin="5,4,0,0" />
+          </DockPanel>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
