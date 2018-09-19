@@ -56,6 +56,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref newSecurityLevel, DreamDaemonSecurity.Safe);
 				this.RaisePropertyChanged(nameof(Trusted));
+				Update.Recheck();
 			}
 		}
 
@@ -66,6 +67,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref newSecurityLevel, DreamDaemonSecurity.Trusted);
 				this.RaisePropertyChanged(nameof(Safe));
+				Update.Recheck();
 			}
 		}
 
@@ -205,6 +207,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			NewDme = String.Empty;
 			NewPort = 0;
 			AutoDetectDme = Model?.ProjectName == null;
+			newSecurityLevel = Model?.ApiValidationSecurityLevel ?? DreamDaemonSecurity.Safe;
+			this.RaisePropertyChanged(nameof(Safe));
+			this.RaisePropertyChanged(nameof(Trusted));
 		}
 
 		async Task DoRefresh(CancellationToken cancellationToken)
@@ -278,11 +283,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					return true;
 				case CompilerCommand.Update:
 					return !Refreshing 
-						&& (CanPort || CanDme) 
+						&& (CanPort || CanDme || CanSecurity) 
 						&& (
 						//either a new dme name is set, or the checkbox is different than the model
 						(!String.IsNullOrEmpty(NewDme) || (AutoDetectDme ^ (Model?.ProjectName == null))) 
-						|| NewPort != 0);
+						|| NewPort != 0
+						|| newSecurityLevel != Model.ApiValidationSecurityLevel);
 				case CompilerCommand.Compile:
 					return !Refreshing && CanCompile;
 				case CompilerCommand.LastPage:
