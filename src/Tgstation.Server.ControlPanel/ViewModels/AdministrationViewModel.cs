@@ -143,7 +143,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Refreshing = false;
 					RecheckIcon();
 					if (NewVersion == null)
-						NewVersion = model.LatestVersion?.ToString();
+						NewVersion = model?.LatestVersion?.ToString();
 					this.RaisePropertyChanged(nameof(GitHubUrl));
 					this.RaisePropertyChanged(nameof(WindowsHostMachine));
 					this.RaisePropertyChanged(nameof(LatestVersionString));
