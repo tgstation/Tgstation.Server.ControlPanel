@@ -45,7 +45,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.chatBotsClient = chatBotsClient ?? throw new ArgumentNullException(nameof(chatBotsClient));
 			this.rightsProvider = rightsProvider ?? throw new ArgumentNullException(nameof(rightsProvider));
 
-			Icon = "resm:Tgstation.Server.ControlPanel.Assets.chat.png";
+			Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
 
 			async void InitialLoad() => await Refresh(default).ConfigureAwait(false);
 			InitialLoad();
@@ -87,10 +87,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				if (hasReadRight)
 					newChildren.AddRange(chatBots
-						.Select(x => new ChatBotViewModel(pageContext, chatBotsClient, x, rightsProvider)));
+						.Select(chatBot => new ChatBotViewModel(pageContext, chatBotsClient, chatBot, rightsProvider, this)));
 
 				Children = newChildren;
-				Icon = "resm:Tgstation.Server.ControlPanel.Assets.chat.png";
+				Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
 				nullPage = false;
 			}
 			catch
@@ -126,7 +126,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public void DirectAdd(ChatBot bot)
 		{
-			var newModel = new ChatBotViewModel(pageContext, chatBotsClient, x, rightsProvider);
+			var newModel = new ChatBotViewModel(pageContext, chatBotsClient, bot, rightsProvider, this);
 			var newChildren = new List<ITreeNode>(Children)
 			{
 				newModel
