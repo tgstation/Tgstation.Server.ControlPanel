@@ -117,7 +117,7 @@
             </DockPanel>
             <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.NewAutoUpdatesSynchronize, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}"/>
-              <TextBlock DockPanel.Dock="Right" Text="Automatic Updates Push Changes From Scripts" Margin="5,4,0,0" />
+              <TextBlock DockPanel.Dock="Right" Text="Push Test Merge Commits to Temporary Branch" Margin="5,4,0,0" />
             </DockPanel>
           </Grid>
         </StackPanel>
