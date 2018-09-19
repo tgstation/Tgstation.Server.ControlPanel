@@ -56,6 +56,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			async void InitialLoad() => await Refresh(default).ConfigureAwait(false);
 			InitialLoad();
+
+			rightsProvider.OnUpdated += (a, b) => InitialLoad();
 		}
 
 		public static string GetDisplayNameForInstanceUser(IUserProvider userProvider, InstanceUser user) => userProvider.GetUsers()?

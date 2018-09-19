@@ -44,6 +44,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IInstanceUserRightsProvider rightsProvider;
 		readonly IReadOnlyList<User> users;
 
+		bool loading;
+
 		public AddInstanceUserViewModel(PageContextViewModel pageContext, InstanceUserRootViewModel instanceUserRootViewModel, IInstanceUserClient instanceUserClient, IInstanceUserRightsProvider rightsProvider, IUserProvider userProvider)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
@@ -53,6 +55,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			users = userProvider.GetUsers()?.Where(x => x.Id != userProvider.CurrentUser.Id).ToList();
 			UserStrings = users?.Select(x => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", x.Name, x.Id)).ToList();
+			rightsProvider.OnUpdated += (a, b) => Add.Recheck();
 
 			Close = new EnumCommand<AddInstanceUserCommand>(AddInstanceUserCommand.Close, this);
 			Add = new EnumCommand<AddInstanceUserCommand>(AddInstanceUserCommand.Add, this);
@@ -71,7 +74,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case AddInstanceUserCommand.Close:
 					return true;
 				case AddInstanceUserCommand.Add:
-					return rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.WriteUsers);
+					return !loading && rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.WriteUsers);
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -85,12 +88,22 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					pageContext.ActiveObject = null;
 					break;
 				case AddInstanceUserCommand.Add:
-					var user = new InstanceUser
+					loading = true;
+					Add.Recheck();
+					try
 					{
-						UserId = IdMode ? UserId : users[SelectedIndex].Id,
-					};
-					var newUser = await instanceUserClient.Create(user, cancellationToken).ConfigureAwait(true);
-					instanceUserRootViewModel.DirectAdd(newUser);
+						var user = new InstanceUser
+						{
+							UserId = IdMode ? UserId : users[SelectedIndex].Id,
+						};
+						var newUser = await instanceUserClient.Create(user, cancellationToken).ConfigureAwait(true);
+						instanceUserRootViewModel.DirectAdd(newUser);
+					}
+					finally
+					{
+						loading = false;
+						Add.Recheck();
+					}
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");

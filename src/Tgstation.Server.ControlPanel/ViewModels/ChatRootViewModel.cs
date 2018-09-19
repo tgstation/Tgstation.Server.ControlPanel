@@ -45,8 +45,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.chatBotsClient = chatBotsClient ?? throw new ArgumentNullException(nameof(chatBotsClient));
 			this.rightsProvider = rightsProvider ?? throw new ArgumentNullException(nameof(rightsProvider));
 
+			Icon = "resm:Tgstation.Server.ControlPanel.Assets.chat.png";
+
 			async void InitialLoad() => await Refresh(default).ConfigureAwait(false);
 			InitialLoad();
+
+			rightsProvider.OnUpdated += (a, b) => InitialLoad();
 		}
 
 		public async Task Refresh(CancellationToken cancellationToken)
