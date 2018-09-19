@@ -48,7 +48,8 @@
           <page:Repository IsVisible="{Binding PageContext.IsRepository}" IsEnabled="{Binding PageContext.IsRepository}"/>
           <page:StaticFiles/>
           <page:Watchdog IsVisible="{Binding PageContext.IsDreamDaemon}" IsEnabled="{Binding PageContext.IsDreamDaemon}"/>
-          <page:ChatBot/>
+          <page:AddChatBot IsVisible="{Binding PageContext.IsAddChatBot}" IsEnabled="{Binding PageContext.IsAddChatBot}"/>
+          <page:ChatBot IsVisible="{Binding PageContext.IsChatBot}" IsEnabled="{Binding PageContext.IsChatBot}"/>
           <page:DreamMaker IsVisible="{Binding PageContext.IsCompiler}" IsEnabled="{Binding PageContext.IsCompiler}"/>
           <page:Byond IsVisible="{Binding PageContext.IsByond}" IsEnabled="{Binding PageContext.IsByond}"/>
         </Panel>

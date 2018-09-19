@@ -27,6 +27,7 @@
     <None Remove="Views\Console.xaml" />
     <None Remove="Views\JobViewer.xaml" />
     <None Remove="Views\ObjectBrowserItem.xaml" />
+    <None Remove="Views\Pages\AddChatBot.xaml" />
     <None Remove="Views\Pages\AddInstance.xaml" />
     <None Remove="Views\Pages\AddInstanceUser.xaml" />
     <None Remove="Views\Pages\AddServer.xaml" />
@@ -52,7 +53,7 @@
     <PackageReference Include="System.Reactive" Version="4.1.0" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.5.0" />
     <PackageReference Include="TextCopy" Version="1.5.0" />
-    <PackageReference Include="Tgstation.Server.Client" Version="4.0.0-preview9110" />
+    <PackageReference Include="Tgstation.Server.Client" Version="4.0.0-preview9111" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\Pages\UserManager.xaml.cs">
@@ -60,6 +61,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Views\Pages\AddChatBot.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Views\Pages\CompileJobList.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>

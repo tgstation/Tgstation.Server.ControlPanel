@@ -183,7 +183,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Refreshing = true;
 					try
 					{
-						//await chatBotsClient.GetId(ChatBot, cancellationToken).ConfigureAwait(true);
+						await chatBotsClient.GetId(ChatBot, cancellationToken).ConfigureAwait(true);
 					}
 					finally
 					{
