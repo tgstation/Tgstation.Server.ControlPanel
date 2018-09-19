@@ -208,15 +208,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				new ByondViewModel(pageContext, instanceClient.Byond, instanceJobSink, instanceUserTreeNode),
 				new CompilerViewModel(pageContext, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode),
 				new DreamDaemonViewModel(pageContext, instanceClient.DreamDaemon, instanceJobSink, instanceUserTreeNode, x => SetDDRunning(x)),
-				instanceUser.ChatBotRights != ChatBotRights.None ? new BasicNode
-				{
-					Title = "TODO: Chat Bots",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.chat.png"
-				} : new BasicNode
-				{
-					Title = "Chat Bots",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				},
+				new ChatRootViewModel(pageContext, instanceClient.ChatBots, instanceUserTreeNode),
 				instanceUser.ConfigurationRights != ConfigurationRights.None ? new BasicNode
 				{
 					Title = "TODO: Static Files",

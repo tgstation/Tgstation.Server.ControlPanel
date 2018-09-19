@@ -24,6 +24,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(IsByond));
 					this.RaisePropertyChanged(nameof(IsCompiler));
 					this.RaisePropertyChanged(nameof(IsDreamDaemon));
+					this.RaisePropertyChanged(nameof(IsAddChatBot));
+					this.RaisePropertyChanged(nameof(IsChatBot));
 				}
 			}
 		}
@@ -42,5 +44,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool IsByond => activeObject is ByondViewModel;
 		public bool IsCompiler => activeObject is CompilerViewModel;
 		public bool IsDreamDaemon => activeObject is DreamDaemonViewModel;
+		public bool IsAddChatBot => activeObject is AddChatBotViewModel;
+		public bool IsChatBot => activeObject is ChatBotViewModel;
 	}
 }
