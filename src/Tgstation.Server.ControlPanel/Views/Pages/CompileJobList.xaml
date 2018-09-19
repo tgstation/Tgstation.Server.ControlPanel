@@ -1,0 +1,101 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vms="clr-namespace:Tgstation.Server.ControlPanel.ViewModels">
+  <StackPanel Orientation="Vertical">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="1*" />
+      </Grid.ColumnDefinitions>
+      <TextBlock Text="Id" Grid.Column="0"/>
+      <TextBlock Text="Byond Version" Grid.Column="1"/>
+      <TextBlock Text="Started By" Grid.Column="2"/>
+      <TextBlock Text="Completed At" Grid.Column="3"/>
+      <TextBlock Text="Duration" Grid.Column="4"/>
+      <TextBlock Text="Project Name" Grid.Column="5"/>
+      <TextBlock Text="Revision" Grid.Column="6"/>
+      <TextBlock Text="Origin Revision" Grid.Column="7"/>
+      <TextBlock Text="Minimum Security" Grid.Column="8"/>
+    </Grid>
+    <Panel Background="Black">
+      <TreeView Items="{Binding}" Background="White" Margin="1">
+        <TreeView.DataTemplates>
+          <TreeDataTemplate ItemsSource="{Binding TestMerges}" DataType="vms:CompileJobViewModel">
+            <Panel Background="Black">
+              <StackPanel Background="White" Margin="1">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Text="{Binding CompileJob.Id}" Grid.Column="0"/>
+                  <TextBlock Text="{Binding CompileJob.ByondVersion}" Grid.Column="1"/>
+                  <TextBlock Text="{Binding User}" Grid.Column="2"/>
+                  <TextBlock Text="{Binding StoppedAt}" Grid.Column="3"/>
+                  <TextBlock Text="{Binding Duration}" Grid.Column="4"/>
+                  <TextBlock Text="{Binding CompileJob.DmeName}" Grid.Column="5"/>
+                  <TextBlock Text="{Binding Revision}" Grid.Column="6"/>
+                  <TextBlock Text="{Binding OriginRevision}" Grid.Column="7"/>
+                  <TextBlock Text="{Binding MinimumSecurity}" Grid.Column="8"/>
+                </Grid>
+                <Grid IsVisible="{Binding HasTestMerges}" Margin="10,0,0,0">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Text="#" Grid.Column="0"/>
+                  <TextBlock Text="Title" Grid.Column="1"/>
+                  <TextBlock Text="Revision" Grid.Column="2" />
+                  <TextBlock Text="Merged By" Grid.Column="3" />
+                  <TextBlock Text="Merged At" Grid.Column="4" />
+                  <TextBlock Text="Comment" Grid.Column="5" />
+                </Grid>
+              </StackPanel>
+            </Panel>
+          </TreeDataTemplate>
+          <DataTemplate DataType="vms:TestMergeViewModel">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="{Binding TestMerge.Number}" Grid.Column="0"/>
+              <TextBlock Text="{Binding TestMerge.TitleAtMerge}" Grid.Column="1"/>
+              <TextBlock Text="{Binding ActiveCommit}" Grid.Column="2"/>
+              <TextBlock Text="{Binding MergedBy}" Grid.Column="3"/>
+              <TextBlock Text="{Binding MergedAt}" Grid.Column="4"/>
+              <TextBlock Text="{Binding Comment}"  Grid.Column="5"/>
+            </Grid>
+          </DataTemplate>
+        </TreeView.DataTemplates>
+        <TreeView.Styles>
+          <Style Selector="TreeViewItem">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+          </Style>
+        </TreeView.Styles>
+      </TreeView>
+    </Panel>
+  </StackPanel>
+</UserControl>

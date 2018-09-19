@@ -23,6 +23,7 @@
     <EmbeddedResource Include="Assets\*" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\CompileJobList.xaml" />
     <None Remove="Views\Console.xaml" />
     <None Remove="Views\JobViewer.xaml" />
     <None Remove="Views\ObjectBrowserItem.xaml" />
@@ -59,6 +60,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Views\Pages\CompileJobList.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Views\Console.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
@@ -116,5 +120,10 @@
     <EmbeddedResource Update="Views\ServerBrowser.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Views\Pages\CompileJobList.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
   </ItemGroup>
 </Project>

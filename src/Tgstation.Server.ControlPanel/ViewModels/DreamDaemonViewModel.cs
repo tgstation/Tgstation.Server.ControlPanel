@@ -47,6 +47,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(StagedCompileJob));
 				this.RaisePropertyChanged(nameof(Trusted));
 				this.RaisePropertyChanged(nameof(Safe));
+				this.RaisePropertyChanged(nameof(HasRevision));
+				this.RaisePropertyChanged(nameof(HasStagedRevision));
 				onRunningChanged(model?.Running != false);
 			}
 		}
@@ -63,8 +65,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public IBrush StatusColour => new SolidColorBrush(!(Model?.Running).HasValue ? Colors.Black : Model.Running.Value ? Colors.Green : Colors.Red);
 
-		public CompileJobViewModel ActiveCompileJob => Model?.ActiveCompileJob != null ? new CompileJobViewModel(Model.ActiveCompileJob) : null;
-		public CompileJobViewModel StagedCompileJob => Model?.StagedCompileJob != null ? new CompileJobViewModel(Model.StagedCompileJob) : null;
+		public IReadOnlyList<CompileJobViewModel> ActiveCompileJob => Model?.ActiveCompileJob != null ? new List<CompileJobViewModel> { new CompileJobViewModel(Model.ActiveCompileJob) } : null;
+		public IReadOnlyList<CompileJobViewModel> StagedCompileJob => Model?.StagedCompileJob != null ? new List<CompileJobViewModel> { new CompileJobViewModel(Model.StagedCompileJob) } : null;
 
 		public bool Refreshing
 		{
@@ -184,6 +186,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => newAutoStart;
 			set => this.RaiseAndSetIfChanged(ref newAutoStart, value);
 		}
+
+		public bool HasRevision => CanRevision && Model.ActiveCompileJob != null;
+		public bool HasStagedRevision => HasRevision && Model.StagedCompileJob != null;
 
 
 		public bool CanPort => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetPorts);
@@ -376,8 +381,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						this.RaisePropertyChanged(nameof(StopWord));
 						ResetShutdown();
 					}
-					await dreamDaemonClient.Shutdown(cancellationToken).ConfigureAwait(true);
-					await DoRefresh(cancellationToken).ConfigureAwait(true);
+					else
+					{
+						await dreamDaemonClient.Shutdown(cancellationToken).ConfigureAwait(true);
+						await DoRefresh(cancellationToken).ConfigureAwait(true);
+					}
 					break;
 				case DreamDaemonCommand.Update:
 					Refreshing = true;
@@ -418,8 +426,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						this.RaisePropertyChanged(nameof(RestartWord));
 						ResetRestart();
 					}
-					await dreamDaemonClient.Restart(cancellationToken).ConfigureAwait(true);
-					await DoRefresh(cancellationToken).ConfigureAwait(true);
+					else
+					{
+						await dreamDaemonClient.Restart(cancellationToken).ConfigureAwait(true);
+						await DoRefresh(cancellationToken).ConfigureAwait(true);
+					}
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
