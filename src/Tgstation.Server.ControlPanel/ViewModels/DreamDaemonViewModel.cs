@@ -285,6 +285,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				NewAutoStart = Model.AutoStart ?? false;
 				NewAllowWebClient = Model.AllowWebClient ?? false;
 				initalSecurityLevel = Model.SecurityLevel;
+
+				ClearSoft = true;
+				if (CanMetadata)
+					if (Model.SoftRestart.Value)
+						SoftRestart = true;
+					else if (Model.SoftShutdown.Value)
+						SoftStop = true;
 			}
 		}
 
@@ -301,17 +308,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						return;
 					}
 
-				using (DelayChangeNotifications())
-				{
-					LoadModel(await dreamDaemonClient.Read(cancellationToken).ConfigureAwait(true));
-
-					ClearSoft = true;
-					if (CanMetadata)
-						if (Model.SoftRestart.Value)
-							SoftRestart = true;
-						else if (Model.SoftShutdown.Value)
-							SoftStop = true;
-				}
+				LoadModel(await dreamDaemonClient.Read(cancellationToken).ConfigureAwait(true));
 			}
 			finally
 			{
