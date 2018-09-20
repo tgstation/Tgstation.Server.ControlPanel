@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
@@ -36,6 +37,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaiseAndSetIfChanged(ref provider, value);
 				this.RaisePropertyChanged(nameof(IrcSelected));
 				this.RaisePropertyChanged(nameof(DiscordSelected));
+				Add.Recheck();
 			}
 		}
 
@@ -43,9 +45,26 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool DiscordSelected => Provider == ChatProvider.Discord;
 
 		public bool IrcUseSsl { get; set; }
-		public string IrcServer { get; set; }
+		public string IrcServer
+		{
+			get => ircServer;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref ircServer, value);
+				Add.Recheck();
+			}
+		}
+
 		public ushort IrcPort { get; set; }
-		public string IrcPassword { get; set; }
+		public string IrcPassword
+		{
+			get => ircPassword;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref ircPassword, value);
+				Add.Recheck();
+			}
+		}
 
 		public int IrcPasswordType
 		{
@@ -64,7 +83,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool IrcUsingPassword => IrcPasswordType != 3;
 
-		public string DiscordBotToken { get; set; }
+		public string DiscordBotToken
+		{
+			get => discordBotToken;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref discordBotToken, value);
+				Add.Recheck();
+			}
+		}
 
 		public bool Enabled
 		{
@@ -80,6 +107,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Add.Recheck();
 			}
 		}
+		public string IrcNick
+		{
+			get => ircNick;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref ircNick, value);
+				Add.Recheck();
+			}
+		}
 
 		readonly PageContextViewModel pageContext;
 		readonly IChatBotsClient chatBotsClient;
@@ -91,6 +127,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string botName;
 		bool enabled;
 		int ircPasswordType;
+		string ircPassword;
+		string ircServer;
+		string ircNick;
+		string discordBotToken;
 
 		public AddChatBotViewModel(PageContextViewModel pageContext, IChatBotsClient chatBotsClient, IInstanceUserRightsProvider rightsProvider, ChatRootViewModel chatRootViewModel)
 		{
@@ -118,7 +158,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case AddChatBotCommand.Close:
 					return true;
 				case AddChatBotCommand.Add:
-					return !loading && !String.IsNullOrEmpty(BotName) && rightsProvider.ChatBotRights.HasFlag(ChatBotRights.Create);
+					return !loading && !String.IsNullOrEmpty(BotName) && rightsProvider.ChatBotRights.HasFlag(ChatBotRights.Create)
+						&& ((DiscordSelected && !String.IsNullOrEmpty(DiscordBotToken))
+						|| (IrcSelected && !String.IsNullOrEmpty(IrcServer) && !String.IsNullOrEmpty(IrcNick) && (!IrcUsingPassword || !String.IsNullOrEmpty(IrcPassword))));
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -142,13 +184,29 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							Name = BotName,
 							Enabled = Enabled
 						};
+
 						switch (Provider)
 						{
 							case ChatProvider.Discord:
 								newBot.ConnectionString = DiscordBotToken;
 								break;
 							case ChatProvider.Irc:
-								newBot.ConnectionString = "TODO";
+								var sb = new StringBuilder();
+								sb.Append(IrcServer);
+								sb.Append(';');
+								sb.Append(IrcPort);
+								sb.Append(';');
+								sb.Append(IrcNick);
+								sb.Append(';');
+								sb.Append(Convert.ToInt32(IrcUseSsl));
+								if (IrcUsingPassword)
+								{
+									sb.Append(';');
+									sb.Append(IrcPasswordType);
+									sb.Append(';');
+									sb.Append(ircPassword);
+								}
+								newBot.ConnectionString = sb.ToString();
 								break;
 							default:
 								throw new InvalidOperationException("Invalid Provider!");
