@@ -47,6 +47,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(StagedCompileJob));
 				this.RaisePropertyChanged(nameof(Trusted));
 				this.RaisePropertyChanged(nameof(Safe));
+				this.RaisePropertyChanged(nameof(Graceful));
 				this.RaisePropertyChanged(nameof(HasRevision));
 				this.RaisePropertyChanged(nameof(HasStagedRevision));
 				onRunningChanged(model?.Running != false);
