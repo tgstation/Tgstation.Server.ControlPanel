@@ -21,7 +21,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Title => ChatBot.Name;
 
-		public string Icon => Refreshing ? "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png" : "resm:Tgstation.Server.ControlPanel.Assets.chat.png";
+		public string Icon => Refreshing ? "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png" : (ChatBot?.Provider == ChatProvider.Discord ? "resm:Tgstation.Server.ControlPanel.Assets.discord.png" : "resm:Tgstation.Server.ControlPanel.Assets.chat.png");
 
 		public bool IsExpanded { get; set; }
 
@@ -58,8 +58,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref chatBot, value);
 				this.RaisePropertyChanged(nameof(Title));
+				this.RaisePropertyChanged(nameof(HasConnectionString));
+				this.RaisePropertyChanged(nameof(Icon));
 			}
 		}
+
+		public bool HasConnectionString => ChatBot?.ConnectionString != null;
 
 		public string NewConnectionString
 		{

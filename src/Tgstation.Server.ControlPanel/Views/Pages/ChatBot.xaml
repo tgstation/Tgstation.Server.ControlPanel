@@ -14,6 +14,32 @@
       <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Grid.Row="1">
+      <StackPanel Orientation="Vertical">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="100"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Title}" FontSize="26"/>
+          <Image Grid.Column="1" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding PageContext.ActiveObject.Refreshing}" Margin="0,0,5,0"/>
+          <Button Grid.Column="2" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+        </Grid>
+        <StackPanel IsVisible="{Binding PageContext.ActiveObject.HasConnectionString}" Orientation="Horizontal" Margin="0,5,0,0">
+          <TextBlock Text="Connection String:" />
+          <TextBlock Text="{Binding PageContext.ActiveObject.ChatBot.ConnectionString}" Margin="5,0,0,0"/>
+        </StackPanel>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <Grid>
+          <Grid.ColumnDefintions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefintions>
+          <TextBlock Text="New Connection String:" Grid.Column="0" />
+          <TextBox Text="{Binding PageContext.ActiveObject.NewConnectionString}" Margin="5,0,0,0" Grid.Column="0"/>
+        </Grid>
+      </StackPanel>
     </ScrollViewer>
   </Grid>
 </UserControl>
