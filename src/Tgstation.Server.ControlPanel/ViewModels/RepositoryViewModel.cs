@@ -164,6 +164,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref newAutoUpdatesSynchronize, value);
 		}
 
+		public string DeleteText => confirmingDelete ? "Confirm?" : "Delete Repository";
+
 		public bool CanClone => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetOrigin);
 		public bool CanDelete => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.Delete);
 		public bool CanSetRef => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetReference) && String.IsNullOrEmpty(NewSha) && !UpdateHard;
@@ -280,6 +282,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool deployAfter;
 
 		bool modifiedPRList;
+
+		bool confirmingDelete;
 
 		public RepositoryViewModel(PageContextViewModel pageContext, IRepositoryClient repositoryClient, IDreamMakerClient dreamMakerClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider, Octokit.IGitHubClient gitHubClient)
 		{
@@ -616,7 +620,20 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}
 					break;
 				case RepositoryCommand.Delete:
-					await Refresh(null, false, cancellationToken).ConfigureAwait(true);
+					if(confirmingDelete)
+						await Refresh(null, false, cancellationToken).ConfigureAwait(true);
+					else
+					{
+						async void ResetDelete()
+						{
+							await Task.Delay(TimeSpan.FromSeconds(3), default).ConfigureAwait(true);
+							confirmingDelete = false;
+							this.RaisePropertyChanged(nameof(DeleteText));
+						}
+						confirmingDelete = true;
+						this.RaisePropertyChanged(nameof(DeleteText));
+						ResetDelete();
+					}
 					break;
 				case RepositoryCommand.Clone:
 					var clone = new Repository

@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
@@ -16,7 +17,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Close,
 			Refresh,
 			Update,
-			Delete
+			Delete,
+			AddChannel
 		}
 
 		public string Title => ChatBot.Name;
@@ -31,6 +33,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<ChatBotCommand> Refresh { get; }
 		public EnumCommand<ChatBotCommand> Update { get; }
 		public EnumCommand<ChatBotCommand> Delete { get; }
+		public EnumCommand<ChatBotCommand> AddChannel { get; }
 
 		public bool CanConnectionString => rightsProvider.ChatBotRights.HasFlag(ChatBotRights.WriteConnectionString);
 		public bool CanChannels => rightsProvider.ChatBotRights.HasFlag(ChatBotRights.WriteChannels);
@@ -48,6 +51,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Update.Recheck();
 				Delete.Recheck();
 				Refresh.Recheck();
+				AddChannel.Recheck();
+			}
+		}
+
+		public IReadOnlyList<ChatChannelViewModel> Channels
+		{
+			get => channels;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref channels, value);
+				Update?.Recheck();
 			}
 		}
 
@@ -56,10 +70,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => chatBot;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref chatBot, value);
-				this.RaisePropertyChanged(nameof(Title));
-				this.RaisePropertyChanged(nameof(HasConnectionString));
-				this.RaisePropertyChanged(nameof(Icon));
+				using (DelayChangeNotifications())
+				{
+					this.RaiseAndSetIfChanged(ref chatBot, value);
+					this.RaisePropertyChanged(nameof(Title));
+					this.RaisePropertyChanged(nameof(HasConnectionString));
+					this.RaisePropertyChanged(nameof(Icon));
+					Channels = chatBot.Channels.Select(x => new ChatChannelViewModel(x, chatBot.Provider.Value, () => OnChannelDelete(x), () => Update?.Recheck())).ToList();
+				}
 			}
 		}
 
@@ -83,12 +101,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IInstanceUserRightsProvider rightsProvider;
 		readonly ChatRootViewModel chatRootViewModel;
 
+		IReadOnlyList<ChatChannelViewModel> channels;
+
 		string newConnectionString;
 		string newName;
 
 		ChatBot chatBot;
 		bool refreshing;
 		bool confirmingDelete;
+
+		void OnChannelDelete(ChatChannel model) => Channels = new List<ChatChannelViewModel>(Channels.Where(y => y.Model != model));
 
 		public ChatBotViewModel(PageContextViewModel pageContext, IChatBotsClient chatBotsClient, ChatBot chatBot, IInstanceUserRightsProvider rightsProvider, ChatRootViewModel chatRootViewModel)
 		{
@@ -102,6 +124,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Update = new EnumCommand<ChatBotCommand>(ChatBotCommand.Update, this);
 			Refresh = new EnumCommand<ChatBotCommand>(ChatBotCommand.Refresh, this);
 			Delete = new EnumCommand<ChatBotCommand>(ChatBotCommand.Delete, this);
+			AddChannel = new EnumCommand<ChatBotCommand>(ChatBotCommand.AddChannel, this);
 		}
 
 		public Task HandleClick(CancellationToken cancellationToken)
@@ -117,11 +140,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case ChatBotCommand.Close:
 					return true;
 				case ChatBotCommand.Update:
-					return !Refreshing && (CanChannels || CanName || CanProvider || CanConnectionString || CanChannels);
+					return !Refreshing && (CanChannels || CanName || CanProvider || CanConnectionString || CanChannels) && !Channels.Any(x => x.BadForm);
 				case ChatBotCommand.Delete:
 					return !Refreshing && rightsProvider.ChatBotRights.HasFlag(ChatBotRights.Delete);
 				case ChatBotCommand.Refresh:
 					return !Refreshing;
+				case ChatBotCommand.AddChannel:
+					return !Refreshing && CanChannels;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -138,12 +163,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var update = new ChatBot
 					{
 						Id = ChatBot.Id,
-						Provider = CanProvider ? ChatBot.Provider : null,
-						ConnectionString = CanConnectionString && !String.IsNullOrEmpty(NewConnectionString) ? NewConnectionString : null,
-						Name = CanName && !String.IsNullOrEmpty(newName) ? NewName : null
+						ConnectionString = CanConnectionString && !String.IsNullOrEmpty(NewConnectionString) && NewConnectionString != ChatBot.ConnectionString ? NewConnectionString : null
 					};
 
-					//TODO: Channels
+					if (channels.Count != ChatBot.Channels.Count || channels.Any(x => x.Modified))
+						update.Channels = channels.Select(x => x.Model).ToList();
 
 					Refreshing = true;
 					try
@@ -160,7 +184,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						async void ResetDelete()
 						{
-							await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(true);
+							await Task.Delay(TimeSpan.FromSeconds(3), default).ConfigureAwait(true);
 							confirmingDelete = true;
 							this.RaisePropertyChanged(nameof(DeleteText));
 						}
@@ -193,6 +217,22 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						Refreshing = false;
 					}
+					break;
+				case ChatBotCommand.AddChannel:
+					var model = new ChatChannel()
+					{
+						IsAdminChannel = false,
+						IsUpdatesChannel = false,
+						IsWatchdogChannel = false
+					};
+					Channels = new List<ChatChannelViewModel>(Channels)
+					{
+						new ChatChannelViewModel(model, ChatBot.Provider.Value, () => OnChannelDelete(model), Update.Recheck)
+						{
+							Modified = true,
+							BadForm = true
+						}
+					};
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");

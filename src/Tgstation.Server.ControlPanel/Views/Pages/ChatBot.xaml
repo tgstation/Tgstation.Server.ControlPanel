@@ -32,13 +32,74 @@
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
         <Grid>
-          <Grid.ColumnDefintions>
+          <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
-          </Grid.ColumnDefintions>
+          </Grid.ColumnDefinitions>
           <TextBlock Text="New Connection String:" Grid.Column="0" />
-          <TextBox Text="{Binding PageContext.ActiveObject.NewConnectionString}" Margin="5,0,0,0" Grid.Column="0"/>
+          <TextBox Text="{Binding PageContext.ActiveObject.NewConnectionString}" IsEnabled="{Binding PageContext.ActiveObject.CanConnectionString}" Margin="5,0,0,0" Grid.Column="1"/>
         </Grid>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="100"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="Channels" FontSize="20" Grid.Column="0"/>
+          <Button Grid.Column="1" Content="Add Channel" Command="{Binding PageContext.ActiveObject.AddChannel}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+        </Grid>
+        <ItemsControl Items="{Binding PageContext.ActiveObject.Channels}" Margin="0,5,0,0" IsEnabled="{Binding PageContext.ActiveObject.CanChannels}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Panel Background="#000000">
+                <StackPanel Orientation="Vertical" Background="#CFD6E5" Margin="0,0,0,1">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width ="Auto"/>
+                      <ColumnDefinition Width ="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Channel Name:" Grid.Column="0" IsVisible="{Binding IsIrc}" Grid.Row="0" Margin="0,5,0,0" />
+                    <TextBox Text="{Binding IrcChannelName}" Grid.Column="1" IsVisible="{Binding IsIrc}" Grid.Row="0"/>
+                    <TextBlock Text="Channel ID:" Grid.Column="0" IsVisible="{Binding IsDiscord}" Grid.Row="0" Margin="0,5,0,0" />
+                    <TextBox Text="{Binding DiscordChannelId}" Grid.Column="1" IsVisible="{Binding IsDiscord}" Grid.Row="0"/>
+                    <TextBlock Text="Custom Tag:" Grid.Column="0" Grid.Row="1" Margin="0,5,0,0" />
+                    <TextBox Text="{Binding Tag}" Grid.Column="1" Grid.Row="1"/>
+                  </Grid>
+                  <CheckBox IsChecked="{Binding IsAdminChannel}" Content="Can use admin commands" Margin="0,5,0,0" />
+                  <CheckBox IsChecked="{Binding IsWatchdogChannel}" Content="Receives watchdog messages" Margin="0,5,0,0" />
+                  <CheckBox IsChecked="{Binding IsUpdatesChannel}" Content="Receives deployment messages" Margin="0,5,0,0" />
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width ="*"/>
+                      <ColumnDefinition Width ="Auto"/>
+                      <ColumnDefinition Width ="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Content="Delete Channel" Command="{Binding Delete}" Margin="0,5,0,0" Grid.Column="1" />
+                  </Grid>
+                </StackPanel>
+              </Panel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+          <Grid Grid.Row="8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="10*"/>
+              <ColumnDefinition Width="20*"/>
+              <ColumnDefinition Width="5*"/>
+              <ColumnDefinition Width="20*"/>
+              <ColumnDefinition Width="10*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Apply Changes" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Update}" Margin="0,0,5,0" />
+            <Button Content="{Binding PageContext.ActiveObject.DeleteText}" Grid.Column="3" Command="{Binding PageContext.ActiveObject.Delete}" Margin="0,0,5,0" />
+          </Grid>
       </StackPanel>
     </ScrollViewer>
   </Grid>
