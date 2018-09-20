@@ -20,11 +20,11 @@
     </Grid.Background>
     <Grid Margin="5" Grid.Row="0">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="3*"/>
+        <ColumnDefinition Width="5*"/>
         <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="8*"/>
+        <ColumnDefinition Width="16*"/>
         <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="2*"/>
+        <ColumnDefinition Width="4*"/>
       </Grid.ColumnDefinitions>
       <local:ServerBrowser Grid.Column="0"/>
       <GridSplitter HorizontalAlignment="Right"
