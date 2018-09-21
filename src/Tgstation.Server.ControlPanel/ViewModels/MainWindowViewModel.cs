@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
@@ -280,8 +281,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var instancePart = String.Empty;
 			if (requestMessage.Headers.TryGetValues("Instance", out var values))
 				instancePart = String.Format(CultureInfo.InvariantCulture, " I:{0}", values.First());
-			var bodyPart = String.Empty;
 			var bodyString = await (responseMessage.Content?.ReadAsStringAsync() ?? Task.FromResult<string>(null)).ConfigureAwait(false);
+			if (responseMessage.StatusCode == HttpStatusCode.InternalServerError)
+			{
+				var tmpFile = Path.Combine(Path.GetTempPath(), "tgs_error.html");
+				File.WriteAllText(tmpFile, bodyString);
+				ControlPanel.LaunchUrl(String.Format("file:///{0}", tmpFile));
+				bodyString = String.Format("Error page written to {0}", tmpFile);
+			}
+			var bodyPart = String.Empty;
 			if (!String.IsNullOrEmpty(bodyString))
 				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			lock (this)
