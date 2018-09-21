@@ -183,31 +183,27 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							Provider = Provider,
 							Name = BotName,
 							Enabled = Enabled,
-							Channels = new List<ChatChannel>()  //workaround for https://github.com/tgstation/tgstation-server/issues/694 also 2 bytes cheaper cause lol json
+							Channels = null
 						};
 
 						switch (Provider)
 						{
 							case ChatProvider.Discord:
-								newBot.ConnectionString = DiscordBotToken;
+								newBot.ConnectionStringBuilder = new DiscordConnectionStringBuilder
+								{
+									BotToken = DiscordBotToken
+								};
 								break;
 							case ChatProvider.Irc:
-								var sb = new StringBuilder();
-								sb.Append(IrcServer);
-								sb.Append(';');
-								sb.Append(IrcPort);
-								sb.Append(';');
-								sb.Append(IrcNick);
-								sb.Append(';');
-								sb.Append(Convert.ToInt32(IrcUseSsl));
-								if (IrcUsingPassword)
+								newBot.ConnectionStringBuilder = new IrcConnectionStringBuilder
 								{
-									sb.Append(';');
-									sb.Append(IrcPasswordType);
-									sb.Append(';');
-									sb.Append(ircPassword);
-								}
-								newBot.ConnectionString = sb.ToString();
+									Address = IrcServer,
+									Port = IrcPort,
+									Nickname = IrcNick,
+									Password = IrcUsingPassword ? IrcPassword : null,
+									PasswordType = IrcUsingPassword ? (IrcPasswordType?)IrcPasswordType : null,
+									UseSsl = IrcUseSsl
+								};
 								break;
 							default:
 								throw new InvalidOperationException("Invalid Provider!");

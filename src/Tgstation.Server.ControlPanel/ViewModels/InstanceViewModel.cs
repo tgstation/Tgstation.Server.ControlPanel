@@ -209,15 +209,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				new CompilerViewModel(pageContext, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode),
 				new DreamDaemonViewModel(pageContext, instanceClient.DreamDaemon, instanceJobSink, instanceUserTreeNode, x => SetDDRunning(x)),
 				new ChatRootViewModel(pageContext, instanceClient.ChatBots, instanceUserTreeNode),
-				instanceUser.ConfigurationRights != ConfigurationRights.None ? new BasicNode
-				{
-					Title = "TODO: Static Files",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png"
-				} : new BasicNode
-				{
-					Title = "Static Files",
-					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-				},
+				new StaticFolderViewModel(pageContext, instanceClient.Configuration, instanceUserTreeNode, null, "/"),
 			};
 
 			using (DelayChangeNotifications())
