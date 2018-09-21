@@ -185,8 +185,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						var newPath = parent.Path + '/' + ItemName;
 						ConfigurationFile file;
-						if (Type == ItemType.Folder)
-							file = await configurationClient.CreateDirectory(newPath, cancellationToken).ConfigureAwait(true);
+						if (Type == ItemType.Folder) {
+							file = new ConfigurationFile
+							{
+								Path = newPath
+							};
+							await configurationClient.CreateDirectory(file, cancellationToken).ConfigureAwait(true);
+						}
 						else
 						{
 							byte[] data;

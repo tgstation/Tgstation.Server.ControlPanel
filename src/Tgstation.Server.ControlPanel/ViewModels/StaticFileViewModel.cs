@@ -217,6 +217,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Refreshing = true;
 			ErrorMessage = null;
 			Denied = false;
+			firstLoad = true;
 			try
 			{
 				DirectLoad(await configurationClient.Read(new ConfigurationFile
