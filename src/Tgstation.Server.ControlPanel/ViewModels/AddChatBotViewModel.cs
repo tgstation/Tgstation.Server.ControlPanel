@@ -182,7 +182,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						{
 							Provider = Provider,
 							Name = BotName,
-							Enabled = Enabled
+							Enabled = Enabled,
+							Channels = new List<ChatChannel>()  //workaround for https://github.com/tgstation/tgstation-server/issues/694 also 2 bytes cheaper cause lol json
 						};
 
 						switch (Provider)

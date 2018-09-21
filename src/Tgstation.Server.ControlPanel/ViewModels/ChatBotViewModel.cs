@@ -65,6 +65,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public string Enabled => (ChatBot?.Enabled).HasValue ? ChatBot.Enabled.ToString() : "Unknown";
+		public string Provider => (ChatBot?.Provider).HasValue ? ChatBot.Provider.ToString() : "Unknown";
+
 		public ChatBot ChatBot
 		{
 			get => chatBot;
@@ -76,9 +79,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(Title));
 					this.RaisePropertyChanged(nameof(HasConnectionString));
 					this.RaisePropertyChanged(nameof(Icon));
+					this.RaisePropertyChanged(nameof(Enabled));
+					this.RaisePropertyChanged(nameof(Provider));
+					NewEnabled = chatBot.Enabled ?? false;
 					Channels = chatBot.Channels.Select(x => new ChatChannelViewModel(x, chatBot.Provider.Value, () => OnChannelDelete(x), () => Update?.Recheck())).ToList();
 				}
 			}
+		}
+
+		public bool NewEnabled
+		{
+			get => newEnabled;
+			set => this.RaiseAndSetIfChanged(ref newEnabled, value);
 		}
 
 		public bool HasConnectionString => ChatBot?.ConnectionString != null;
@@ -109,6 +121,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		ChatBot chatBot;
 		bool refreshing;
 		bool confirmingDelete;
+		bool newEnabled;
 
 		void OnChannelDelete(ChatChannel model) => Channels = new List<ChatChannelViewModel>(Channels.Where(y => y.Model != model));
 
@@ -163,7 +176,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var update = new ChatBot
 					{
 						Id = ChatBot.Id,
-						ConnectionString = CanConnectionString && !String.IsNullOrEmpty(NewConnectionString) && NewConnectionString != ChatBot.ConnectionString ? NewConnectionString : null
+						ConnectionString = CanConnectionString && !String.IsNullOrEmpty(NewConnectionString) && NewConnectionString != ChatBot.ConnectionString ? NewConnectionString : null,
+						Enabled = CanEnable ? (bool?)NewEnabled : null
 					};
 
 					if (channels.Count != ChatBot.Channels.Count || channels.Any(x => x.Modified))
