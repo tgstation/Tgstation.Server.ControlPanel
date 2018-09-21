@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	interface IStaticNode
+	interface IStaticNode : ITreeNode
 	{
 		string Path { get; }
 

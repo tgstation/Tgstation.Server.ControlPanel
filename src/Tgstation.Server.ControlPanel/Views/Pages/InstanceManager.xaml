@@ -59,7 +59,7 @@
             <ColumnDefinition Width="400"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="Static File Mode:" Margin="0,5,50,0" Grid.Column="0" Grid.Row="0"/>
-          <DropDown SelectedIndex="{Binding PageContext.ActiveObject.ConfigMode}" IsEnabled="{Binding PageContext.ActiveObject.CanConfig, Mode=TwoWay}" Grid.Column="1" Grid.Row="0">
+          <DropDown SelectedIndex="{Binding PageContext.ActiveObject.ConfigMode, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanConfig}" Grid.Column="1" Grid.Row="0">
             <DropDownItem>No File Management</DropDownItem>
             <DropDownItem>Authorized users can read and write any file</DropDownItem>
             <DropDownItem>Authorized users read and write using their system identity</DropDownItem>

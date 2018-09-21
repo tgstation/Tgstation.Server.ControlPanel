@@ -209,7 +209,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				new CompilerViewModel(pageContext, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode),
 				new DreamDaemonViewModel(pageContext, instanceClient.DreamDaemon, instanceJobSink, instanceUserTreeNode, x => SetDDRunning(x)),
 				new ChatRootViewModel(pageContext, instanceClient.ChatBots, instanceUserTreeNode),
-				new StaticFolderViewModel(pageContext, instanceClient.Configuration, instanceUserTreeNode, null, "/"),
+				new StaticFolderViewModel(pageContext, instanceClient.Configuration, instanceUserTreeNode, null, "/")
 			};
 
 			using (DelayChangeNotifications())
@@ -294,15 +294,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						{
 							Id = Instance.Id
 						};
-						if (!String.IsNullOrWhiteSpace(NewName) && userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Rename))
+						if (!String.IsNullOrWhiteSpace(NewName) && CanRename)
 							newInstance.Name = NewName;
-						if (!String.IsNullOrWhiteSpace(NewPath) && userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Relocate))
+						if (!String.IsNullOrWhiteSpace(NewPath) && CanRelocate)
 							newInstance.Path = NewPath;
-						if (userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.SetOnline))
+						if (CanOnline)
 							newInstance.Online = Enabled;
-						if (userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.SetConfiguration))
+						if (CanConfig)
 							newInstance.ConfigurationType = ConfigMode;
-						if (userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.SetAutoUpdate))
+						if (CanAutoUpdate)
 							newInstance.AutoUpdateInterval = AutoUpdateInterval;
 
 						await Update(newInstance).ConfigureAwait(true);

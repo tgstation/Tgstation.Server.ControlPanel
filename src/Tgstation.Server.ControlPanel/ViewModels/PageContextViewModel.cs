@@ -26,6 +26,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(IsDreamDaemon));
 					this.RaisePropertyChanged(nameof(IsAddChatBot));
 					this.RaisePropertyChanged(nameof(IsChatBot));
+					this.RaisePropertyChanged(nameof(IsStaticFolder));
+					this.RaisePropertyChanged(nameof(IsStaticAdd));
+					this.RaisePropertyChanged(nameof(IsStaticFile));
 				}
 			}
 		}
@@ -46,5 +49,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool IsDreamDaemon => activeObject is DreamDaemonViewModel;
 		public bool IsAddChatBot => activeObject is AddChatBotViewModel;
 		public bool IsChatBot => activeObject is ChatBotViewModel;
+		public bool IsStaticFolder => activeObject is StaticFolderViewModel;
+		public bool IsStaticAdd => activeObject is AddStaticItemViewModel;
+		public bool IsStaticFile => activeObject is StaticFileViewModel;
 	}
 }

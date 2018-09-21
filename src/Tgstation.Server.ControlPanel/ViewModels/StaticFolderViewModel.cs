@@ -11,7 +11,7 @@ using Tgstation.Server.Client.Components;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	sealed class StaticFolderViewModel : ViewModelBase, ITreeNode, ICommandReceiver<StaticFolderViewModel.StaticFolderCommand>, IStaticNode
+	sealed class StaticFolderViewModel : ViewModelBase, ICommandReceiver<StaticFolderViewModel.StaticFolderCommand>, IStaticNode
 	{
 		public enum StaticFolderCommand
 		{
@@ -20,7 +20,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Delete
 		}
 
-		public string Title => System.IO.Path.GetFileName(Path);
+		public string Title
+		{
+			get
+			{
+				var fileName = System.IO.Path.GetFileName(Path);
+				if (String.IsNullOrEmpty(fileName))
+					return "Configuration";
+				return fileName;
+			}
+		}
 
 		public string Icon => Refreshing ? "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png" : Denied ? "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg" : "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
 
@@ -111,6 +120,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public void RemoveChild(IStaticNode child)
 		{
 			Children = Children?.Where(x => x != child).ToList();
+			if (pageContext.ActiveObject == child)
+				pageContext.ActiveObject = null;
 		}
 
 		public async Task RefreshContents(CancellationToken cancellationToken)
@@ -122,51 +133,20 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Children = null;
 			try
 			{
-				Task<IReadOnlyList<ConfigurationFile>> childrenTask;
-				using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
-				{
-					childrenTask = configurationClient.List(Path, cts.Token);
-					var self = await configurationClient.Read(new ConfigurationFile
-					{
-						Path = Path
-					}, cancellationToken).ConfigureAwait(true);
-
-					if (!self.IsDirectory.Value || self.Path != Path)
-					{
-						cts.Cancel();
-						await parent.RefreshContents(cancellationToken).ConfigureAwait(false);
-					}
-
-					if (self.AccessDenied.Value)
-					{
-						ErrorMessage = "Access denied while listing this directory's contents!";
-						Denied = true;
-						cts.Cancel();
-					}
-				}
-
-				var dirs = await childrenTask.ConfigureAwait(false);
+				var dirs = await configurationClient.List(Path, cancellationToken).ConfigureAwait(false);
 
 				var newChildren = new List<ITreeNode>();
 				if (rightsProvider.ConfigurationRights.HasFlag(ConfigurationRights.Write))
-					//newChildren.Add(new AddItemViewModel(pageContext, configurationClient, rightsProvider, this, Path));
-					newChildren.Add(new BasicNode
-					{
-						Title = "TODO: Add Item",
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.plus.jpg"
-					});
+					newChildren.Add(new AddStaticItemViewModel(pageContext, configurationClient, rightsProvider, this));
 				newChildren.AddRange(dirs.Select(x =>
 				{
 					if (x.IsDirectory.Value)
 						return new StaticFolderViewModel(pageContext, configurationClient, rightsProvider, this, x.Path);
-					//return new StaticFileViewModel(pageContext, configurationClient, rightsProvider, this, x.Path);
-					return (ITreeNode)new BasicNode
-					{
-						Title = "TODO: " + System.IO.Path.GetFileName(x.Path),
-						Icon = "resm:Tgstation.Server.ControlPanel.Assets.file.png"
-					};
+					return (IStaticNode)new StaticFileViewModel(pageContext, configurationClient, rightsProvider, this, x.Path);
 				}));
 				Children = newChildren;
+				IsExpanded = true;
+				this.RaisePropertyChanged(nameof(IsExpanded));
 			}
 			catch(ClientException e)
 			{
@@ -188,7 +168,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case StaticFolderCommand.Refresh:
 					return !Refreshing;
 				case StaticFolderCommand.Delete:
-					return rightsProvider.ConfigurationRights.HasFlag(ConfigurationRights.Delete) && !Children.Where(x => x is IStaticNode).Any();
+					return !Refreshing && rightsProvider.ConfigurationRights.HasFlag(ConfigurationRights.Delete) && (!Children?.Where(x => x is IStaticNode).Any() ?? true);
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
