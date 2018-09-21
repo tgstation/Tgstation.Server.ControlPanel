@@ -1,6 +1,9 @@
-﻿using ReactiveUI;
+﻿using Avalonia;
+using Avalonia.Controls;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -20,6 +23,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Refresh,
 			Write,
 			Upload,
+			BrowseUpload,
+			BrowseDownload,
 			Delete,
 			Download
 		}
@@ -41,6 +46,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Refresh.Recheck();
 				Write.Recheck();
 				Delete.Recheck();
+				Upload.Recheck();
+				Download.Recheck();
+				BrowseDownload.Recheck();
+				BrowseUpload.Recheck();
 			}
 		}
 
@@ -123,6 +132,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<StaticFileCommand> Write { get; }
 		public EnumCommand<StaticFileCommand> Upload { get; }
 		public EnumCommand<StaticFileCommand> Download { get; }
+		public EnumCommand<StaticFileCommand> BrowseUpload { get; }
+		public EnumCommand<StaticFileCommand> BrowseDownload { get; }
 
 		public string Title =>  System.IO.Path.GetFileName(Path);
 
@@ -179,6 +190,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Delete = new EnumCommand<StaticFileCommand>(StaticFileCommand.Delete, this);
 			Upload = new EnumCommand<StaticFileCommand>(StaticFileCommand.Upload, this);
 			Download = new EnumCommand<StaticFileCommand>(StaticFileCommand.Download, this);
+			BrowseDownload = new EnumCommand<StaticFileCommand>(StaticFileCommand.BrowseDownload, this);
+			BrowseUpload = new EnumCommand<StaticFileCommand>(StaticFileCommand.BrowseUpload, this);
 
 			rightsProvider.OnUpdated += (a, b) =>
 			{
@@ -187,14 +200,39 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Delete.Recheck();
 				Upload.Recheck();
 				Download.Recheck();
+				BrowseUpload.Recheck();
+				BrowseDownload.Recheck();
 			};
+		}
+
+		public void DirectLoad(ConfigurationFile file)
+		{
+			ConfigurationFile = file;
 		}
 
 		public void RemoveChild(IStaticNode child) => throw new NotSupportedException();
 
-		public Task RefreshContents(CancellationToken cancellationToken)
+		public async Task RefreshContents(CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			Refreshing = true;
+			ErrorMessage = null;
+			Denied = false;
+			try
+			{
+				DirectLoad(await configurationClient.Read(new ConfigurationFile
+				{
+					Path = Path
+				}, cancellationToken).ConfigureAwait(true));
+			}
+			catch(ClientException e)
+			{
+				ErrorMessage = e.Message;
+				Denied = e is InsufficientPermissionsException;
+			}
+			finally
+			{
+				Refreshing = false;
+			}
 		}
 
 		public async Task HandleClick(CancellationToken cancellationToken)
@@ -221,12 +259,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case StaticFileCommand.Download:
 					try
 					{
-						return !Refreshing && ConfigurationFile != null && !File.Exists(DownloadPath);
+						return !Refreshing && ConfigurationFile != null && !Directory.Exists(System.IO.Path.GetDirectoryName(DownloadPath));
 					}
 					catch (IOException)
 					{
 						return false;
 					}
+				case StaticFileCommand.BrowseDownload:
+				case StaticFileCommand.BrowseUpload:
+					return !Refreshing;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -284,9 +325,31 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case StaticFileCommand.Delete:
 					await WriteGeneric(null).ConfigureAwait(true);
 					break;
+				case StaticFileCommand.BrowseDownload:
+					var sfd = new SaveFileDialog
+					{
+						Title = String.Format(CultureInfo.InvariantCulture, "Save {0}", Path),
+						InitialFileName = System.IO.Path.GetFileName(Path)
+					};
+					var ext = System.IO.Path.GetExtension(Path);
+					if (!String.IsNullOrEmpty(ext))
+						sfd.DefaultExtension = ext;
+
+					DownloadPath = (await sfd.ShowAsync(Application.Current.MainWindow).ConfigureAwait(true)) ?? DownloadPath;
+					break;
+				case StaticFileCommand.BrowseUpload:
+					var ofd = new OpenFileDialog
+					{
+						Title = String.Format(CultureInfo.InvariantCulture, "Upload to {0}", Path),
+						InitialFileName = System.IO.Path.GetFileName(Path),
+						AllowMultiple = false
+					};
+					UploadPath = (await ofd.ShowAsync(Application.Current.MainWindow).ConfigureAwait(true))[0] ?? UploadPath;
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
 		}
+		public void DirectAdd(ConfigurationFile file) => throw new NotSupportedException();
 	}
 }

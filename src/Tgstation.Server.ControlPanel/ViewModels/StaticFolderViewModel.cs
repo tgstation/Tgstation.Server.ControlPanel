@@ -159,6 +159,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public void DirectAdd(ConfigurationFile file)
+		{
+			IStaticNode vm;
+			if (!file.IsDirectory.Value)
+			{
+				var sfvm = new StaticFileViewModel(pageContext, configurationClient, rightsProvider, this, file.Path);
+				sfvm.DirectLoad(file);
+				vm = sfvm;
+			}
+			else
+				vm = new StaticFolderViewModel(pageContext, configurationClient, rightsProvider, this, file.Path);
+			pageContext.ActiveObject = vm;
+			Children = new List<ITreeNode>(Children)
+			{
+				vm
+			};
+		}
 		public bool CanRunCommand(StaticFolderCommand command)
 		{
 			switch (command)
