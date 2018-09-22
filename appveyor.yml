@@ -29,6 +29,9 @@ build:
   project: Tgstation.Server.ControlPanel.sln
   parallel: false
   verbosity: minimal
+after_test:
+  - ps: $env:TGCPVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$env:APPVEYOR_BUILD_FOLDER/src/Tgstation.Server.ControlPanel/bin/$env:CONFIGURATION/netcoreapp2.1/Tgstation.Server.ControlPanel.dll").FileVersion
+  - ps: if($env:APPVEYOR_REPO_COMMIT_MESSAGE -match "\[TGSDeploy\]"){ if($env:APPVEYOR_REPO_BRANCH -match "master"){ if($env:CONFIGURATION -match "Release"){ $env:TGSDeploy = "Do it." }}}
 deploy:
   - provider: GitHub
     release: "Tgstation.Server.ControlPanel-v$(TGCPVersion)"
