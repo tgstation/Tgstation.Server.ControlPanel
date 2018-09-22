@@ -39,7 +39,9 @@
     <None Remove="Views\Pages\InstanceManager.xaml" />
     <None Remove="Views\Pages\InstanceUser.xaml" />
     <None Remove="Views\Pages\Repository.xaml" />
-    <None Remove="Views\Pages\StaticFiles.xaml" />
+    <None Remove="Views\Pages\StaticAdd.xaml" />
+    <None Remove="Views\Pages\StaticFile.xaml" />
+    <None Remove="Views\Pages\StaticFolder.xaml" />
     <None Remove="Views\Pages\TestMergeManager.xaml" />
     <None Remove="Views\Pages\UserManager.xaml" />
     <None Remove="Views\Pages\Watchdog.xaml" />
@@ -56,6 +58,9 @@
     <PackageReference Include="Tgstation.Server.Client" Version="4.0.0-preview9115" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Views\Pages\StaticFolder.xaml.cs">
+      <DependentUpon>StaticFolder.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\Pages\UserManager.xaml.cs">
       <DependentUpon>UserManager.xaml</DependentUpon>
     </Compile>
@@ -109,7 +114,13 @@
     <EmbeddedResource Update="Views\Pages\Repository.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Update="Views\Pages\StaticFiles.xaml">
+    <EmbeddedResource Update="Views\Pages\StaticAdd.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\StaticFile.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\StaticFolder.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\Pages\TestMergeManager.xaml">

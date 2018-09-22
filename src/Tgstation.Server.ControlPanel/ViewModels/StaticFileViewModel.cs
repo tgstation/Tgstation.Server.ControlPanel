@@ -99,6 +99,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public string DeleteText => confirmingDelete ? "Confirm?" : "Delete";
+
 		public string DownloadPath
 		{
 			get => downloadPath;
@@ -123,6 +125,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					TextBlob = null;
 				textChanged = false;
 				Write.Recheck();
+				Delete.Recheck();
+				Download.Recheck();
+				Upload.Recheck();
 			}
 		}
 
@@ -157,6 +162,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool denied;
 		bool firstLoad;
 		bool textChanged;
+
+		bool confirmingDelete;
 
 		static bool IsBinary(byte[] data)
 		{
@@ -324,7 +331,20 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					await WriteGeneric(Encoding.UTF8.GetBytes(TextBlob)).ConfigureAwait(true);
 					break;
 				case StaticFileCommand.Delete:
-					await WriteGeneric(null).ConfigureAwait(true);
+					if(confirmingDelete)
+						await WriteGeneric(null).ConfigureAwait(true);
+					else
+					{
+						async void ResetDelete()
+						{
+							await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
+							confirmingDelete = false;
+							this.RaisePropertyChanged(nameof(DeleteText));
+						}
+						confirmingDelete = true;
+						this.RaisePropertyChanged(nameof(DeleteText));
+						ResetDelete();
+					}
 					break;
 				case StaticFileCommand.BrowseDownload:
 					var sfd = new SaveFileDialog

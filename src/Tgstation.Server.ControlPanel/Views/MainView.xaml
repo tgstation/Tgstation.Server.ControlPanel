@@ -46,7 +46,9 @@
           <page:AddInstanceUser IsVisible="{Binding PageContext.IsAddInstanceUser}" IsEnabled="{Binding PageContext.IsAddInstanceUser}"/>
           <page:InstanceUser IsVisible="{Binding PageContext.IsInstanceUser}" IsEnabled="{Binding PageContext.IsInstanceUser}"/>
           <page:Repository IsVisible="{Binding PageContext.IsRepository}" IsEnabled="{Binding PageContext.IsRepository}"/>
-          <page:StaticFiles/>
+          <page:StaticFolder IsVisible="{Binding PageContext.IsStaticFolder}" IsEnabled="{Binding PageContext.IsStaticFolder}"/>
+          <page:StaticFile IsVisible="{Binding PageContext.IsStaticFile}" IsEnabled="{Binding PageContext.IsStaticFile}"/>
+          <page:StaticAdd IsVisible="{Binding PageContext.IsStaticAdd}" IsEnabled="{Binding PageContext.IsStaticAdd}"/>
           <page:Watchdog IsVisible="{Binding PageContext.IsDreamDaemon}" IsEnabled="{Binding PageContext.IsDreamDaemon}"/>
           <page:AddChatBot IsVisible="{Binding PageContext.IsAddChatBot}" IsEnabled="{Binding PageContext.IsAddChatBot}"/>
           <page:ChatBot IsVisible="{Binding PageContext.IsChatBot}" IsEnabled="{Binding PageContext.IsChatBot}"/>

@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace Tgstation.Server.ControlPanel.Views.Pages
 {
-    public class StaticFiles : UserControl
+    public class StaticFolder : UserControl
     {
-        public StaticFiles()
+        public StaticFolder()
         {
             this.InitializeComponent();
         }

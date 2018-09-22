@@ -319,6 +319,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Update.Recheck();
 			DirectAddPR.Recheck();
 			RefreshPRs.Recheck();
+			RemoveCredentials.Recheck();
 
 			this.RaisePropertyChanged(nameof(CanAutoUpdate));
 			this.RaisePropertyChanged(nameof(CanChangeCommitter));
@@ -562,14 +563,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						&& (CanAutoUpdate | CanChangeCommitter | CanAccess | CanShowTMCommitters | CanTestMerge | CanSetRef | CanSetSha | CanUpdate)
 						&& !(!String.IsNullOrEmpty(NewAccessUser) ^ !String.IsNullOrEmpty(NewAccessToken));
 				case RepositoryCommand.Delete:
-					return CanDelete;
+					return !Refreshing && CanDelete;
 				case RepositoryCommand.Clone:
-					return CanClone && !String.IsNullOrEmpty(NewOrigin) && !(!String.IsNullOrEmpty(NewAccessUser) ^ !String.IsNullOrEmpty(NewAccessToken));
+					return !Refreshing && CanClone && !String.IsNullOrEmpty(NewOrigin) && !(!String.IsNullOrEmpty(NewAccessUser) ^ !String.IsNullOrEmpty(NewAccessToken));
 				case RepositoryCommand.RemoveCredentials:
-					return CanAccess;
+					return !Refreshing && CanAccess;
 				case RepositoryCommand.DirectAddPR:
 				case RepositoryCommand.RefreshPRs:
-					return CanTestMerge && !RateLimited && !loadingPRs;
+					return !Refreshing && CanTestMerge && !RateLimited && !loadingPRs;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -648,7 +649,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case RepositoryCommand.RemoveCredentials:
 					await Refresh(new Repository
 					{
-						AccessUser = String.Empty
+						AccessUser = String.Empty,
+						AccessToken = String.Empty
 					}, null, cancellationToken).ConfigureAwait(true);
 					break;
 				case RepositoryCommand.DirectAddPR:
