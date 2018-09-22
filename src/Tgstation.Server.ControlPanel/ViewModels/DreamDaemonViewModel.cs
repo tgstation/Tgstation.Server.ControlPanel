@@ -188,7 +188,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref newAutoStart, value);
 		}
 
-		public bool HasRevision => CanRevision && Model.ActiveCompileJob != null;
+		public bool HasRevision => CanRevision && Model?.ActiveCompileJob != null;
 		public bool HasStagedRevision => HasRevision && Model.StagedCompileJob != null;
 
 

@@ -1,7 +1,6 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
@@ -78,6 +77,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					IrcPassword = String.Empty;
 					this.RaisePropertyChanged(nameof(IrcPassword));
 				}
+				Add.Recheck();
 			}
 		}
 
