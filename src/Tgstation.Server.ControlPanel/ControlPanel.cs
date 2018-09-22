@@ -25,6 +25,7 @@ namespace Tgstation.Server.ControlPanel
 				.UseReactiveUI()
 				.LogToDebug();
 
+		public static void OpenFolder(string folder) => Process.Start(folder);
 		public static void LaunchUrl(string url)
 		{
 			try

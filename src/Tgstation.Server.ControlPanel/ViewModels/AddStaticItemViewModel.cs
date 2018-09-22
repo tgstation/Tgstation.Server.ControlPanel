@@ -32,6 +32,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Title => "Add Item";
 
+		public string DetailTitle => String.Format(CultureInfo.InvariantCulture, "{0} in {1}", Title, parent.Path);
+
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.plus.jpg";
 
 		public bool IsExpanded { get; set; }
@@ -79,8 +81,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public ItemType Type
 		{
 			get => type;
-			set => this.RaiseAndSetIfChanged(ref type, value);
+			set
+			{
+				this.RaiseAndSetIfChanged(ref type, value);
+				this.RaisePropertyChanged(nameof(IsDirectory));
+				Add.Recheck();
+			}
 		}
+
+		public bool IsDirectory => Type == ItemType.Folder;
 
 		public bool Refreshing
 		{
@@ -186,10 +195,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						var newPath = parent.Path + '/' + ItemName;
 						ConfigurationFile file;
 						if (Type == ItemType.Folder)
+						{
 							file = await configurationClient.CreateDirectory(new ConfigurationFile
 							{
 								Path = newPath
 							}, cancellationToken).ConfigureAwait(true);
+							//remove this when you patch tgs
+							file.IsDirectory = true;
+						}
 						else
 						{
 							byte[] data;

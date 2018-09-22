@@ -15,7 +15,7 @@
         <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
         <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
       </Grid>
-      <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Grid.Row="1">
+      <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
         <StackPanel Orientation="Vertical">
           <Grid >
             <Grid.ColumnDefinitions>
@@ -24,14 +24,16 @@
               <ColumnDefinition Width="2*"/>
               <ColumnDefinition Width="5*"/>
               <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="150"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding PageContext.ActiveObject.Path}" FontSize="26" />
+            <TextBlock IsVisible="{Binding PageContext.ActiveObject.Errored}" Text="{Binding PageContext.ActiveObject.ErrorMessage}" Grid.Column="5"/>
             <Image Grid.Column="4" Grid.Row="0" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding PageContext.ActiveObject.Refreshing}" Margin="0,0,5,0"/>
-            <Button Grid.Column="5" Grid.Row="0" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+            <Button Grid.Column="6" Grid.Row="0" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
           </Grid>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -59,8 +61,11 @@
           <StackPanel Orientation="Vertical" IsVisible="{Binding PageContext.ActiveObject.IsText}" Margin="5">
             <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
             <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+            <TextBlock Text="OR" HorizontalAlignment="Center" />
+            <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+            <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
             <TextBlock Text="Edit Text" FontSize="20" />
-            <TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding PageContext.ActiveObject.TextBlob}"/>
+            <TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding PageContext.ActiveObject.TextBlob}" MinHeight="500"/>
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5*" />

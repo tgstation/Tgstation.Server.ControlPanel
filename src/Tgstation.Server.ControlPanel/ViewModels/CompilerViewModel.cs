@@ -26,7 +26,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Title => "Deployment";
 
-		public string Icon => !(CanRead || CanDme || CanCompile || CanGetJobs || CanPort) ? "resm:Tgstation.Server.ControlPanel.Assets.denied.png" : Refreshing ? "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png" : "resm:Tgstation.Server.ControlPanel.Assets.dreammaker.ico";
+		public string Icon => !(CanRead || CanDme || CanCompile || CanGetJobs || CanPort) ? "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg" : Refreshing ? "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png" : "resm:Tgstation.Server.ControlPanel.Assets.dreammaker.ico";
 
 		public bool IsExpanded { get; set; }
 

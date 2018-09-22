@@ -267,7 +267,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case StaticFileCommand.Download:
 					try
 					{
-						return !Refreshing && ConfigurationFile != null && !Directory.Exists(System.IO.Path.GetDirectoryName(DownloadPath));
+						return !Refreshing && ConfigurationFile != null && Directory.Exists(System.IO.Path.GetDirectoryName(DownloadPath));
 					}
 					catch (IOException)
 					{
@@ -323,6 +323,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					break;
 				case StaticFileCommand.Download:
 					File.WriteAllBytes(DownloadPath, ConfigurationFile.Content);
+					ControlPanel.OpenFolder(System.IO.Path.GetDirectoryName(DownloadPath));
 					break;
 				case StaticFileCommand.Upload:
 					await WriteGeneric(File.ReadAllBytes(UploadPath)).ConfigureAwait(true);

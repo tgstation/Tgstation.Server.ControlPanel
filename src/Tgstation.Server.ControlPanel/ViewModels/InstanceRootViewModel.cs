@@ -110,7 +110,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							newChildren.Add(auvm);
 						newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x, userRightsProvider, this, userProvider, serverJobSink, gitHubClient)));
 						if (instances.Count == 1)
-							newChildren[1].IsExpanded = true;
+							newChildren[hasCreateRight ? 1 : 0].IsExpanded = true;
 						Children = newChildren;
 						if (pageContext.IsInstance)
 						{
