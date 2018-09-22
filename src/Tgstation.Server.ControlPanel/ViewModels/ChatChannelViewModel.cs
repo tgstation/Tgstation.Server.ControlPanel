@@ -79,7 +79,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 		public string DiscordChannelId
 		{
-			get => Model.IrcChannel;
+			get => Model.DiscordChannelId.ToString();
 			set
 			{
 				if (!IsDiscord)
