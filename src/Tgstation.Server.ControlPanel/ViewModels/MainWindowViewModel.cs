@@ -129,7 +129,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool updateReady;
 		bool updateInstalled;
 		bool noUpdatesAvailable;
-
 		public MainWindowViewModel(IUrlEncoder urlEncoder, IUpdater updater)
 		{
 			Singleton = this;
@@ -144,6 +143,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var storagePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			const string SettingsFileName = "settings.json";
 			storageDirectory = Path.Combine(storagePath, productHeaderValue.Name);
+			AppDomain.CurrentDomain.UnhandledException += (a, b) => GlobalExceptionHandler((Exception)b.ExceptionObject);
+
 			settingsPath = Path.Combine(storageDirectory, SettingsFileName);
 			settings = LoadSettings();
 
@@ -163,6 +164,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			ReportIssue = new EnumCommand<MainWindowCommand>(MainWindowCommand.ReportIssue, this);
 		}
 
+		void GlobalExceptionHandler(Exception e)
+		{
+			var exceptionFileName = Path.Combine(storageDirectory, String.Format(CultureInfo.InvariantCulture, "crash_please_report.{0}.log", DateTimeOffset.Now.ToUnixTimeSeconds()));
+			File.WriteAllText(exceptionFileName, e.ToString());
+			ControlPanel.OpenFolder(storageDirectory);
+		}
 		void UpdateGitHubClient()
 		{
 			var tmpClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue(productHeaderValue.Name, productHeaderValue.Version));
