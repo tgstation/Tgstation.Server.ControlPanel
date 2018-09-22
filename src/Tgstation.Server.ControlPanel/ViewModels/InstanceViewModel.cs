@@ -209,8 +209,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				new CompilerViewModel(pageContext, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode),
 				new DreamDaemonViewModel(pageContext, instanceClient.DreamDaemon, instanceJobSink, instanceUserTreeNode, x => SetDDRunning(x)),
 				new ChatRootViewModel(pageContext, instanceClient.ChatBots, instanceUserTreeNode),
-				new StaticFolderViewModel(pageContext, instanceClient.Configuration, instanceUserTreeNode, null, "/")
 			};
+
+			if (Instance.ConfigurationType == ConfigurationType.Disallowed)
+				newChildren.Add(new BasicNode
+				{
+					Title = "Configuration Disabled",
+					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+				});
+			else
+				newChildren.Add(new StaticFolderViewModel(pageContext, instanceClient.Configuration, instanceUserTreeNode, null, "/"));
 
 			using (DelayChangeNotifications())
 			{
