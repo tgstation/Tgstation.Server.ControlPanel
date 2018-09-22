@@ -166,6 +166,7 @@
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
           </Grid.RowDefinitions>
           <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.CompRead, Mode=TwoWay}"/>
