@@ -77,6 +77,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					IrcPassword = String.Empty;
 					this.RaisePropertyChanged(nameof(IrcPassword));
 				}
+				Add.Recheck();
 			}
 		}
 
