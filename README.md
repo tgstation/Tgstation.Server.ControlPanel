@@ -2,7 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/gl54ng7129t4o5ca/branch/master?svg=true)](https://ci.appveyor.com/project/Cyberboss/Tgstation.Server.ControlPanel/branch/master) [![Waffle.io - Columns and their card count](https://badge.waffle.io/tgstation/tgstation-server.png?columns=all)](https://waffle.io/tgstation/tgstation-server?utm_source=badge)
 
-[![GitHub license](https://img.shields.io/github/license/tgstation/Tgstation.Server.ControlPanel.svg)](https://github.com/tgstation/Tgstation.Server.ControlPanel/blob/master/LICENSE) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/tgstation/Tgstation.Server.ControlPanel.svg)](http://isitmaintained.com/project/tgstation/Tgstation.Server.ControlPanel "Average time to resolve an issue") [![NuGet version](https://img.shields.io/nuget/v/Tgstation.Server.Api.svg)](https://www.nuget.org/packages/Tgstation.Server.Api) [![NuGet version](https://img.shields.io/nuget/v/Tgstation.Server.Client.svg)](https://www.nuget.org/packages/Tgstation.Server.Client)
+[![GitHub license](https://img.shields.io/github/license/tgstation/Tgstation.Server.ControlPanel.svg)](https://github.com/tgstation/Tgstation.Server.ControlPanel/blob/master/LICENSE) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/tgstation/Tgstation.Server.ControlPanel.svg)](http://isitmaintained.com/project/tgstation/Tgstation.Server.ControlPanel "Average time to resolve an issue")
 
 [![forthebadge](http://forthebadge.com/images/badges/made-with-c-sharp.svg)](http://forthebadge.com) [![forthebadge](http://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](http://forthebadge.com)
 
