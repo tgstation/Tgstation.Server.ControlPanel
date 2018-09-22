@@ -4,7 +4,7 @@ Management suite for tgstation-server v4
 
 ## Installing
 
-If you're running Windows [Click Here](https://github.com/tgstation/Tgstation.Server.ControlPanel/releases/download/latest/Setup.exe) for the self updating version.
+If you're running Windows [Click Here](https://github.com/tgstation/Tgstation.Server.ControlPanel/releases/latest) for the self updating version.
 
 ### OSX/Linux
 
@@ -22,4 +22,4 @@ To run the installation
 
 ## Usage
 
-Please refer to [the wiki](https://github.com/tgstation/Tgstation.Server.ControlPanel/wiki) for usage documentation
+Please help this project out by contributing to this documentation
