@@ -82,7 +82,7 @@
           <NumericUpDown Minimum="1" Maximum="65535" Height="25" IsEnabled="{Binding PageContext.ActiveObject.CanPort}" Value="{Binding PageContext.ActiveObject.NewSecondaryPort}" Grid.Row="1" Grid.Column="1"/>
           <CheckBox Content="Allow Web Client Connections" Grid.Column="0" Grid.Row="3" IsChecked="{Binding PageContext.ActiveObject.NewAllowWebClient}" IsEnabled="{Binding PageContext.ActiveObject.CanWebClient}" Background="White"/>
           <CheckBox Content="Automatically Start Server with Instance" Grid.Column="1" Grid.Row="3" IsChecked="{Binding PageContext.ActiveObject.NewAutoStart}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoStart}" Background="White"/>
-          <TextBlock Text="Launch Inactivity Timeout Period (seconds):" Margin="0,0,5,0" Grid.Column="0" Grid.Row="5"/>
+          <TextBlock Text="Launch Inactivity Timeout Period (seconds):" Margin="0,5,5,0" Grid.Column="0" Grid.Row="5"/>
           <NumericUpDown Minimum="1" Height="25" Value="{Binding PageContext.ActiveObject.NewStartupTimeout}" Grid.Column="1" Grid.Row="5" IsEnabled="{Binding PageContext.ActiveObject.CanTimeout}" />
         </Grid>
         <Grid Margin="0,5,0,0">
