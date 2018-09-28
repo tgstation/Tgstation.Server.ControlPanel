@@ -192,7 +192,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					ErrorMessage = null;
 					try
 					{
-						var newPath = parent.Path + '/' + ItemName;
+						var newPath = (parent.Path != "/" ? parent.Path : String.Empty) + '/' + ItemName;
 						ConfigurationFile file;
 						if (Type == ItemType.Folder)
 						{
