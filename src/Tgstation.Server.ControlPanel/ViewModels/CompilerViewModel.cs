@@ -116,7 +116,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string SecurityLevel => (Model?.ApiValidationSecurityLevel).HasValue ? Model.ApiValidationSecurityLevel.ToString() : "Unknown";
 
 		public int ViewSelectedPage => selectedPage + 1;
-		public int ViewNumPages => numPages + 1;
+		public int ViewNumPages => numPages;
 
 		public bool CanCompile => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.Compile);
 		public bool CanRead => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.Read);
