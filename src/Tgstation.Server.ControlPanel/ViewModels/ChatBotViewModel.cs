@@ -177,7 +177,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						Id = ChatBot.Id,
 						ConnectionString = CanConnectionString && !String.IsNullOrEmpty(NewConnectionString) && NewConnectionString != ChatBot.ConnectionString ? NewConnectionString : null,
-						Enabled = CanEnable ? (bool?)NewEnabled : null
+						Enabled = CanEnable && ChatBot.Enabled != NewEnabled ? (bool?)NewEnabled : null
 					};
 
 					if (channels.Count != ChatBot.Channels.Count || channels.Any(x => x.Modified))
