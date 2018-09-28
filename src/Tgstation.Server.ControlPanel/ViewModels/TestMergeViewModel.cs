@@ -15,7 +15,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 	{
 		public enum TestMergeCommand
 		{
-			Link
+			Link,
+			LoadCommits
 		}
 
 		public string Title => String.Format(CultureInfo.InvariantCulture, "#{0} - {1}", TestMerge.Number, TestMerge.TitleAtMerge);
@@ -55,17 +56,22 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set
 			{
 				this.RaiseAndSetIfChanged(ref selectedIndex, value);
-				TestMerge.PullRequestRevision = Commits[SelectedIndex].Substring(0, 7);
+				if (CommitsLoaded)
+					TestMerge.PullRequestRevision = Commits[SelectedIndex].Substring(0, 7);
 			}
 		}
 
-		public IReadOnlyList<string> Commits { get; }
+		public bool CommitsLoaded => Commits != null;
+		public IReadOnlyList<string> Commits { get; private set; }
 
 		public string ActiveCommit => TestMerge.PullRequestRevision.Substring(0, 7);
 
 		public EnumCommand<TestMergeCommand> Link { get; }
+		public EnumCommand<TestMergeCommand> LoadCommits { get; }
 
 		readonly Action<int> onActivate;
+
+		readonly Func<CancellationToken, Task> onLoadCommits;
 		int selectedIndex;
 		bool canEdit;
 		bool selected;
@@ -75,9 +81,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.onActivate = onActivate ?? throw new ArgumentNullException(nameof(onActivate));
 			
 			Link = new EnumCommand<TestMergeCommand>(TestMergeCommand.Link, this);
+			LoadCommits = new EnumCommand<TestMergeCommand>(TestMergeCommand.LoadCommits, this);
 		}
 
-		public TestMergeViewModel(Issue pullRequest, IReadOnlyList<PullRequestCommit> commits, Action<int> onActivate, int? activeCommit = null) : this(onActivate)
+		public TestMergeViewModel(Issue pullRequest, IReadOnlyList<PullRequestCommit> commits, Action<int> onActivate, Func<CancellationToken, Task> onLoadCommits, int? activeCommit = null) : this(onActivate)
 		{
 			if (pullRequest == null)
 				throw new ArgumentNullException(nameof(pullRequest));
@@ -90,10 +97,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				TitleAtMerge = pullRequest.Title,
 				Url = pullRequest.HtmlUrl
 			};
-
-			Commits = commits?.Select(x => String.Format(CultureInfo.InvariantCulture, "{0} - {1}", x.Sha.Substring(0, 7), x.Commit.Message.Split('\n').First())).ToList() ?? throw new ArgumentNullException(nameof(commits));
+			this.onLoadCommits = onLoadCommits;
+			LoadCommitsAction(commits);
+			if (activeCommit.HasValue)
+				SelectedIndex = activeCommit.Value;
 			FontWeight = pullRequest.Labels.Any(x => x.Name.ToUpperInvariant().Contains("TEST MERGE")) ? FontWeight.Bold : FontWeight.Normal;
-			SelectedIndex = activeCommit ?? (Commits.Count - 1);
 			CanEdit = true;
 		}
 
@@ -104,7 +112,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Commits = new List<string> { TestMerge.PullRequestRevision.Substring(0, 7) };
 
 			FontWeight = FontWeight.Normal;
-			selected = true;	//do not use the property here or you'll cause a StackOverflow
+			selected = true;    //do not use the property here or you'll cause a StackOverflow
+		}
+
+		public void LoadCommitsAction(IReadOnlyList<PullRequestCommit> commits)
+		{
+			if (commits == null)
+				return;
+			Commits = commits?.Select(x => String.Format(CultureInfo.InvariantCulture, "{0} - {1}", x.Sha.Substring(0, 7), x.Commit.Message.Split('\n').First())).ToList();
+			this.RaisePropertyChanged(nameof(Commits));
+			this.RaisePropertyChanged(nameof(CommitsLoaded));
+			LoadCommits.Recheck();
+			SelectedIndex = Commits.Count - 1;
 		}
 
 		public bool CanRunCommand(TestMergeCommand command)
@@ -113,17 +132,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				case TestMergeCommand.Link:
 					return true;
+				case TestMergeCommand.LoadCommits:
+					return !CommitsLoaded;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
 		}
-		public Task RunCommand(TestMergeCommand command, CancellationToken cancellationToken)
+		public async Task RunCommand(TestMergeCommand command, CancellationToken cancellationToken)
 		{
 			switch (command)
 			{
 				case TestMergeCommand.Link:
 					ControlPanel.LaunchUrl(TestMerge.Url);
-					return Task.CompletedTask;
+					break;
+				case TestMergeCommand.LoadCommits:
+					if (onLoadCommits != null)
+						await onLoadCommits(cancellationToken).ConfigureAwait(true);
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}

@@ -409,7 +409,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		void DigestPR(Octokit.Issue pr, IReadOnlyList<Octokit.PullRequestCommit> commits)
 		{
-			if(pullRequests == null)
+			if (pullRequests == null)
 			{
 				pullRequests = new Dictionary<int, Octokit.Issue>();
 				pullRequestCommits = new Dictionary<int, IReadOnlyList<Octokit.PullRequestCommit>>();
@@ -434,15 +434,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					State = Octokit.ItemState.Open,
 					Type = Octokit.IssueTypeQualifier.PullRequest					
 				}).ConfigureAwait(true);
-
-				var tasks = prs.Items.Select(x => gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, x.Number));
-				await Task.WhenAll(tasks).ConfigureAwait(true);
+				
 				pullRequests = null;
-				Enumerable.Zip(prs.Items, tasks.Select(x => x.Result), (a, b) =>
-				{
-					DigestPR(a, b);
-					return 0;
-				}).ToList();
+				foreach (var I in prs.Items)
+					DigestPR(I, null);
 
 				RebuildTestMergeList();
 			}
@@ -474,12 +469,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				if (!(updateHard && pullRequests?.ContainsKey(x.Number.Value) == true))
 					return new TestMergeViewModel(x, DeactivatePR);
-				var result = new TestMergeViewModel(pullRequests[x.Number.Value], pullRequestCommits[x.Number.Value], y => { })
+				TestMergeViewModel result = null;
+				async Task LoadCommits(CancellationToken cancellationToken)
+				{
+					result.LoadCommitsAction(await gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, x.Number.Value).ConfigureAwait(false));
+				}
+				result = new TestMergeViewModel(pullRequests[x.Number.Value], pullRequestCommits[x.Number.Value], y => { }, LoadCommits)
 				{
 					Selected = true,
 					Comment = x.Comment
 				};
-				result.SelectedIndex = result.Commits.ToList().IndexOf(result.Commits.First(y => y.Substring(0, 7).ToUpperInvariant() == x.PullRequestRevision.Substring(0, 7).ToUpperInvariant()));
+				if(result.CommitsLoaded)
+					result.SelectedIndex =	result.Commits.ToList().IndexOf(result.Commits.First(y => y.Substring(0, 7).ToUpperInvariant() == x.PullRequestRevision.Substring(0, 7).ToUpperInvariant()));
 				return result;
 			}));
 			if (!RateLimited && pullRequests != null)
@@ -488,7 +489,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					if (tmp.Any(x => x.TestMerge.Number == a.Key))
 						return null;
-					return new TestMergeViewModel(a.Value, b.Value, x => modifiedPRList = true);
+
+					TestMergeViewModel testMergeViewModel = null;
+					async Task LoadCommits(CancellationToken cancellationToken)
+					{
+						testMergeViewModel.LoadCommitsAction(await gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, a.Key).ConfigureAwait(false));
+					}
+
+					testMergeViewModel = new TestMergeViewModel(a.Value, b.Value, x => modifiedPRList = true, LoadCommits);
+					return testMergeViewModel;
 				}).Where(x => x != null).ToList();
 				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Bold));
 				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Normal));
