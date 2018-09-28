@@ -50,7 +50,8 @@
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="Commit:" Grid.Row="0" Grid.Column="0" Margin="0,10,0,0"/>
-                    <DropDown Items="{Binding Commits}" IsVisible="{Binding CanEdit}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" Margin="5,5,0,0"/>
+                    <DropDown Items="{Binding Commits}" IsEnabled="{Binding CanEdit}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" Margin="5,5,0,0" IsVisible="{Binding CommitsLoaded}"/>
+                    <Button Content="Load Commits" Command="{Binding LoadCommits}" Grid.Row="0" Grid.Column="1" Margin="5,5,0,0" IsVisible="{Binding !CommitsLoaded}"/>
                     <TextBlock Text="{Binding ActiveCommit}" IsVisible="{Binding !CanEdit}" Grid.Row="0" Grid.Column="1" Margin="5,5,0,0"/>
                     <TextBlock Text="Comment:" Grid.Row="1" Grid.Column="0" Margin="0,10,0,0"/>
                     <TextBox Text="{Binding Comment, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"/>
