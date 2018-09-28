@@ -151,8 +151,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		async void SafeLoad(IServerJobSink serverJobSink)
 		{
-			if(serverJobSink != null)
-				instanceJobSink = await serverJobSink?.GetSinkForInstance(instanceClient, default) ?? throw new ArgumentNullException(nameof(serverJobSink));
+			if (serverJobSink != null)
+				try
+				{
+					instanceJobSink = await serverJobSink?.GetSinkForInstance(instanceClient, default) ?? throw new ArgumentNullException(nameof(serverJobSink));
+				}
+				catch (InsufficientPermissionsException) { }	//we won't be needing it
 			await PostRefresh(default).ConfigureAwait(true);
 		}
 	

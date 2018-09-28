@@ -51,9 +51,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(InstanceRelocate));
 					this.RaisePropertyChanged(nameof(InstanceRename));
 					this.RaisePropertyChanged(nameof(InstanceUpdate));
+					this.RaisePropertyChanged(nameof(IsSystemUser));
 				}
 			}
 		}
+
+		public bool IsSystemUser => User.SystemIdentifier != null;
 
 		public string FormatCreatedBy => User.CreatedBy != null ? String.Format(CultureInfo.InvariantCulture, "{0} ({1})", User.CreatedBy.Name, User.CreatedBy.Id) : "TGS";
 
