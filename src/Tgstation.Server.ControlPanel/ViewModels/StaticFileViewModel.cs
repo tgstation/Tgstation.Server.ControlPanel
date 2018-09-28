@@ -215,6 +215,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public void DirectLoad(ConfigurationFile file)
 		{
 			ConfigurationFile = file;
+			Denied = file.AccessDenied ?? false;
+			if (Denied)
+				ErrorMessage = "Read access to this file is denied!";
 		}
 
 		public void RemoveChild(IStaticNode child) => throw new NotSupportedException();
