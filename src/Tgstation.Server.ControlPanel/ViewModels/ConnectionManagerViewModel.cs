@@ -301,10 +301,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			async Task GetServerVersionAndUserPerms()
 			{
+				ServerInformation serverInfo;
 				var userInfoTask = serverClient.Users.Read(cancellationToken);
 				try
 				{
-					var serverInfo = await serverClient.Version(cancellationToken).ConfigureAwait(false);
+					serverInfo = await serverClient.Version(cancellationToken).ConfigureAwait(false);
 					
 					versionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", versionNode.Title, serverInfo.Version);
 					apiVersionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", apiVersionNode.Title, serverInfo.ApiVersion);
@@ -321,6 +322,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					versionNode.Icon = ErrorIcon;
 					apiVersionNode.Icon = ErrorIcon;
+					return;
 				}
 				versionNode.RaisePropertyChanged(nameof(Icon));
 				apiVersionNode.RaisePropertyChanged(nameof(Icon));
@@ -332,8 +334,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newChildren = new List<ITreeNode>(Children.Where(x => x != fakeUserNode));
 					userVM = new UserViewModel(serverClient.Users, user, pageContext, null);
 					newChildren.Add(userVM);
-
-					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM, this));
+					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM, this, serverInfo.Version));
 					var urVM = new UsersRootViewModel(serverClient.Users, pageContext, userVM);
 					newChildren.Add(urVM);
 					newChildren.Add(new InstanceRootViewModel(pageContext, serverClient.Instances, userVM, urVM, jobSink, gitHubClient));
