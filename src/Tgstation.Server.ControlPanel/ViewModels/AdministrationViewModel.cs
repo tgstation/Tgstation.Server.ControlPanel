@@ -25,7 +25,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Refresh
 		}
 
-		public string Title => "Administration";
+		public string Title => model?.LatestVersion != tgsVersion && userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.ChangeVersion) ? "Administration (Update Available)" : "Administration";
 		
 		public bool IsExpanded { get; set; }
 		public string Icon
@@ -86,6 +86,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IUserRightsProvider userRightsProvider;
 		readonly ConnectionManagerViewModel connectionManagerViewModel;
 
+		readonly Version tgsVersion;
 		Administration model;
 		string newVersion;
 		string icon;
@@ -95,7 +96,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool confirmingUpdate;
 		bool refreshing;
 
-		public AdministrationViewModel(PageContextViewModel pageContext, IAdministrationClient administrationClient, IUserRightsProvider userRightsProvider, ConnectionManagerViewModel connectionManagerViewModel)
+		public AdministrationViewModel(PageContextViewModel pageContext, IAdministrationClient administrationClient, IUserRightsProvider userRightsProvider, ConnectionManagerViewModel connectionManagerViewModel, Version tgsVersion)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.administrationClient = administrationClient ?? throw new ArgumentNullException(nameof(administrationClient));
@@ -147,6 +148,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(GitHubUrl));
 					this.RaisePropertyChanged(nameof(WindowsHostMachine));
 					this.RaisePropertyChanged(nameof(LatestVersionString));
+					this.RaisePropertyChanged(nameof(Title));
 					OpenGitHub.Recheck();
 				}
 			}
