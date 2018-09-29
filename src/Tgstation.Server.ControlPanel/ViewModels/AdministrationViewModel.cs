@@ -25,7 +25,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Refresh
 		}
 
-		public string Title => model?.LatestVersion != tgsVersion && userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.ChangeVersion) ? "Administration (Update Available)" : "Administration";
+		public string Title => model?.LatestVersion > tgsVersion && userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.ChangeVersion) ? "Administration (Update Available)" : "Administration";
 		
 		public bool IsExpanded { get; set; }
 		public string Icon
@@ -102,6 +102,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.administrationClient = administrationClient ?? throw new ArgumentNullException(nameof(administrationClient));
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
 			this.connectionManagerViewModel = connectionManagerViewModel ?? throw new ArgumentNullException(nameof(connectionManagerViewModel));
+			this.tgsVersion = tgsVersion ?? throw new ArgumentNullException(nameof(tgsVersion));
 
 			UpdateText = InitialUpdateText;
 			RestartText = InitialRestartText;
