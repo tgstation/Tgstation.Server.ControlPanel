@@ -137,10 +137,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(CanSetRef));
 					if (value)
 					{
-						NewReference = Repository.Reference;
+						if (String.IsNullOrEmpty(NewReference) && Repository != null)
+							NewReference = Repository.Reference;
 						NewSha = String.Empty;
 					}
-					else
+					else if(NewReference == Repository?.Reference)
 						NewReference = String.Empty;
 					RebuildTestMergeList();
 				}
