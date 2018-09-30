@@ -124,6 +124,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanPort => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.SetApiValidationPort);
 		public bool CanDme => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.SetDme);
 		public bool CanDmeView => !Refreshing && CanDme && !AutoDetectDme;
+		public bool CanDmeAutodetectView => !Refreshing && CanDme;
 		public bool CanSecurity => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.SetSecurityLevel);
 		public bool CanSecurityView => !Refreshing && CanSecurity;
 		public bool CanPortView => !Refreshing && CanPort;
