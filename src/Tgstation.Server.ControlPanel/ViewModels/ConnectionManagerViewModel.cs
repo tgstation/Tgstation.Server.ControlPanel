@@ -27,7 +27,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		const string HttpPrefix = "http://";
 		const string HttpsPrefix = "https://";
 
-		public string Title => connection.Url.ToString();
+		public string Title => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", connection.Url, userVM == null ? connection.Username : userVM.User.Name);
 		public bool IsExpanded {
 			get => isExpanded;
 			set => this.RaiseAndSetIfChanged(ref isExpanded, value);
@@ -122,6 +122,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					connection.Url = new Uri(String.Concat(usingHttp ? HttpPrefix : HttpsPrefix, connection.Url.ToString().Remove(0, usingHttp ? HttpsPrefix.Length : HttpPrefix.Length)));
 					this.RaisePropertyChanged(nameof(ServerAddress));
+					this.RaisePropertyChanged(nameof(Title));
 					Connect.Recheck();
 				}
 				catch (UriFormatException) { }
@@ -240,7 +241,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.requestLogger = requestLogger ?? throw new ArgumentNullException(nameof(requestLogger));
 			this.onDelete = onDelete ?? throw new ArgumentNullException(nameof(onDelete));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
-			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate, () => connection.Url.ToString(), () => userVM?.User) ?? throw new ArgumentNullException(nameof(jobSink));
+			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate, () => Title, () => userVM?.User) ?? throw new ArgumentNullException(nameof(jobSink));
 			this.gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
 
 			Connect = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Connect, this);
@@ -273,6 +274,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			serverClient?.Dispose();
 			userVM = null;
+			this.RaisePropertyChanged(nameof(Title));
 			serverClient = null;
 		}
 
@@ -333,6 +335,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var user = await userInfoTask.ConfigureAwait(false);
 					newChildren = new List<ITreeNode>(Children.Where(x => x != fakeUserNode));
 					userVM = new UserViewModel(serverClient.Users, user, pageContext, null);
+					this.RaisePropertyChanged(nameof(Title));
 					newChildren.Add(userVM);
 					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM, this, serverInfo.Version));
 					var urVM = new UsersRootViewModel(serverClient.Users, pageContext, userVM);
