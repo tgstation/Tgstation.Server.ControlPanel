@@ -281,6 +281,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			refreshLoopCTS?.Dispose();
 			userVM = null;
 			serverClient = null;
+			Children = null;
+			pageContext.ActiveObject = this;
 		}
 
 
@@ -378,12 +380,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var now = DateTimeOffset.Now;
 					if (now > serverClient.Token.ExpiresAt.Value)
 						await Task.Delay(serverClient.Token.ExpiresAt.Value - now, cancellationToken).ConfigureAwait(true);
-					await HandleConnectException(async () =>
+					if (!await HandleConnectException(async () =>
+					 {
+						 var newConnection = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
+						 serverClient.Token = newConnection.Token;
+						 connection.LastToken = serverClient.Token;
+					 }).ConfigureAwait(true))
 					{
-						var newConnection = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
-						serverClient.Token = newConnection.Token;
-						connection.LastToken = serverClient.Token;
-					}).ConfigureAwait(true);
+						async void DisconnectAsync() => await Task.Run(Disconnect).ConfigureAwait(false);
+						DisconnectAsync();
+					}
+
 				}
 			}
 			catch (OperationCanceledException) { }
@@ -475,7 +482,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			if (Connecting)
 				throw new InvalidOperationException("Already connecting!");
 			Disconnect();
-			pageContext.ActiveObject = pageContext.ActiveObject == this ? this : null;
 			Children = null;
 
 			if (!await HandleConnectException(async () =>
