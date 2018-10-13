@@ -111,6 +111,10 @@
               <ColumnDefinition Width="1*"/>
               <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
             <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.NewAutoUpdatesKeepTestMerges, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}"/>
               <TextBlock DockPanel.Dock="Right" Text="Automatic Updates Merge instead of Hard Reset" Margin="5,4,0,0" />
@@ -119,6 +123,7 @@
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.NewAutoUpdatesSynchronize, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}"/>
               <TextBlock DockPanel.Dock="Right" Text="Push Test Merge Commits to Temporary Branch" Margin="5,4,0,0" />
             </DockPanel>
+            <CheckBox Background="White" Content="Show Merger Usernames in Public Metadata" IsChecked="{Binding PageContext.ActiveObject.NewShowTestMergeCommitters, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanShowTMCommitters}" Grid.Row="1"/>
           </Grid>
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" Grid.Row="2"/>

@@ -116,7 +116,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				var dataTask = byondClient.ActiveVersion(cancellationToken);
 				var installTask = byondClient.InstalledVersions(cancellationToken);
 				data = await dataTask.ConfigureAwait(true);
-				this.RaisePropertyChanged(CurrentVersion);
+				this.RaisePropertyChanged(nameof(CurrentVersion));
 				InstalledVersions = (await installTask.ConfigureAwait(true)).Select(x => FormatByondVersion(x)).ToList();
 			}
 			finally

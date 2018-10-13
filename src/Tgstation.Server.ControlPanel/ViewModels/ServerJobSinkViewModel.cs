@@ -186,6 +186,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				try
 				{
 					var delay = oldDelayTask ?? Task.Delay(requeryRateProvider(), cancellationToken);
+					this.RaisePropertyChanged(nameof(ServerName));
 					Task updates, instanceUpdates;
 					lock (this)
 						updates = updated.Task;

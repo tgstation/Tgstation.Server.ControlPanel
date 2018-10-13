@@ -27,7 +27,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		const string HttpPrefix = "http://";
 		const string HttpsPrefix = "https://";
 
-		public string Title => connection.Url.ToString();
+		public string Title => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", connection.Url, userVM == null ? connection.Username : userVM.User.Name);
 		public bool IsExpanded {
 			get => isExpanded;
 			set => this.RaiseAndSetIfChanged(ref isExpanded, value);
@@ -122,6 +122,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					connection.Url = new Uri(String.Concat(usingHttp ? HttpPrefix : HttpsPrefix, connection.Url.ToString().Remove(0, usingHttp ? HttpsPrefix.Length : HttpPrefix.Length)));
 					this.RaisePropertyChanged(nameof(ServerAddress));
+					this.RaisePropertyChanged(nameof(Title));
 					Connect.Recheck();
 				}
 				catch (UriFormatException) { }
@@ -220,6 +221,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly Octokit.IGitHubClient gitHubClient;
 
+		CancellationTokenSource refreshLoopCTS;
+
 		IReadOnlyList<ITreeNode> children;
 
 		IServerClient serverClient;
@@ -227,6 +230,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		DateTimeOffset? startedConnectingAt;
 
 		UserViewModel userVM;
+
+		Task refreshLoopTask;
 
 		bool usingHttp;
 		bool confirmingDelete;
@@ -240,7 +245,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.requestLogger = requestLogger ?? throw new ArgumentNullException(nameof(requestLogger));
 			this.onDelete = onDelete ?? throw new ArgumentNullException(nameof(onDelete));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
-			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate, () => connection.Url.ToString(), () => userVM?.User) ?? throw new ArgumentNullException(nameof(jobSink));
+			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate, () => Title, () => userVM?.User) ?? throw new ArgumentNullException(nameof(jobSink));
 			this.gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
 
 			Connect = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Connect, this);
@@ -271,9 +276,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		void Disconnect()
 		{
+			refreshLoopCTS.Cancel();
+			refreshLoopTask.GetAwaiter().GetResult();
 			serverClient?.Dispose();
+			refreshLoopCTS?.Dispose();
 			userVM = null;
+			this.RaisePropertyChanged(nameof(Title));
 			serverClient = null;
+			Children = null;
+			pageContext.ActiveObject = this;
 		}
 
 
@@ -333,6 +344,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var user = await userInfoTask.ConfigureAwait(false);
 					newChildren = new List<ITreeNode>(Children.Where(x => x != fakeUserNode));
 					userVM = new UserViewModel(serverClient.Users, user, pageContext, null);
+					this.RaisePropertyChanged(nameof(Title));
 					newChildren.Add(userVM);
 					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM, this, serverInfo.Version));
 					var urVM = new UsersRootViewModel(serverClient.Users, pageContext, userVM);
@@ -357,6 +369,34 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			};
 			Children = childNodes;
 			await GetServerVersionAndUserPerms().ConfigureAwait(true);
+
+			refreshLoopCTS = new CancellationTokenSource();
+			refreshLoopTask = RefreshLoop(refreshLoopCTS.Token);
+		}
+
+		async Task RefreshLoop(CancellationToken cancellationToken)
+		{
+			try
+			{
+				while (!cancellationToken.IsCancellationRequested)
+				{
+					var now = DateTimeOffset.Now;
+					if (now > serverClient.Token.ExpiresAt.Value)
+						await Task.Delay(serverClient.Token.ExpiresAt.Value - now, cancellationToken).ConfigureAwait(true);
+					if (!await HandleConnectException(async () =>
+					 {
+						 var newConnection = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
+						 serverClient.Token = newConnection.Token;
+						 connection.LastToken = serverClient.Token;
+					 }).ConfigureAwait(true))
+					{
+						async void DisconnectAsync() => await Task.Run(Disconnect).ConfigureAwait(false);
+						DisconnectAsync();
+					}
+
+				}
+			}
+			catch (OperationCanceledException) { }
 		}
 
 		public Task OnLoadConnect(CancellationToken cancellationToken)
@@ -368,12 +408,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return Task.CompletedTask;
 		}
 
-		public async Task BeginConnect(CancellationToken cancellationToken)
+		async Task<bool> HandleConnectException(Func<Task> action)
 		{
-			if (Connecting)
-				throw new InvalidOperationException("Already connecting!");
-			Disconnect();
-			pageContext.ActiveObject = pageContext.ActiveObject == this ? this : null;
 			startedConnectingAt = DateTimeOffset.Now;
 			Connecting = true;
 			InvalidCredentials = false;
@@ -382,7 +418,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			ConnectionFailed = false;
 			ErrorMessage = null;
 			Errored = false;
-			Children = null;
 
 			this.RaisePropertyChanged(nameof(Icon));
 			this.RaisePropertyChanged(nameof(ErrorMessage));
@@ -394,13 +429,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.RaisePropertyChanged(nameof(ServerDown));
 			this.RaisePropertyChanged(nameof(Connected));
 			Connect.Recheck();
-			var postConnect = false;
 			try
 			{
-				serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
-				serverClient.AddRequestLogger(requestLogger);
-				connection.LastToken = serverClient.Token;
-				postConnect = true;
+				await action().ConfigureAwait(false);
+				return false;
 			}
 			catch (UnauthorizedException)
 			{
@@ -444,7 +476,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(ConnectionWord));
 				Connect.Recheck();
 			}
-			if (postConnect)
+			return true;
+		}
+
+
+		public async Task BeginConnect(CancellationToken cancellationToken)
+		{
+			if (Connecting)
+				throw new InvalidOperationException("Already connecting!");
+			Disconnect();
+			Children = null;
+
+			if (!await HandleConnectException(async () =>
+			 {
+				 serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
+				 serverClient.AddRequestLogger(requestLogger);
+				 connection.LastToken = serverClient.Token;
+			 }).ConfigureAwait(true))
 				await PostConnect(cancellationToken).ConfigureAwait(true);
 		}
 
