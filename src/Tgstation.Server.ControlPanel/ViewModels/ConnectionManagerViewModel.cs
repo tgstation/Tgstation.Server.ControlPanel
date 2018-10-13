@@ -122,6 +122,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					connection.Url = new Uri(String.Concat(usingHttp ? HttpPrefix : HttpsPrefix, connection.Url.ToString().Remove(0, usingHttp ? HttpsPrefix.Length : HttpPrefix.Length)));
 					this.RaisePropertyChanged(nameof(ServerAddress));
+					this.RaisePropertyChanged(nameof(Title));
 					Connect.Recheck();
 				}
 				catch (UriFormatException) { }
