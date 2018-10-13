@@ -221,6 +221,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly Octokit.IGitHubClient gitHubClient;
 
+		CancellationTokenSource refreshLoopCTS;
+
 		IReadOnlyList<ITreeNode> children;
 
 		IServerClient serverClient;
@@ -228,6 +230,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		DateTimeOffset? startedConnectingAt;
 
 		UserViewModel userVM;
+
+		Task refreshLoopTask;
 
 		bool usingHttp;
 		bool confirmingDelete;
@@ -272,10 +276,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		void Disconnect()
 		{
+			refreshLoopCTS.Cancel();
+			refreshLoopTask.GetAwaiter().GetResult();
 			serverClient?.Dispose();
+			refreshLoopCTS?.Dispose();
 			userVM = null;
 			this.RaisePropertyChanged(nameof(Title));
 			serverClient = null;
+			Children = null;
+			pageContext.ActiveObject = this;
 		}
 
 
@@ -360,6 +369,34 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			};
 			Children = childNodes;
 			await GetServerVersionAndUserPerms().ConfigureAwait(true);
+
+			refreshLoopCTS = new CancellationTokenSource();
+			refreshLoopTask = RefreshLoop(refreshLoopCTS.Token);
+		}
+
+		async Task RefreshLoop(CancellationToken cancellationToken)
+		{
+			try
+			{
+				while (!cancellationToken.IsCancellationRequested)
+				{
+					var now = DateTimeOffset.Now;
+					if (now > serverClient.Token.ExpiresAt.Value)
+						await Task.Delay(serverClient.Token.ExpiresAt.Value - now, cancellationToken).ConfigureAwait(true);
+					if (!await HandleConnectException(async () =>
+					 {
+						 var newConnection = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
+						 serverClient.Token = newConnection.Token;
+						 connection.LastToken = serverClient.Token;
+					 }).ConfigureAwait(true))
+					{
+						async void DisconnectAsync() => await Task.Run(Disconnect).ConfigureAwait(false);
+						DisconnectAsync();
+					}
+
+				}
+			}
+			catch (OperationCanceledException) { }
 		}
 
 		public Task OnLoadConnect(CancellationToken cancellationToken)
@@ -371,12 +408,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return Task.CompletedTask;
 		}
 
-		public async Task BeginConnect(CancellationToken cancellationToken)
+		async Task<bool> HandleConnectException(Func<Task> action)
 		{
-			if (Connecting)
-				throw new InvalidOperationException("Already connecting!");
-			Disconnect();
-			pageContext.ActiveObject = pageContext.ActiveObject == this ? this : null;
 			startedConnectingAt = DateTimeOffset.Now;
 			Connecting = true;
 			InvalidCredentials = false;
@@ -385,7 +418,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			ConnectionFailed = false;
 			ErrorMessage = null;
 			Errored = false;
-			Children = null;
 
 			this.RaisePropertyChanged(nameof(Icon));
 			this.RaisePropertyChanged(nameof(ErrorMessage));
@@ -397,13 +429,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.RaisePropertyChanged(nameof(ServerDown));
 			this.RaisePropertyChanged(nameof(Connected));
 			Connect.Recheck();
-			var postConnect = false;
 			try
 			{
-				serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
-				serverClient.AddRequestLogger(requestLogger);
-				connection.LastToken = serverClient.Token;
-				postConnect = true;
+				await action().ConfigureAwait(false);
+				return false;
 			}
 			catch (UnauthorizedException)
 			{
@@ -447,7 +476,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(ConnectionWord));
 				Connect.Recheck();
 			}
-			if (postConnect)
+			return true;
+		}
+
+
+		public async Task BeginConnect(CancellationToken cancellationToken)
+		{
+			if (Connecting)
+				throw new InvalidOperationException("Already connecting!");
+			Disconnect();
+			Children = null;
+
+			if (!await HandleConnectException(async () =>
+			 {
+				 serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
+				 serverClient.AddRequestLogger(requestLogger);
+				 connection.LastToken = serverClient.Token;
+			 }).ConfigureAwait(true))
 				await PostConnect(cancellationToken).ConfigureAwait(true);
 		}
 
