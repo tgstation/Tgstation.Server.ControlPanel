@@ -276,8 +276,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		void Disconnect()
 		{
-			refreshLoopCTS.Cancel();
-			refreshLoopTask.GetAwaiter().GetResult();
+			refreshLoopCTS?.Cancel();
+			refreshLoopTask?.GetAwaiter().GetResult();
 			serverClient?.Dispose();
 			refreshLoopCTS?.Dispose();
 			userVM = null;
@@ -381,9 +381,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				while (!cancellationToken.IsCancellationRequested)
 				{
 					var now = DateTimeOffset.Now;
-					if (now > serverClient.Token.ExpiresAt.Value)
+					if (now < serverClient.Token.ExpiresAt.Value)
 						await Task.Delay(serverClient.Token.ExpiresAt.Value - now, cancellationToken).ConfigureAwait(true);
-					if (!await HandleConnectException(async () =>
+					if (await HandleConnectException(async () =>
 					 {
 						 var newConnection = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
 						 serverClient.Token = newConnection.Token;
