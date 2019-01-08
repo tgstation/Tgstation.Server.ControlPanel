@@ -110,7 +110,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							pageContext.ActiveObject = null;
 					else //instance user
 					{
-						var start = Children[0] is ChatBotViewModel ? 1 : 0;
+						var start = Children[0] is ChatBotViewModel ? 0 : 1;
 						bool found = false;
 						for (var I = start; I < Children.Count; ++I)
 							if (((ChatBotViewModel)Children[I]).ChatBot.Id == ((ChatBotViewModel)pageContext.ActiveObject).ChatBot.Id)
