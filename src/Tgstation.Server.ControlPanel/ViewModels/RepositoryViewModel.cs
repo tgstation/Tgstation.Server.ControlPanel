@@ -141,7 +141,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							NewReference = Repository.Reference;
 						NewSha = String.Empty;
 					}
-					else if(NewReference == Repository?.Reference)
+					else if (NewReference == Repository?.Reference)
 						NewReference = String.Empty;
 					RebuildTestMergeList();
 				}
@@ -166,6 +166,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			get => newAutoUpdatesSynchronize;
 			set => this.RaiseAndSetIfChanged(ref newAutoUpdatesSynchronize, value);
+		}
+
+		public bool NewPostTestMergeComment
+		{
+			get => newPostTestMergeComment;
+			set => this.RaiseAndSetIfChanged(ref newPostTestMergeComment, value);
 		}
 
 		public string DeleteText => confirmingDelete ? "Confirm?" : "Delete Repository";
@@ -249,7 +255,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IInstanceJobSink jobSink;
 		readonly IInstanceUserRightsProvider rightsProvider;
 		readonly Octokit.IGitHubClient gitHubClient;
-		
+
 		Repository repository;
 
 		IReadOnlyList<TestMergeViewModel> testMerges;
@@ -269,10 +275,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		bool updateMerge;
 		bool updateHard;
-		
+
 		bool newShowTestMergeCommitters;
 		bool newAutoUpdatesKeepTestMerges;
 		bool newAutoUpdatesSynchronize;
+		bool newPostTestMergeComment;
 		bool rateLimited;
 
 		string errorMessage;
@@ -384,6 +391,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					NewAutoUpdatesKeepTestMerges = Repository.AutoUpdatesKeepTestMerges ?? update.AutoUpdatesKeepTestMerges ?? oldRepo.AutoUpdatesKeepTestMerges ?? NewAutoUpdatesKeepTestMerges;
 					NewAutoUpdatesSynchronize = Repository.AutoUpdatesSynchronize ?? update.AutoUpdatesSynchronize ?? oldRepo.AutoUpdatesSynchronize ?? NewAutoUpdatesSynchronize;
 					NewShowTestMergeCommitters = Repository.ShowTestMergeCommitters ?? update.ShowTestMergeCommitters ?? oldRepo.ShowTestMergeCommitters ?? NewShowTestMergeCommitters;
+					NewPostTestMergeComment = Repository.PostTestMergeComment ?? update.PostTestMergeComment ?? oldRepo.PostTestMergeComment ?? NewPostTestMergeComment;
 
 					CloneAvailable = Repository.Origin == null;
 				}
@@ -436,9 +444,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					Repos = new Octokit.RepositoryCollection { { Repository.GitHubOwner, Repository.GitHubName } },
 					State = Octokit.ItemState.Open,
-					Type = Octokit.IssueTypeQualifier.PullRequest					
+					Type = Octokit.IssueTypeQualifier.PullRequest
 				}).ConfigureAwait(true);
-				
+
 				pullRequests = null;
 				foreach (var I in prs.Items)
 					DigestPR(I, null);
@@ -483,8 +491,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Selected = true,
 					Comment = x.Comment
 				};
-				if(result.CommitsLoaded)
-					result.SelectedIndex =	result.Commits.ToList().IndexOf(result.Commits.First(y => y.Substring(0, 7).ToUpperInvariant() == x.PullRequestRevision.Substring(0, 7).ToUpperInvariant()));
+				if (result.CommitsLoaded)
+					result.SelectedIndex = result.Commits.ToList().IndexOf(result.Commits.First(y => y.Substring(0, 7).ToUpperInvariant() == x.PullRequestRevision.Substring(0, 7).ToUpperInvariant()));
 				return result;
 			}));
 			if (!RateLimited && pullRequests != null)
@@ -524,7 +532,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var pr = await prTask.ConfigureAwait(true);
 					DigestPR(pr, commits);
 				}
-				if(run || forceRebuild)
+				if (run || forceRebuild)
 					RebuildTestMergeList();
 			}
 			catch (Octokit.RateLimitExceededException e)
@@ -612,6 +620,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						AutoUpdatesKeepTestMerges = CanAutoUpdate ? (bool?)NewAutoUpdatesKeepTestMerges : null,
 						AutoUpdatesSynchronize = CanAutoUpdate ? (bool?)NewAutoUpdatesSynchronize : null,
 
+						PostTestMergeComment = CanShowTMCommitters ? (bool?)NewPostTestMergeComment : null,
 						ShowTestMergeCommitters = CanShowTMCommitters ? (bool?)NewShowTestMergeCommitters : null,
 
 						CommitterEmail = !String.IsNullOrEmpty(NewCommitterEmail) ? NewCommitterEmail : null,
@@ -634,7 +643,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}
 					break;
 				case RepositoryCommand.Delete:
-					if(confirmingDelete)
+					if (confirmingDelete)
 						await Refresh(null, false, cancellationToken).ConfigureAwait(true);
 					else
 					{

@@ -189,13 +189,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						switch (Provider)
 						{
 							case ChatProvider.Discord:
-								newBot.ConnectionStringBuilder = new DiscordConnectionStringBuilder
+								newBot.SetConnectionStringBuilder(new DiscordConnectionStringBuilder
 								{
 									BotToken = DiscordBotToken
-								};
+								});
 								break;
 							case ChatProvider.Irc:
-								newBot.ConnectionStringBuilder = new IrcConnectionStringBuilder
+								newBot.SetConnectionStringBuilder(new IrcConnectionStringBuilder
 								{
 									Address = IrcServer,
 									Port = IrcPort,
@@ -203,7 +203,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 									Password = IrcUsingPassword ? IrcPassword : null,
 									PasswordType = IrcUsingPassword ? (IrcPasswordType?)IrcPasswordType : null,
 									UseSsl = IrcUseSsl
-								};
+								});
 								break;
 							default:
 								throw new InvalidOperationException("Invalid Provider!");

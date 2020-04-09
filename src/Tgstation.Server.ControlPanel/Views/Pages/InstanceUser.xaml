@@ -97,7 +97,7 @@
             </DockPanel>
             <DockPanel Grid.Column="0" Grid.Row="3" Margin="2">
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoTMCommits, Mode=TwoWay}"/>
-              <TextBlock DockPanel.Dock="Right" Text="Allow changing the 'Push Test Merge Commits' setting" Margin="5,4,0,0" />
+              <TextBlock DockPanel.Dock="Right" Text="Allow changing the 'Push Test Merge Commits' and 'Post Test Merge Comment' settings" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="1" Grid.Row="3" Margin="2">
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoCreds, Mode=TwoWay}"/>
