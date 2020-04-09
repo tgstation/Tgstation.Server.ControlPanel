@@ -143,7 +143,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		
 		readonly Dictionary<int, IReadOnlyList<CompileJobViewModel>> jobPages;
 
-		IReadOnlyList<CompileJob> jobIds;
+		IReadOnlyList<EntityId> jobIds;
 		int selectedPage;
 		int numPages;
 
@@ -226,7 +226,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				var readTask = AssignModel();
 
-				var jobsTask = CanGetJobs ? dreamMakerClient.GetJobIds(cancellationToken) : Task.FromResult<IReadOnlyList<CompileJob>>(null);
+				var jobsTask = CanGetJobs ? dreamMakerClient.GetJobIds(cancellationToken) : Task.FromResult<IReadOnlyList<EntityId>>(null);
 				
 				jobIds = await jobsTask.ConfigureAwait(true);
 				numPages = (jobIds.Count / JobsPerPage) + (jobIds.Count > JobsPerPage && ((jobIds.Count % JobsPerPage) > 0) ? 1 : 0);

@@ -1,4 +1,5 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+﻿
+<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views.Pages">
   <Grid Background="#CFD6E5">
@@ -123,7 +124,8 @@
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.NewAutoUpdatesSynchronize, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}"/>
               <TextBlock DockPanel.Dock="Right" Text="Push Test Merge Commits to Temporary Branch" Margin="5,4,0,0" />
             </DockPanel>
-            <CheckBox Background="White" Content="Show Merger Usernames in Public Metadata" IsChecked="{Binding PageContext.ActiveObject.NewShowTestMergeCommitters, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanShowTMCommitters}" Grid.Row="1"/>
+            <CheckBox Background="White" Content="Show Merger Usernames in Public Metadata" IsChecked="{Binding PageContext.ActiveObject.NewShowTestMergeCommitters, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanShowTMCommitters}" Grid.Column="0" Grid.Row="1"/>
+            <CheckBox Background="White" Content="Post GitHub comment when test merge is deployed" IsChecked="{Binding PageContext.ActiveObject.NewPostTestMergeComment, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanShowTMCommitters}" Grid.Column="1" Grid.Row="1"/>
           </Grid>
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" Grid.Row="2"/>
