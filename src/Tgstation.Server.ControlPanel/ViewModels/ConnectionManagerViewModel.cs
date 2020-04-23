@@ -259,12 +259,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (connection.Username == User.AdminName && connection.Credentials.Password == User.DefaultAdminPassword)
 					UsingDefaultCredentials = true;
 			}
-
-			if (connection.LastToken?.ExpiresAt != null && connection.LastToken.ExpiresAt.Value > DateTimeOffset.Now)
-			{
-				serverClient = serverClientFactory.CreateServerClient(connection.Url, connection.LastToken, connection.Timeout);
-				serverClient.AddRequestLogger(requestLogger);
-			}
 		}
 
 		public void Dispose()
@@ -381,8 +375,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				while (!cancellationToken.IsCancellationRequested)
 				{
 					var now = DateTimeOffset.Now;
-					if (now < serverClient.Token.ExpiresAt.Value)
-						await Task.Delay(serverClient.Token.ExpiresAt.Value - now, cancellationToken).ConfigureAwait(true);
+					if (now < serverClient.Token.ExpiresAt)
+						await Task.Delay(serverClient.Token.ExpiresAt - now, cancellationToken).ConfigureAwait(true);
 					if (await HandleConnectException(async () =>
 					 {
 						 var newConnection = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
@@ -401,7 +395,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public Task OnLoadConnect(CancellationToken cancellationToken)
 		{
-			if (connection.LastToken?.ExpiresAt != null && connection.LastToken.ExpiresAt.Value > DateTimeOffset.Now)
+			if (connection.LastToken?.ExpiresAt != null && connection.LastToken.ExpiresAt > DateTimeOffset.Now)
 				return PostConnect(cancellationToken);
 			else if (connection.Valid)
 				return BeginConnect(cancellationToken);
@@ -457,7 +451,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				ConnectionFailed = true;
 				this.RaisePropertyChanged(nameof(ConnectionFailed));
 
-				ErrorMessage = String.Format(CultureInfo.InvariantCulture, "{0} (HTTP {1})", e.Message, e.StatusCode);
+				ErrorMessage = String.Format(CultureInfo.InvariantCulture, "{0} (HTTP {1})", e.Message, e.ResponseMessage.StatusCode);
 			}
 			catch (HttpRequestException e)
 			{

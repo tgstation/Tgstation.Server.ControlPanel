@@ -52,9 +52,9 @@
     <PackageReference Include="Avalonia" Version="0.7.0" />
     <PackageReference Include="Avalonia.Desktop" Version="0.7.0" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.7.0" />
-    <PackageReference Include="Octokit" Version="0.32.0" />
-    <PackageReference Include="System.Reactive" Version="4.1.2" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.5.0" />
+    <PackageReference Include="Octokit" Version="0.47.0" />
+    <PackageReference Include="System.Reactive" Version="4.4.1" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.7.0" />
     <PackageReference Include="TextCopy" Version="1.5.0" />
     <PackageReference Include="Tgstation.Server.Client" Version="4.0.3" />
   </ItemGroup>

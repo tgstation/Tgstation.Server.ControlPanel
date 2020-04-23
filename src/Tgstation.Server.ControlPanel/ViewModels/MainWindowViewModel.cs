@@ -383,7 +383,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			var updatesTask = CheckForUpdates();
 			Connections = new List<ConnectionManagerViewModel>(settings.Connections.Select(x => CreateConnection(x)));
-			await Task.WhenAll(Connections.Select(x => x.OnLoadConnect(default))).ConfigureAwait(true);
 			await updatesTask.ConfigureAwait(true);
 		}
 
