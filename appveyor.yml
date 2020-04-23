@@ -24,7 +24,6 @@ cache:
 install:
 #  - nuget sources add -Name AvaloniaNightlies -Source https://www.myget.org/F/avalonia-ci/api/v2
   - nuget restore Tgstation.Server.ControlPanel.sln
-  - set path=%HOMEPATH%\.nuget\packages\squirrel.windows\1.8.0\tools;%path%
 build:
   project: Tgstation.Server.ControlPanel.sln
   parallel: false
