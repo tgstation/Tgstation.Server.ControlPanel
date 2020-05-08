@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -38,6 +39,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public string ValidPaths => serverInformation.ValidInstancePaths?.Any() == true ? $"\"{String.Join("\", \"", serverInformation.ValidInstancePaths)}\"" : "Anywhere!";
+
 		public string Path
 		{
 			get => path;
@@ -56,22 +59,24 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly PageContextViewModel pageContext;
 		readonly IInstanceManagerClient instanceManagerClient;
 		readonly InstanceRootViewModel instanceRootViewModel;
+		readonly ServerInformation serverInformation;
 
 		string name;
 		string path;
 
 		bool adding;
 
-		public AddInstanceViewModel(PageContextViewModel pageContext, IInstanceManagerClient instanceManagerClient, InstanceRootViewModel instanceRootViewModel)
+		public AddInstanceViewModel(PageContextViewModel pageContext, ServerInformation serverInformation, IInstanceManagerClient instanceManagerClient, InstanceRootViewModel instanceRootViewModel)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
+			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
 			this.instanceManagerClient = instanceManagerClient ?? throw new ArgumentNullException(nameof(instanceManagerClient));
 			this.instanceRootViewModel = instanceRootViewModel ?? throw new ArgumentNullException(nameof(instanceRootViewModel));
 
 			Close = new EnumCommand<AddInstanceCommand>(AddInstanceCommand.Close, this);
 			Add = new EnumCommand<AddInstanceCommand>(AddInstanceCommand.Add, this);
 
-			Path = DefaultInstancePath;
+			Path = serverInformation.ValidInstancePaths?.FirstOrDefault() ?? DefaultInstancePath;
 			Name = String.Empty;
 		}
 

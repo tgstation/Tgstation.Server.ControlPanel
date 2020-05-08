@@ -30,8 +30,10 @@
           </Grid.ColumnDefinitions>
           <TextBlock Text="Name:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
           <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.Name, Mode=TwoWay}"/>
-          <TextBlock Text="Path on Host:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
-          <TextBox Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.Path, Mode=TwoWay}"/>
+          <TextBlock Text="Instances may be placed in the following paths:" Margin="0,5,0,5" Grid.Column="0" Grid.Row="1" />
+          <TextBlock Text="{Binding PageContext.ActiveObject.ValidPaths}" Margin="50,5,0,5" Grid.Column="1" Grid.Row="1" />
+          <TextBlock Text="Path on Host:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="2" />
+          <TextBox Grid.Column="1" Grid.Row="2" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.Path, Mode=TwoWay}"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

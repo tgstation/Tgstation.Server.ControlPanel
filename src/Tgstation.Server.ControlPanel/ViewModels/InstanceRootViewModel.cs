@@ -85,7 +85,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				var newChildren = new List<ITreeNode>();
 				if (hasCreateRight)
 				{
-					auvm = new AddInstanceViewModel(pageContext, instanceManagerClient, this);
+					auvm = new AddInstanceViewModel(pageContext, serverInformation, instanceManagerClient, this);
 					newChildren.Add(auvm);
 				}
 
