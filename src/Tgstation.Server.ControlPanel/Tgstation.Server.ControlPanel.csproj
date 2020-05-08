@@ -4,7 +4,7 @@
     <TargetFrameworks>netcoreapp2.1;net471</TargetFrameworks>
     <ApplicationIcon />
     <StartupObject />
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <LangVersion>7.3</LangVersion>
