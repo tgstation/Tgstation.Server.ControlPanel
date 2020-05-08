@@ -54,10 +54,15 @@
         <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="75"/>
+            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="100"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="Channels" FontSize="20" Grid.Column="0"/>
-          <Button Grid.Column="1" Content="Add Channel" Command="{Binding PageContext.ActiveObject.AddChannel}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <TextBlock Text="Maximum:" FontSize="15" Grid.Column="1"/>
+          <NumericUpDown Minimum="1" Maximum="65535" Height="25" IsEnabled="{Binding PageContext.ActiveObject.CanChannelLimit}" Value="{Binding PageContext.ActiveObject.NewChannelLimit}" Grid.Column="2"/>
+          <Button Grid.Column="4" Content="Add Channel" Command="{Binding PageContext.ActiveObject.AddChannel}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

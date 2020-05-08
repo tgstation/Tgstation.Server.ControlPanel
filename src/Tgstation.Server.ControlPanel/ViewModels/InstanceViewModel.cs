@@ -52,6 +52,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanAutoUpdate => userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.SetAutoUpdate);
 		public bool CanConfig => userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.SetConfiguration);
 		public bool CanDelete => userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Delete);
+		public bool CanChatBot => userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.SetChatBotLimit);
 
 		public bool Enabled
 		{
@@ -68,6 +69,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => newPath;
 			set => this.RaiseAndSetIfChanged(ref newPath, value);
 		}
+		public ushort NewChatBotLimit
+		{
+			get => newChatBotLimit;
+			set => this.RaiseAndSetIfChanged(ref newChatBotLimit, value);
+		}
+
 		public ConfigurationType ConfigMode
 		{
 			get => configType;
@@ -105,6 +112,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool enabled;
 		string newName;
 		string newPath;
+		ushort newChatBotLimit;
 		ConfigurationType configType;
 		uint autoUpdateInterval;
 
@@ -173,6 +181,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Enabled = Instance.Online.Value;
 				ConfigMode = Instance.ConfigurationType.Value;
 				AutoUpdateInterval = Instance.AutoUpdateInterval.Value;
+				NewChatBotLimit = Instance.ChatBotLimit.Value;
 				NewName = String.Empty;
 				NewPath = String.Empty;
 
@@ -212,7 +221,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				new ByondViewModel(pageContext, instanceClient.Byond, instanceJobSink, instanceUserTreeNode),
 				new CompilerViewModel(pageContext, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode),
 				new DreamDaemonViewModel(pageContext, instanceClient.DreamDaemon, instanceJobSink, instanceUserTreeNode, x => SetDDRunning(x)),
-				new ChatRootViewModel(pageContext, instanceClient.ChatBots, instanceUserTreeNode),
+				new ChatRootViewModel(pageContext, instanceClient.ChatBots, instance.ChatBotLimit.Value, instanceUserTreeNode),
 			};
 
 			if (Instance.ConfigurationType == ConfigurationType.Disallowed)
@@ -316,6 +325,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							newInstance.ConfigurationType = ConfigMode;
 						if (CanAutoUpdate)
 							newInstance.AutoUpdateInterval = AutoUpdateInterval;
+						if (CanChatBot)
+							newInstance.ChatBotLimit = NewChatBotLimit;
 
 						await Update(newInstance).ConfigureAwait(true);
 						break;

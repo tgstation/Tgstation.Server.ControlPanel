@@ -36,6 +36,7 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -45,6 +46,8 @@
           <TextBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanRename}" Text="{Binding PageContext.ActiveObject.NewName, Mode=TwoWay}" Grid.Column="1" Grid.Row="0"/>
           <TextBlock Text="New Path:" Margin="5,4,50,0"  Grid.Column="0" Grid.Row="1"/>
           <TextBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanRelocate}" Text="{Binding PageContext.ActiveObject.NewPath, Mode=TwoWay}" Grid.Column="1" Grid.Row="1"/>
+          <TextBlock Text="Chat Bot Limit:" Margin="5,4,50,0"  Grid.Column="0" Grid.Row="2"/>
+          <NumericUpDown Minimum="0" Maximum="65535" Height="25" IsEnabled="{Binding PageContext.ActiveObject.CanPort}" Value="{Binding PageContext.ActiveObject.NewChatBotLimit}" Grid.Row="2" Grid.Column="1"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

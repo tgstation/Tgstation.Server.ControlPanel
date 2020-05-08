@@ -40,6 +40,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanName => rightsProvider.ChatBotRights.HasFlag(ChatBotRights.WriteName);
 		public bool CanProvider => rightsProvider.ChatBotRights.HasFlag(ChatBotRights.WriteProvider);
 		public bool CanEnable => rightsProvider.ChatBotRights.HasFlag(ChatBotRights.WriteEnabled);
+		public bool CanChannelLimit => rightsProvider.ChatBotRights.HasFlag(ChatBotRights.WriteEnabled);
 
 		public bool Refreshing
 		{
@@ -106,6 +107,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref newName, value);
 		}
 
+		public ushort NewChannelLimit
+		{
+			get => newChannelLimit;
+			set => this.RaiseAndSetIfChanged(ref newChannelLimit, value);
+		}
+
 		public string DeleteText => confirmingDelete ? "Confirm?" : "Delete";
 
 		readonly PageContextViewModel pageContext;
@@ -119,6 +126,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string newName;
 
 		ChatBot chatBot;
+		ushort newChannelLimit;
 		bool refreshing;
 		bool confirmingDelete;
 		bool newEnabled;
@@ -130,6 +138,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.chatBotsClient = chatBotsClient ?? throw new ArgumentNullException(nameof(chatBotsClient));
 			ChatBot = chatBot ?? throw new ArgumentNullException(nameof(chatBot));
+			NewChannelLimit = ChatBot.ChannelLimit.Value;
 			this.rightsProvider = rightsProvider ?? throw new ArgumentNullException(nameof(rightsProvider));
 			this.chatRootViewModel = chatRootViewModel ?? throw new ArgumentNullException(nameof(chatRootViewModel));
 
@@ -177,6 +186,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						Id = ChatBot.Id,
 						ConnectionString = CanConnectionString && !String.IsNullOrEmpty(NewConnectionString) && NewConnectionString != ChatBot.ConnectionString ? NewConnectionString : null,
+						ChannelLimit = CanChannelLimit ? (ushort?)NewChannelLimit : null,
 						Enabled = CanEnable && ChatBot.Enabled != NewEnabled ? (bool?)NewEnabled : null
 					};
 

@@ -31,6 +31,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly PageContextViewModel pageContext;
 		readonly IChatBotsClient chatBotsClient;
 		readonly IInstanceUserRightsProvider rightsProvider;
+		readonly uint chatBotLimit;
 
 		IReadOnlyList<ITreeNode> children;
 		IReadOnlyList<ChatBot> chatBots;
@@ -39,11 +40,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string icon;
 
 
-		public ChatRootViewModel(PageContextViewModel pageContext, IChatBotsClient chatBotsClient, IInstanceUserRightsProvider rightsProvider)
+		public ChatRootViewModel(PageContextViewModel pageContext, IChatBotsClient chatBotsClient, uint chatBotLimit, IInstanceUserRightsProvider rightsProvider)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.chatBotsClient = chatBotsClient ?? throw new ArgumentNullException(nameof(chatBotsClient));
 			this.rightsProvider = rightsProvider ?? throw new ArgumentNullException(nameof(rightsProvider));
+			this.chatBotLimit = chatBotLimit;
 
 			Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
 
@@ -83,7 +85,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					chatBots = await chatBotsClient.List(cancellationToken).ConfigureAwait(true);
 
 				if (rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.WriteUsers))
-					newChildren.Add(new AddChatBotViewModel(pageContext, chatBotsClient, rightsProvider, this));
+					if (chatBots.Count < this.chatBotLimit)
+						newChildren.Add(new AddChatBotViewModel(pageContext, chatBotsClient, rightsProvider, this));
+					else
+						newChildren.Add(new BasicNode
+						{
+							Title = "Chat Bot Limit Reached",
+							Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+						});
 
 				if (hasReadRight)
 					newChildren.AddRange(chatBots
