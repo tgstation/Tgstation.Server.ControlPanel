@@ -13,6 +13,7 @@
         <ColumnDefinition Width="1*" />
         <ColumnDefinition Width="1*" />
         <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="1*" />
       </Grid.ColumnDefinitions>
       <TextBlock Text="Id" Grid.Column="0"/>
       <TextBlock Text="Byond Version" Grid.Column="1"/>
@@ -23,6 +24,7 @@
       <TextBlock Text="Revision" Grid.Column="6"/>
       <TextBlock Text="Origin Revision" Grid.Column="7"/>
       <TextBlock Text="Minimum Security" Grid.Column="8"/>
+      <TextBlock Text="DMAPI Version" Grid.Column="9"/>
     </Grid>
     <Panel Background="Black">
       <TreeView Items="{Binding}" Background="White" Margin="1">
@@ -32,6 +34,7 @@
               <StackPanel Background="White" Margin="1">
                 <Grid>
                   <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
@@ -51,6 +54,7 @@
                   <TextBlock Text="{Binding Revision}" Grid.Column="6"/>
                   <TextBlock Text="{Binding OriginRevision}" Grid.Column="7"/>
                   <TextBlock Text="{Binding MinimumSecurity}" Grid.Column="8"/>
+                  <TextBlock Text="{Binding DMApiVersion}" Grid.Column="9"/>
                 </Grid>
                 <Grid IsVisible="{Binding HasTestMerges}" Margin="10,0,0,0">
                   <Grid.ColumnDefinitions>
