@@ -236,7 +236,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Refreshing = true;
 					try
 					{
-						await chatBotsClient.GetId(ChatBot, cancellationToken).ConfigureAwait(true);
+						ChatBot = await chatBotsClient.GetId(ChatBot, cancellationToken).ConfigureAwait(true);
+						NewChannelLimit = ChatBot.ChannelLimit.Value;
 					}
 					finally
 					{
