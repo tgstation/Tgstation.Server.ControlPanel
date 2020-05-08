@@ -30,7 +30,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set
 			{
 				this.RaiseAndSetIfChanged(ref selected, value);
-				onActivate(TestMerge.Number.Value);
+				onActivate(TestMerge.Number);
 			}
 		}
 

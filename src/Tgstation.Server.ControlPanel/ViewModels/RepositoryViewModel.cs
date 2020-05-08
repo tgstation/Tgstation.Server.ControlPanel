@@ -479,14 +479,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			var tmp = Repository?.RevisionInformation?.ActiveTestMerges == null ? new List<TestMergeViewModel>() : new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x =>
 			{
-				if (!(updateHard && pullRequests?.ContainsKey(x.Number.Value) == true))
+				if (!(updateHard && pullRequests?.ContainsKey(x.Number) == true))
 					return new TestMergeViewModel(x, DeactivatePR);
 				TestMergeViewModel result = null;
 				async Task LoadCommits(CancellationToken cancellationToken)
 				{
-					result.LoadCommitsAction(await gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, x.Number.Value).ConfigureAwait(false));
+					result.LoadCommitsAction(await gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, x.Number).ConfigureAwait(false));
 				}
-				result = new TestMergeViewModel(pullRequests[x.Number.Value], pullRequestCommits[x.Number.Value], y => { }, LoadCommits)
+				result = new TestMergeViewModel(pullRequests[x.Number], pullRequestCommits[x.Number], y => { }, LoadCommits)
 				{
 					Selected = true,
 					Comment = x.Comment

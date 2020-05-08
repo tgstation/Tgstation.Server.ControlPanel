@@ -19,12 +19,13 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
+  <!--
   <Target Name="RunSquirrel" AfterTargets="Build" Condition="'$(Configuration)'=='Release'">
     <Message Text="Packing Windows Release..." Importance="high" />
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
       <Output TaskParameter="Assemblies" ItemName="myAssemblyInfo" />
     </GetAssemblyIdentity>
-    <Exec Command="$(HOMEDRIVE)$(HOMEPATH)\.nuget\packages\squirrel.windows\1.9.1\tools\squirrel.exe --releasify $(OutDir)Tgstation.Server.ControlPanel.Windows.$([System.Version]::Parse(%(myAssemblyInfo.Version)).ToString(3)).nupkg" />
+    <Exec Command="$(HOMEDRIVE)$(HOMEPATH)\.nuget\packages\squirrel.windows\1.9.1\tools\squirrel.exe releasify $(OutDir)Tgstation.Server.ControlPanel.Windows.$([System.Version]::Parse(%(myAssemblyInfo.Version)).ToString(3)).nupkg" />
   </Target>
-
+-->
 </Project>

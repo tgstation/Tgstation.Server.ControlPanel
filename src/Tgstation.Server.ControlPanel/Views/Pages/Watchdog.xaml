@@ -103,7 +103,7 @@
           </Grid.ColumnDefinitions>
           <TextBlock Text="Security Level:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="7" />
           <TextBlock Text="Graceful Action:" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7" />
-          <RadioButton Content="Ultrasafe (Not currently supported)" IsEnabled="False" Grid.Row="1" Grid.Column="1" IsChecked="False" />
+          <RadioButton Content="Ultrasafe" Grid.Row="1" Grid.Column="1" IsChecked="{Binding PageContext.ActiveObject.Ultrasafe}" />
           <RadioButton Content="Safe" Grid.Row="1" Grid.Column="3" IsChecked="{Binding PageContext.ActiveObject.Safe}" />
           <RadioButton Content="Trusted" Grid.Row="1" Grid.Column="5" IsChecked="{Binding PageContext.ActiveObject.Trusted}" />
           <RadioButton GroupName="GA" Content="None" Grid.Row="3" Grid.Column="1" IsChecked="{Binding PageContext.ActiveObject.ClearSoft}" IsEnabled="{Binding PageContext.ActiveObject.Model.Running}"/>

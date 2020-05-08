@@ -125,6 +125,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public bool Ultrasafe
+		{
+			get => Model?.SecurityLevel == DreamDaemonSecurity.Ultrasafe;
+			set
+			{
+				if (!value)
+					return;
+				Model.SecurityLevel = DreamDaemonSecurity.Ultrasafe;
+				this.RaisePropertyChanged(nameof(Safe));
+				this.RaisePropertyChanged(nameof(Ultrasafe));
+			}
+		}
+
 		public bool Safe
 		{
 			get => Model?.SecurityLevel == DreamDaemonSecurity.Safe;
@@ -134,7 +147,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					return;
 				Model.SecurityLevel = DreamDaemonSecurity.Safe;
 				this.RaisePropertyChanged(nameof(Trusted));
-				this.RaisePropertyChanged(nameof(Safe));
+				this.RaisePropertyChanged(nameof(Ultrasafe));
 			}
 		}
 
@@ -147,7 +160,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					return;
 				Model.SecurityLevel = DreamDaemonSecurity.Trusted;
 				this.RaisePropertyChanged(nameof(Safe));
-				this.RaisePropertyChanged(nameof(Trusted));
+				this.RaisePropertyChanged(nameof(Ultrasafe));
 			}
 		}
 
