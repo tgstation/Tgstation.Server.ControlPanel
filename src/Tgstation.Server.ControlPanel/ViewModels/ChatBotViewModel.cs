@@ -40,7 +40,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanName => rightsProvider.ChatBotRights.HasFlag(ChatBotRights.WriteName);
 		public bool CanProvider => rightsProvider.ChatBotRights.HasFlag(ChatBotRights.WriteProvider);
 		public bool CanEnable => rightsProvider.ChatBotRights.HasFlag(ChatBotRights.WriteEnabled);
-		public bool CanChannelLimit => rightsProvider.ChatBotRights.HasFlag(ChatBotRights.WriteEnabled);
+		public bool CanChannelLimit => rightsProvider.ChatBotRights.HasFlag(ChatBotRights.WriteChannelLimit);
 
 		public bool Refreshing
 		{
@@ -197,6 +197,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					try
 					{
 						ChatBot = await chatBotsClient.Update(update, cancellationToken).ConfigureAwait(true);
+						NewChannelLimit = ChatBot.ChannelLimit.Value;
 					}
 					finally
 					{

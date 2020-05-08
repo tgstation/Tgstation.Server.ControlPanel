@@ -85,8 +85,8 @@
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminEditPassword, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Edit Own Password" Margin="5,4,0,0" IsVisible="{Binding !PageContext.ActiveObject.IsSystemUser}"/>
             <TextBlock DockPanel.Dock="Right" Text="Edit Own Password (Not Applicable For System Users)" Margin="5,4,0,0" IsVisible="{Binding PageContext.ActiveObject.IsSystemUser}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Edit Own Password" Margin="5,4,0,0" IsVisible="{Binding !PageContext.ActiveObject.IsSystemUser}"/>
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminRestartServer, Mode=TwoWay}"/>
@@ -115,42 +115,48 @@
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
           </Grid.RowDefinitions>
           <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceRead, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Read Info of Accessible Instances" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceCreate, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Create new Instances" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceRename, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Rename Instances" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceRelocate, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Relocate Instances" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="0" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceOnline, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Online and Offline Instances" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="1" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceDelete, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Detach Instances" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="0" Grid.Row="3" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceList, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="View All Instances" Margin="5,4,0,0" />
           </DockPanel>
+          <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceDelete, Mode=TwoWay}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Detach Instances" Margin="5,4,0,0" />
+          </DockPanel>
+          <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceCreate, Mode=TwoWay}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Create new Instances" Margin="5,4,0,0" />
+          </DockPanel>
+          <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Text="The following permissions additionally allow users to give themselves full permissions on an instance:" Margin="5,4,0,0" />
+          <DockPanel Grid.Column="0" Grid.Row="3" Margin="2">
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceRename, Mode=TwoWay}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Rename Instances" Margin="5,4,0,0" />
+          </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="3" Margin="2">
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceRelocate, Mode=TwoWay}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Relocate Instances" Margin="5,4,0,0" />
+          </DockPanel>
+          <DockPanel Grid.Column="0" Grid.Row="4" Margin="2">
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceOnline, Mode=TwoWay}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Online and Offline Instances" Margin="5,4,0,0" />
+          </DockPanel>
+          <DockPanel Grid.Column="1" Grid.Row="4" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceConfig, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Change Instance Configuration Modes" Margin="5,4,0,0" />
           </DockPanel>
-          <DockPanel Grid.Column="0" Grid.Row="4" Margin="2">
+          <DockPanel Grid.Column="0" Grid.Row="5" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceUpdate, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Manage Instance Auto Updating" Margin="5,4,0,0" />
+          </DockPanel>
+          <DockPanel Grid.Column="1" Grid.Row="5" Margin="2">
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceChatLimit, Mode=TwoWay}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Set Chat Bot Limits" Margin="5,4,0,0" />
           </DockPanel>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>

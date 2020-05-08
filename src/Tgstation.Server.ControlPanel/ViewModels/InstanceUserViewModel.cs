@@ -622,6 +622,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newChatBotRights &= ~right;
 			}
 		}
+		public bool ChatChannelLimit
+		{
+			get => newChatBotRights.HasFlag(ChatBotRights.WriteChannelLimit);
+			set
+			{
+				var right = ChatBotRights.WriteChannelLimit;
+				if (value)
+					newChatBotRights |= right;
+				else
+					newChatBotRights &= ~right;
+			}
+		}
 
 		public bool StaticRead
 		{
@@ -792,6 +804,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(ChatName));
 				this.RaisePropertyChanged(nameof(ChatCreate));
 				this.RaisePropertyChanged(nameof(ChatDelete));
+				this.RaisePropertyChanged(nameof(ChatChannelLimit));
 
 				this.RaisePropertyChanged(nameof(StaticRead));
 				this.RaisePropertyChanged(nameof(StaticWrite));

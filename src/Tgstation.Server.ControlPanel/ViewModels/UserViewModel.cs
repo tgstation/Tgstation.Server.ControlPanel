@@ -51,6 +51,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(InstanceRelocate));
 					this.RaisePropertyChanged(nameof(InstanceRename));
 					this.RaisePropertyChanged(nameof(InstanceUpdate));
+					this.RaisePropertyChanged(nameof(InstanceChatLimit));
 					this.RaisePropertyChanged(nameof(IsSystemUser));
 				}
 			}
@@ -291,6 +292,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newInstanceManagerRights &= ~right;
 			}
 		}
+		public bool InstanceChatLimit
+		{
+			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.SetChatBotLimit);
+			set
+			{
+				var right = InstanceManagerRights.SetChatBotLimit;
+				if (value)
+					newInstanceManagerRights |= right;
+				else
+					newInstanceManagerRights &= ~right;
+			}
+		}
 
 		public string PasswordLength => $"Minimum Length: {serverInformation.MinimumPasswordLength}";
 
@@ -358,8 +371,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case UserCommand.Close:
 					return true;
 				case UserCommand.Save:
-					if ((NewPassword != PasswordConfirm || (NewPassword?.Length ?? 0) < serverInformation.MinimumPasswordLength) || !CanEditPassword)
-						return false;
+					var changedPassword = (NewPassword?.Length ?? 0 + PasswordConfirm?.Length ?? 0) > 0;
+					if (changedPassword)
+					{
+						var validPassword = changedPassword && NewPassword == PasswordConfirm && (NewPassword?.Length ?? 0) < serverInformation.MinimumPasswordLength;
+
+						if (!CanEditPassword || !validPassword)
+							return false;
+					}
+
 					goto case UserCommand.Refresh;
 				case UserCommand.Refresh:
 					return !Refreshing;
