@@ -61,9 +61,9 @@
               <ColumnDefinition Width="400"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="New Password:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
-            <TextBox PasswordChar="*" Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" IsEnabled="{Binding PageContext.ActiveObject.CanEditPassword}" Text="{Binding PageContext.ActiveObject.NewPassword, Mode=TwoWay}"/>
+            <TextBox PasswordChar="*" Watermark="{Binding PageContext.ActiveObject.PasswordLength}" Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" IsEnabled="{Binding PageContext.ActiveObject.CanEditPassword}" Text="{Binding PageContext.ActiveObject.NewPassword, Mode=TwoWay}"/>
             <TextBlock Text="Confirm Password:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
-            <TextBox PasswordChar="*" Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" IsEnabled="{Binding PageContext.ActiveObject.CanEditPassword}" Text="{Binding PageContext.ActiveObject.PasswordConfirm, Mode=TwoWay}"/>
+            <TextBox PasswordChar="*" Watermark="{Binding PageContext.ActiveObject.PasswordLength}" Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" IsEnabled="{Binding PageContext.ActiveObject.CanEditPassword}" Text="{Binding PageContext.ActiveObject.PasswordConfirm, Mode=TwoWay}"/>
           </Grid>
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>

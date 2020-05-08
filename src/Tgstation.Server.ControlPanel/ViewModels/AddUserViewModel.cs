@@ -52,6 +52,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public string PasswordLength => $"Minimum Length: {serverInformation.MinimumPasswordLength}";
+
 		public string SystemIdentifier
 		{
 			get => systemIdentifier;
@@ -68,6 +70,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<AddUserCommand> Add { get; }
 
 		readonly PageContextViewModel pageContext;
+		readonly ServerInformation serverInformation;
 		readonly IUsersClient usersClient;
 		readonly UsersRootViewModel usersRootViewModel;
 
@@ -76,9 +79,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string confirmPassword;
 		string systemIdentifier;
 
-		public AddUserViewModel(PageContextViewModel pageContext, IUsersClient usersClient, UsersRootViewModel usersRootViewModel)
+		public AddUserViewModel(PageContextViewModel pageContext, ServerInformation serverInformation, IUsersClient usersClient, UsersRootViewModel usersRootViewModel)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
+			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
 			this.usersClient = usersClient ?? throw new ArgumentNullException(nameof(usersClient));
 			this.usersRootViewModel = usersRootViewModel ?? throw new ArgumentNullException(nameof(usersRootViewModel));
 
@@ -103,7 +107,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case AddUserCommand.Close:
 					return true;
 				case AddUserCommand.Add:
-					return ((Username.Length > 0 && Password.Length > 0) ^ (SystemIdentifier.Length > 0)) && Password == ConfirmPassword;
+					return ((Username.Length > 0 && Password.Length > serverInformation.MinimumPasswordLength) ^ (SystemIdentifier.Length > 0)) && Password == ConfirmPassword;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}

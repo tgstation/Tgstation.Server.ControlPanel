@@ -297,7 +297,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Title = "API Version",
 				Icon = LoadingGif
 			};
-			
+
+			var instanceLimitNode = new BasicNode
+			{
+				Title = "Instance Limit",
+				Icon = LoadingGif
+			};
+
+			var userLimitNode = new BasicNode
+			{
+				Title = "User Limit",
+				Icon = LoadingGif
+			};
+
 			var fakeUserNode = new BasicNode
 			{
 				Title = "Current User",
@@ -314,8 +326,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					
 					versionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", versionNode.Title, serverInfo.Version);
 					apiVersionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", apiVersionNode.Title, serverInfo.ApiVersion);
+					instanceLimitNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", instanceLimitNode.Title, serverInfo.InstanceLimit);
+					userLimitNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", userLimitNode.Title, serverInfo.UserLimit);
 					versionNode.Icon = InfoIcon;
 					apiVersionNode.Icon = InfoIcon;
+					instanceLimitNode.Icon = InfoIcon;
+					userLimitNode.Icon = InfoIcon;
 				}
 				catch (UnauthorizedException)
 				{
@@ -327,23 +343,27 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					versionNode.Icon = ErrorIcon;
 					apiVersionNode.Icon = ErrorIcon;
+					instanceLimitNode.Icon = ErrorIcon;
+					userLimitNode.Icon = ErrorIcon;
 					return;
 				}
 				versionNode.RaisePropertyChanged(nameof(Icon));
 				apiVersionNode.RaisePropertyChanged(nameof(Icon));
-				
+				instanceLimitNode.RaisePropertyChanged(nameof(Icon));
+				userLimitNode.RaisePropertyChanged(nameof(Icon));
+
 				List<ITreeNode> newChildren;
 				try
 				{
 					var user = await userInfoTask.ConfigureAwait(false);
 					newChildren = new List<ITreeNode>(Children.Where(x => x != fakeUserNode));
-					userVM = new UserViewModel(serverClient.Users, user, pageContext, null);
+					userVM = new UserViewModel(serverClient.Users, serverInfo, user, pageContext, null);
 					this.RaisePropertyChanged(nameof(Title));
 					newChildren.Add(userVM);
 					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM, this, serverInfo.Version));
-					var urVM = new UsersRootViewModel(serverClient.Users, pageContext, userVM);
+					var urVM = new UsersRootViewModel(serverClient.Users, serverInfo, pageContext, userVM);
 					newChildren.Add(urVM);
-					newChildren.Add(new InstanceRootViewModel(pageContext, serverClient.Instances, userVM, urVM, jobSink, gitHubClient));
+					newChildren.Add(new InstanceRootViewModel(pageContext, serverInfo, serverClient.Instances, userVM, urVM, jobSink, gitHubClient));
 				}
 				catch
 				{
@@ -359,6 +379,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				versionNode,
 				apiVersionNode,
+				instanceLimitNode,
+				userLimitNode,
 				fakeUserNode
 			};
 			Children = childNodes;

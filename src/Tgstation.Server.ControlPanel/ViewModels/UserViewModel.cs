@@ -292,8 +292,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public string PasswordLength => $"Minimum Length: {serverInformation.MinimumPasswordLength}";
+
 		public event EventHandler OnUpdated;
 
+		readonly ServerInformation serverInformation;
 		readonly IUserRightsProvider userRightsProvider;
 		readonly IUsersClient usersClient;
 		readonly PageContextViewModel pageContext;
@@ -312,9 +315,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string newPassword;
 		string passwordConfirm;
 
-		public UserViewModel(IUsersClient usersClient, User user, PageContextViewModel pageContext, IUserRightsProvider userRightsProvider)
+		public UserViewModel(IUsersClient usersClient, ServerInformation serverInformation, User user, PageContextViewModel pageContext, IUserRightsProvider userRightsProvider)
 		{
 			this.usersClient = usersClient ?? throw new ArgumentNullException(nameof(usersClient));
+			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
 			User = user ?? throw new ArgumentNullException(nameof(user));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.userRightsProvider = userRightsProvider ?? this;
@@ -354,7 +358,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case UserCommand.Close:
 					return true;
 				case UserCommand.Save:
-					if (NewPassword != PasswordConfirm || !CanEditPassword)
+					if ((NewPassword != PasswordConfirm || (NewPassword?.Length ?? 0) < serverInformation.MinimumPasswordLength) || !CanEditPassword)
 						return false;
 					goto case UserCommand.Refresh;
 				case UserCommand.Refresh:

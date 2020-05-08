@@ -33,6 +33,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		readonly PageContextViewModel pageContext;
+		readonly ServerInformation serverInformation;
 		readonly IInstanceManagerClient instanceManagerClient;
 		readonly IUserRightsProvider userRightsProvider;
 		readonly IUserProvider userProvider;
@@ -44,9 +45,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool loading;
 		bool isExpanded;
 
-		public InstanceRootViewModel(PageContextViewModel pageContext, IInstanceManagerClient instanceManagerClient, IUserRightsProvider userRightsProvider, IUserProvider userProvider, IServerJobSink serverJobSink, Octokit.IGitHubClient gitHubClient)
+		public InstanceRootViewModel(PageContextViewModel pageContext, ServerInformation serverInformation, IInstanceManagerClient instanceManagerClient, IUserRightsProvider userRightsProvider, IUserProvider userProvider, IServerJobSink serverJobSink, Octokit.IGitHubClient gitHubClient)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
+			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
 			this.instanceManagerClient = instanceManagerClient ?? throw new ArgumentNullException(nameof(instanceManagerClient));
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
 			this.userProvider = userProvider ?? throw new ArgumentNullException(nameof(userProvider));
@@ -107,7 +109,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 						newChildren = new List<ITreeNode>();
 						if (hasCreateRight)
-							newChildren.Add(auvm);
+							if (instances.Count < serverInformation.InstanceLimit)
+								newChildren.Add(auvm);
+							else
+								newChildren.Add(new BasicNode
+								{
+									Title = "Instance Limit Reached",
+									Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+								});
 						newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x, userRightsProvider, this, userProvider, serverJobSink, gitHubClient)));
 						if (instances.Count == 1)
 							newChildren[hasCreateRight ? 1 : 0].IsExpanded = true;

@@ -32,6 +32,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IUsersClient usersClient;
 		readonly PageContextViewModel pageContext;
 		readonly UserViewModel currentUser;
+		readonly ServerInformation serverInformation;
 
 		IReadOnlyList<ITreeNode> children;
 		IReadOnlyList<User> lastUsers;
@@ -39,9 +40,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		string icon;
 
-		public UsersRootViewModel(IUsersClient usersClient, PageContextViewModel pageContext, UserViewModel currentUser)
+		public UsersRootViewModel(IUsersClient usersClient, ServerInformation serverInformation, PageContextViewModel pageContext, UserViewModel currentUser)
 		{
 			this.usersClient = usersClient ?? throw new ArgumentNullException(nameof(usersClient));
+			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
 
@@ -68,7 +70,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				return;
 			}
 
-			var auvm = new AddUserViewModel(pageContext, usersClient, this);
+			var auvm = new AddUserViewModel(pageContext, serverInformation, usersClient, this);
 			var basic = new BasicNode()
 			{
 				Title = "Loading...",
@@ -76,7 +78,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			};
 			Children = new List<ITreeNode>
 			{
-				auvm,
 				basic
 			};
 
@@ -85,9 +86,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				lastUsers = await usersClient.List(cancellationToken).ConfigureAwait(false);
 				var newChildren = new List<ITreeNode>
 				{
-					auvm
+					lastUsers.Count < serverInformation.UserLimit ? (ITreeNode)auvm : new BasicNode
+					{
+						Title = "User Limit Reached",
+						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
+					}
 				};
-				newChildren.AddRange(lastUsers.Where(x => x.Id != currentUser.User.Id).Select(x => new UserViewModel(usersClient, x, pageContext, currentUser)));
+				newChildren.AddRange(lastUsers.Where(x => x.Id != currentUser.User.Id).Select(x => new UserViewModel(usersClient, serverInformation, x, pageContext, currentUser)));
 				Children = newChildren;
 				Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
 			}
@@ -109,7 +114,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public void DirectAdd(User user)
 		{
-			var newModel = new UserViewModel(usersClient, user, pageContext, currentUser);
+			var newModel = new UserViewModel(usersClient, serverInformation, user, pageContext, currentUser);
 			var newChildren = new List<ITreeNode>(Children)
 			{
 				newModel
