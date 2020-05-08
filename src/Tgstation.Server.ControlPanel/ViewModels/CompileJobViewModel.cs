@@ -18,6 +18,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string Duration => (CompileJob.Job.StoppedAt.Value - CompileJob.Job.StartedAt.Value).ToString("hh\\:mm\\:ss");
 
 		public string Revision => CompileJob.RevisionInformation.CommitSha.Substring(0, 7);
+		public string ByondVersion => $"{CompileJob.ByondVersion.Major}.{CompileJob.ByondVersion.Minor}";
 		public string DMApiVersion => $"{CompileJob.DMApiVersion.Major}.{CompileJob.DMApiVersion.Minor}.{CompileJob.DMApiVersion.Build}";
 		public string OriginRevision => CompileJob.RevisionInformation.OriginCommitSha.Substring(0, 7);
 
