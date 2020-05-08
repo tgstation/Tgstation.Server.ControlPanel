@@ -73,9 +73,12 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                   </Grid.RowDefinitions>
                   <TextBlock Text="Channel Name:" Grid.Column="0" IsVisible="{Binding IsIrc}" Grid.Row="0" Margin="0,5,5,0" />
                   <TextBox Text="{Binding IrcChannelName}" Grid.Column="1" IsVisible="{Binding IsIrc}" Grid.Row="0"/>
+                  <TextBlock Text="Channel Key:" Grid.Column="0" Grid.Row="2" IsVisible="{Binding IsIrc}" Margin="0,5,5,0" />
+                  <TextBox Text="{Binding IrcChannelKey}" Grid.Column="1" IsVisible="{Binding IsIrc}" Grid.Row="2"/>
                   <TextBlock Text="Channel ID:" Grid.Column="0" IsVisible="{Binding IsDiscord}" Grid.Row="0" Margin="0,5,5,0" />
                   <TextBox Text="{Binding DiscordChannelId}" Grid.Column="1" IsVisible="{Binding IsDiscord}" Grid.Row="0"/>
                   <TextBlock Text="Custom Tag:" Grid.Column="0" Grid.Row="1" Margin="0,5,0,5" />

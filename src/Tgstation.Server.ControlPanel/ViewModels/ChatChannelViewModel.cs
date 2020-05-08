@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
@@ -53,17 +54,37 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string IrcChannelName
 		{
-			get => Model.IrcChannel;
+			get => Model.IrcChannel?.Split(';').First();
 			set
 			{
 				if (!IsIrc)
 					return;
+
+				var key = Model.IrcChannel?.Split(';').Skip(1).LastOrDefault();
 				Model.IrcChannel = value;
+				if (!String.IsNullOrWhiteSpace(key))
+					Model.IrcChannel += ';' + key;
 				BadForm = String.IsNullOrEmpty(Model.IrcChannel) || Model.IrcChannel[0] != '#';
 				Modified = true;
 				onEdit();
 			}
 		}
+
+		public string IrcChannelKey
+		{
+			get => Model.IrcChannel?.Split(';').Skip(1).FirstOrDefault();
+			set
+			{
+				if (!IsIrc)
+					return;
+				Model.IrcChannel = Model.IrcChannel?.Split(';').First() ?? String.Empty;
+				if (!String.IsNullOrWhiteSpace(value))
+					Model.IrcChannel += $";{value}";
+				Modified = true;
+				onEdit();
+			}
+		}
+
 		public string Tag
 		{
 			get => Model.Tag;
