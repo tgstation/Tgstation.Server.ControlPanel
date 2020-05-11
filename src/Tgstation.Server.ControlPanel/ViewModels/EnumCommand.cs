@@ -37,7 +37,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			catch (Exception e)
 			{
 				lock (MainWindowViewModel.Singleton)
-					MainWindowViewModel.Singleton.ConsoleContent = String.Format(CultureInfo.InvariantCulture, "{0}{1}[{2}]: UNCAUGHT COMMAND EXCEPTION! Type: {3} Action: {4} Exception: {5}", MainWindowViewModel.Singleton.ConsoleContent, Environment.NewLine, DateTimeOffset.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture), typeof(TCommand).Name, command, e);
+					MainWindowViewModel.Singleton.AddToConsole($"UNCAUGHT COMMAND EXCEPTION! Type: {typeof(TCommand).Name} Action: {command} Exception: {e}");
 			}
 		}
 	}

@@ -24,7 +24,7 @@ namespace Tgstation.Server.ControlPanel.Views
 			};
 			timer.Tick += ((sender, e) =>
 			{
-				scrollViewer.CaretIndex = scrollViewer.Text?.Length ?? 0;
+				scrollViewer.CaretIndex = Int32.MaxValue;
 			});
 			timer.Start();
 		}

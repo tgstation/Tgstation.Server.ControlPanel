@@ -405,7 +405,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (pullRequests == null)
 				{
 					TestMerges = Repository?.RevisionInformation?.ActiveTestMerges == null ? new List<TestMergeViewModel>() : new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, DeactivatePR)));
-					await RefreshPRList(cancellationToken).ConfigureAwait(true);
+					await RefreshPRList().ConfigureAwait(true);
 				}
 				else
 					RebuildTestMergeList();
@@ -430,7 +430,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			pullRequestCommits.Add(pr.Number, commits);
 		}
 
-		async Task RefreshPRList(CancellationToken cancellationToken)
+		async Task RefreshPRList()
 		{
 			if (!rightsProvider.RepositoryRights.HasFlag(RepositoryRights.MergePullRequest) || Repository?.GitHubOwner == null)
 				return;
@@ -457,6 +457,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				HandleRateLimit(e);
 			}
+
 			finally
 			{
 				loadingPRs = false;
@@ -469,7 +470,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			try
 			{
-				await DirectAdd(number, true, default).ConfigureAwait(true);
+				await DirectAdd(number, true).ConfigureAwait(true);
 				modifiedPRList = true;
 			}
 			catch { }
@@ -517,17 +518,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			TestMerges = tmp;
 		}
 
-		async Task DirectAdd(int number, bool forceRebuild, CancellationToken cancellationToken)
+		async Task DirectAdd(int number, bool forceRebuild)
 		{
 			loadingPRs = true;
 			DirectAddPR.Recheck();
 			RefreshPRs.Recheck();
 			try
 			{
-				var run = pullRequests?.ContainsKey(ManualPR) != true;
+				var run = pullRequests?.ContainsKey(number) != true;
 				if (run)
 				{
-					var prTask = gitHubClient.Issue.Get(Repository.GitHubOwner, Repository.GitHubName, ManualPR);
+					var prTask = gitHubClient.Issue.Get(Repository.GitHubOwner, Repository.GitHubName, number);
 					var commits = await gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, ManualPR).ConfigureAwait(true);
 					var pr = await prTask.ConfigureAwait(true);
 					DigestPR(pr, commits);
@@ -538,6 +539,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			catch (Octokit.RateLimitExceededException e)
 			{
 				HandleRateLimit(e);
+			}
+			catch(Octokit.ApiException ex)
+			{
+				MainWindowViewModel.HandleException(ex);
 			}
 			finally
 			{
@@ -676,10 +681,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}, null, cancellationToken).ConfigureAwait(true);
 					break;
 				case RepositoryCommand.DirectAddPR:
-					await DirectAdd(ManualPR, false, cancellationToken).ConfigureAwait(true);
+					await DirectAdd(ManualPR, false).ConfigureAwait(true);
 					break;
 				case RepositoryCommand.RefreshPRs:
-					await RefreshPRList(cancellationToken).ConfigureAwait(true);
+					await RefreshPRList().ConfigureAwait(true);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");

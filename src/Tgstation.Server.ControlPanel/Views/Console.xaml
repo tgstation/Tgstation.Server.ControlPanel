@@ -16,7 +16,7 @@
       </Button>
     </Grid>
     <DockPanel Background="#FFFFFF" Margin="3" Grid.Row="1" LastChildFill="True">
-      <TextBox TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" Text="{Binding ConsoleContent}" Name="_scrollViewer"/>
+      <TextBox TextWrapping="NoWrap" AcceptsReturn="True" IsReadOnly="True" Text="{Binding ConsoleContent}" Name="_scrollViewer"/>
     </DockPanel>
   </Grid>
 </UserControl>

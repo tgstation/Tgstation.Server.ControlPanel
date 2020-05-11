@@ -1,10 +1,13 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -129,6 +132,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool updateReady;
 		bool updateInstalled;
 		bool noUpdatesAvailable;
+
+		public static void HandleException(Exception ex)
+		{
+			Singleton.AddToConsole($"UNCAUGHT EXCEPTION! Exception: {ex}");
+		}
+
 		public MainWindowViewModel(IUrlEncoder urlEncoder, IUpdater updater)
 		{
 			Singleton = this;
@@ -244,6 +253,54 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			updater.Dispose();
 		}
 
+		static bool CensorBodyString<TBodyType>(Expression<Func<TBodyType, string>> censorExpression, ref string bodyString)
+		{
+			var serializerSettings = new JsonSerializerSettings
+			{
+				ContractResolver = new CamelCasePropertyNamesContractResolver(),
+				Converters = new[] { new VersionConverter() }
+			};
+
+			var memberSelectorExpression = (MemberExpression)censorExpression.Body;
+			var property = (PropertyInfo)memberSelectorExpression.Member;
+
+			try
+			{
+				var model = JsonConvert.DeserializeObject<TBodyType>(bodyString, serializerSettings);
+				var censorField = (string)property.GetValue(model);
+				if (censorField != null)
+				{
+					property.SetValue(model, String.Join("", Enumerable.Repeat('*', censorField.Length)));
+					bodyString = JsonConvert.SerializeObject(model, serializerSettings);
+
+					return true;
+				}
+			}
+			catch (JsonException)
+			{
+				var models = JsonConvert.DeserializeObject<List<TBodyType>>(bodyString, serializerSettings);
+				bool anyFound = false;
+				foreach (var model in models)
+				{
+					var censorField = (string)property.GetValue(model);
+					if (censorField != null)
+					{
+						property.SetValue(model, String.Join("", Enumerable.Repeat('*', censorField.Length)));
+
+						anyFound = true;
+					}
+				}
+
+				if (anyFound)
+				{
+					bodyString = JsonConvert.SerializeObject(models, serializerSettings);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		public async Task LogRequest(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
 		{
 			var instancePart = String.Empty;
@@ -253,33 +310,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var bodyString = await (requestMessage.Content?.ReadAsStringAsync() ?? Task.FromResult<string>(null)).ConfigureAwait(false);
 			if (!String.IsNullOrEmpty(bodyString))
 			{
-				//may contain the password for User models, censor it
-				try
-				{
-					var userModel = JsonConvert.DeserializeObject<UserUpdate>(bodyString);
-					if (userModel.Password != null)
-					{
-						userModel.Password = String.Join("", Enumerable.Repeat('*', userModel.Password.Length));
-						bodyString = JsonConvert.SerializeObject(userModel);
-					}
-				}
-				catch (JsonException)
-				{
-					try
-					{
-						var repoModel = JsonConvert.DeserializeObject<Repository>(bodyString);
-						if (repoModel.AccessToken != null)
-						{
-							repoModel.AccessToken = String.Join("", Enumerable.Repeat('*', repoModel.AccessToken.Length));
-							bodyString = JsonConvert.SerializeObject(repoModel);
-						}
-					}
-					catch (JsonException) { }
-				}
+				//may contain the password for some things, User models, censor it
+
+				var express = CensorBodyString<UserUpdate>(x => x.Password, ref bodyString)
+					|| CensorBodyString<UserUpdate>(x => x.SystemIdentifier, ref bodyString)
+					|| CensorBodyString<UserUpdate>(x => x.Name, ref bodyString)
+					|| CensorBodyString<Repository>(x => x.AccessToken, ref bodyString)
+					|| CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString);
+
 				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			}
-			lock (this)
-				ConsoleContent = String.Format(CultureInfo.InvariantCulture, "{0}{1}[{2}]: {3} {4}{5}{6}", ConsoleContent, Environment.NewLine, DateTimeOffset.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture), requestMessage.Method, requestMessage.RequestUri, instancePart, bodyPart);
+
+			AddToConsole($"{requestMessage.Method} {requestMessage.RequestUri}{instancePart}{bodyPart}");
 		}
 
 		public async Task LogResponse(HttpResponseMessage responseMessage, CancellationToken cancellationToken)
@@ -298,9 +340,22 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 			var bodyPart = String.Empty;
 			if (!String.IsNullOrEmpty(bodyString))
+			{
+				var express = CensorBodyString<Repository>(x => x.AccessToken, ref bodyString)
+					|| CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString)
+					|| CensorBodyString<User>(x => x.Name, ref bodyString)
+					|| CensorBodyString<User>(x => x.SystemIdentifier, ref bodyString);
+
 				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
+			}
+
+			AddToConsole($"HTTP {responseMessage.StatusCode}: {requestMessage.Method} {requestMessage.RequestUri}{instancePart}{bodyPart}");
+		}
+
+		public void AddToConsole(string message)
+		{
 			lock (this)
-				ConsoleContent = String.Format(CultureInfo.InvariantCulture, "{0}{1}[{2}]: HTTP {7}: {3} {4}{5}{6}", ConsoleContent, Environment.NewLine, DateTimeOffset.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture), requestMessage.Method, requestMessage.RequestUri, instancePart, bodyPart, responseMessage.StatusCode);
+				ConsoleContent = $"{ConsoleContent.Trim()}{Environment.NewLine}[{DateTimeOffset.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture)}]: {message}{Environment.NewLine}";
 		}
 
 		public bool CanRunCommand(MainWindowCommand command)
