@@ -374,7 +374,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var changedPassword = (NewPassword?.Length ?? 0 + PasswordConfirm?.Length ?? 0) > 0;
 					if (changedPassword)
 					{
-						var validPassword = changedPassword && NewPassword == PasswordConfirm && (NewPassword?.Length ?? 0) < serverInformation.MinimumPasswordLength;
+						var validPassword = changedPassword && NewPassword == PasswordConfirm && (NewPassword?.Length ?? 0) >= serverInformation.MinimumPasswordLength;
 
 						if (!CanEditPassword || !validPassword)
 							return false;
