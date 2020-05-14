@@ -169,6 +169,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => newStartupTimeout;
 			set => this.RaiseAndSetIfChanged(ref newStartupTimeout, value);
 		}
+
+		public uint NewHeartbeatSeconds
+		{
+			get => newHeartbeatSeconds;
+			set => this.RaiseAndSetIfChanged(ref newHeartbeatSeconds, value);
+		}
+
 		public ushort NewPrimaryPort
 		{
 			get => newPrimaryPort;
@@ -214,6 +221,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanSoftStop => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SoftShutdown);
 		public bool CanMetadata => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.ReadMetadata);
 		public bool CanRevision => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.ReadRevision);
+		public bool CanHeartbeat => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetHeartbeatInterval);
 
 		public EnumCommand<DreamDaemonCommand> Close { get; }
 		public EnumCommand<DreamDaemonCommand> Refresh { get; }
@@ -231,8 +239,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		DreamDaemon model;
 
 		DreamDaemonSecurity? initalSecurityLevel;
-		
+
 		uint newStartupTimeout;
+		uint newHeartbeatSeconds;
 		ushort newPrimaryPort;
 		ushort newSecondaryPort;
 		bool newAutoStart;
@@ -294,6 +303,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				Model = model;
 				NewStartupTimeout = Model.StartupTimeout ?? 0;
+				NewHeartbeatSeconds = Model.HeartbeatSeconds ?? 0;
 				NewPrimaryPort = Model.PrimaryPort ?? 0;
 				NewSecondaryPort = Model.SecondaryPort ?? 0;
 				NewAutoStart = Model.AutoStart ?? false;
@@ -409,7 +419,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							PrimaryPort = CanPort && NewPrimaryPort != Model.PrimaryPort ? (ushort?)NewPrimaryPort : null,
 							SecondaryPort = CanPort && NewSecondaryPort != Model.SecondaryPort ? (ushort?)NewSecondaryPort : null,
 							SecurityLevel = CanSecurity && Model.SecurityLevel != initalSecurityLevel ? Model.SecurityLevel : null,
-							StartupTimeout = CanTimeout && Model.StartupTimeout != NewStartupTimeout ? (uint?)NewStartupTimeout : null
+							StartupTimeout = CanTimeout && Model.StartupTimeout != NewStartupTimeout ? (uint?)NewStartupTimeout : null,
+							HeartbeatSeconds = CanHeartbeat && Model.HeartbeatSeconds != NewHeartbeatSeconds ? (uint?)NewHeartbeatSeconds : null,
 						};
 
 						if (CanSoftRestart)

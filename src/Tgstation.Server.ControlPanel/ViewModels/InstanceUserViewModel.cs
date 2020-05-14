@@ -501,12 +501,25 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newDreamDaemonRights &= ~right;
 			}
 		}
+
 		public bool DDTime
 		{
 			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.SetStartupTimeout);
 			set
 			{
 				var right = DreamDaemonRights.SetStartupTimeout;
+				if (value)
+					newDreamDaemonRights |= right;
+				else
+					newDreamDaemonRights &= ~right;
+			}
+		}
+		public bool DDHeart
+		{
+			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.SetHeartbeatInterval);
+			set
+			{
+				var right = DreamDaemonRights.SetHeartbeatInterval;
 				if (value)
 					newDreamDaemonRights |= right;
 				else
