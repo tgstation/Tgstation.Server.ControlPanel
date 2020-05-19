@@ -337,6 +337,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					userLimitNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", userLimitNode.Title, serverInfo.UserLimit);
 					versionNode.Icon = InfoIcon;
 					apiVersionNode.Icon = InfoIcon;
+					dmapiVersionNode.Icon = InfoIcon;
 					instanceLimitNode.Icon = InfoIcon;
 					userLimitNode.Icon = InfoIcon;
 				}
