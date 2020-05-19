@@ -330,6 +330,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					break;
 				case StaticFileCommand.Upload:
 					await WriteGeneric(File.ReadAllBytes(UploadPath)).ConfigureAwait(true);
+					await RefreshContents(cancellationToken).ConfigureAwait(true);
 					break;
 				case StaticFileCommand.Write:
 					await WriteGeneric(Encoding.UTF8.GetBytes(TextBlob)).ConfigureAwait(true);

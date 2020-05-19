@@ -252,6 +252,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly PageContextViewModel pageContext;
 		readonly IRepositoryClient repositoryClient;
 		readonly IDreamMakerClient dreamMakerClient;
+		readonly IJobsClient jobsClient;
 		readonly IInstanceJobSink jobSink;
 		readonly IInstanceUserRightsProvider rightsProvider;
 		readonly Octokit.IGitHubClient gitHubClient;
@@ -296,11 +297,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		bool confirmingDelete;
 
-		public RepositoryViewModel(PageContextViewModel pageContext, IRepositoryClient repositoryClient, IDreamMakerClient dreamMakerClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider, Octokit.IGitHubClient gitHubClient)
+		public RepositoryViewModel(PageContextViewModel pageContext, IRepositoryClient repositoryClient, IDreamMakerClient dreamMakerClient, IJobsClient jobsClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider, Octokit.IGitHubClient gitHubClient)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.repositoryClient = repositoryClient ?? throw new ArgumentNullException(nameof(repositoryClient));
 			this.dreamMakerClient = dreamMakerClient ?? throw new ArgumentNullException(nameof(dreamMakerClient));
+			this.jobsClient = jobsClient ?? throw new ArgumentNullException(nameof(jobsClient));
 			this.jobSink = jobSink ?? throw new ArgumentNullException(nameof(jobSink));
 			this.rightsProvider = rightsProvider ?? throw new ArgumentNullException(nameof(rightsProvider));
 			this.gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
@@ -344,7 +346,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.RaisePropertyChanged(nameof(CanClone));
 		}
 
-		async Task Refresh(Repository update, bool? cloneOrDelete, CancellationToken cancellationToken)
+		async Task<Job> Refresh(Repository update, bool? cloneOrDelete, CancellationToken cancellationToken)
 		{
 			Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png";
 			Refreshing = true;
@@ -352,6 +354,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			ErrorMessage = null;
 			CloneAvailable = false;
 			RecheckCommands();
+			Job job = null;
 			try
 			{
 				var oldRepo = Repository;
@@ -369,7 +372,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						newRepo = await repositoryClient.Read(cancellationToken).ConfigureAwait(true);
 
 					if (newRepo.ActiveJob != null)
+					{
 						jobSink.RegisterJob(newRepo.ActiveJob, ct => Refresh(null, null, ct));
+						job = newRepo.ActiveJob;
+					}
 					if (newRepo.Reference == null)
 						newRepo.Reference = "(unknown)";
 					if (newRepo.AccessUser == null)
@@ -399,7 +405,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					Error = true;
 					ErrorMessage = e.Message;
-					return;
+					return null;
 				}
 
 				if (pullRequests == null)
@@ -417,6 +423,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Refreshing = false;
 				RecheckCommands();
 			}
+
+			return job;
 		}
 
 		void DigestPR(Octokit.Issue pr, IReadOnlyList<Octokit.PullRequestCommit> commits)
@@ -640,10 +648,20 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							PullRequestRevision = x.TestMerge.PullRequestRevision
 						}).ToList();
 
-					await Refresh(update, null, cancellationToken).ConfigureAwait(true);
+					var job = await Refresh(update, null, cancellationToken).ConfigureAwait(true);
 					if (DeployAfter)
 					{
-						var job = await dreamMakerClient.Compile(cancellationToken).ConfigureAwait(true);
+						// Wait until the job has progress
+						if (job != null)
+						{
+							while(!job.StoppedAt.HasValue || !job.Progress.HasValue)
+							{
+								await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
+								job = await jobsClient.GetId(job, cancellationToken).ConfigureAwait(false);
+							}
+						}
+
+						job = await dreamMakerClient.Compile(cancellationToken).ConfigureAwait(true);
 						jobSink.RegisterJob(job);
 					}
 					break;

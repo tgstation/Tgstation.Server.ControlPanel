@@ -439,9 +439,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var updatesTask = CheckForUpdates();
 			Connections = new List<ConnectionManagerViewModel>(settings.Connections.Select(x => CreateConnection(x)));
 			await updatesTask.ConfigureAwait(true);
-			var activeConnection = Connections.SingleOrDefault();
-			if (activeConnection != null)
-				PageContext.ActiveObject = activeConnection;
+			if (Connections.Count == 1)
+				PageContext.ActiveObject = Connections.First();
 		}
 
 		async Task CheckForUpdates()

@@ -217,7 +217,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				instanceUserTreeNode,
 				new InstanceUserRootViewModel(pageContext, instanceClient.Users, instanceUserTreeNode, userProvider, this),
-				new RepositoryViewModel(pageContext, instanceClient.Repository, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode, gitHubClient),
+				new RepositoryViewModel(pageContext, instanceClient.Repository, instanceClient.DreamMaker, instanceClient.Jobs, instanceJobSink, instanceUserTreeNode, gitHubClient),
 				new ByondViewModel(pageContext, instanceClient.Byond, instanceJobSink, instanceUserTreeNode),
 				new CompilerViewModel(pageContext, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode),
 				new DreamDaemonViewModel(pageContext, instanceClient.DreamDaemon, instanceJobSink, instanceUserTreeNode, x => SetDDRunning(x)),
