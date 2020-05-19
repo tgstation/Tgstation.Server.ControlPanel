@@ -25,7 +25,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly Func<IServerClient> clientProvider;
 		readonly Func<TimeSpan> requeryRateProvider;
 		readonly Func<string> nameProvider;
-		readonly JobManagerViewModel jobManagerViewModel;
 
 		readonly Dictionary<long, InstanceJobSink> instanceSinks;
 		readonly CancellationTokenSource cancellationTokenSource;
@@ -42,12 +41,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		IReadOnlyList<JobViewModel> jobs;
 
-		public ServerJobSinkViewModel(Func<IServerClient> clientProvider, Func<TimeSpan> requeryRateProvider, Func<string> nameProvider, JobManagerViewModel jobManagerViewModel, Func<User> currentUserProvider, Action onDisposed)
+		public ServerJobSinkViewModel(Func<IServerClient> clientProvider, Func<TimeSpan> requeryRateProvider, Func<string> nameProvider, Func<User> currentUserProvider, Action onDisposed)
 		{
 			this.clientProvider = clientProvider ?? throw new ArgumentNullException(nameof(clientProvider));
 			this.requeryRateProvider = requeryRateProvider ?? throw new ArgumentNullException(nameof(requeryRateProvider));
 			this.nameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
-			this.jobManagerViewModel = jobManagerViewModel ?? throw new ArgumentNullException(nameof(jobManagerViewModel));
 			this.currentUserProvider = currentUserProvider ?? throw new ArgumentNullException(nameof(currentUserProvider));
 			this.onDisposed = onDisposed ?? throw new ArgumentNullException(nameof(onDisposed));
 
@@ -79,7 +77,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				var newSink = !instanceSinks.TryGetValue(instanceClient.Metadata.Id, out sink);
 				if (newSink)
 				{
-					sink = new InstanceJobSink(instanceClient.Metadata, jobManagerViewModel, currentUserProvider);
+					sink = new InstanceJobSink(instanceClient.Metadata, currentUserProvider);
 					instanceSinks.Add(instanceClient.Metadata.Id, sink);
 				}
 			}

@@ -4,7 +4,7 @@
     <TargetFrameworks>netcoreapp2.1;net471</TargetFrameworks>
     <ApplicationIcon />
     <StartupObject />
-    <Version>1.3.0</Version>
+    <Version>1.3.1</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <LangVersion>7.3</LangVersion>
@@ -55,8 +55,8 @@
     <PackageReference Include="Octokit" Version="0.47.0" />
     <PackageReference Include="System.Reactive" Version="4.4.1" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.7.0" />
-    <PackageReference Include="TextCopy" Version="1.5.0" />
-    <PackageReference Include="Tgstation.Server.Client" Version="6.1.0" />
+    <PackageReference Include="TextCopy" Version="3.3.0" />
+    <PackageReference Include="Tgstation.Server.Client" Version="6.3.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\Pages\StaticFolder.xaml.cs">

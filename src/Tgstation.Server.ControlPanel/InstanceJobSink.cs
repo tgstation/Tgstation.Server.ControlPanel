@@ -19,7 +19,6 @@ namespace Tgstation.Server.ControlPanel
 		public Instance Instance { get; }
 		public Task Updated => updated.Task;
 
-		readonly JobManagerViewModel jobManagerViewModel;
 		readonly Dictionary<long, Job> trackedJobs;
 		readonly Dictionary<long, Func<CancellationToken, Task>> postActions;
 		readonly CancellationTokenSource cancellationTokenSource;
@@ -28,10 +27,9 @@ namespace Tgstation.Server.ControlPanel
 
 		TaskCompletionSource<object> updated;
 
-		public InstanceJobSink(Instance instance, JobManagerViewModel jobManagerViewModel, Func<User> currentUserProvider)
+		public InstanceJobSink(Instance instance, Func<User> currentUserProvider)
 		{
 			Instance = instance;
-			this.jobManagerViewModel = jobManagerViewModel;
 			this.currentUserProvider = currentUserProvider ?? throw new ArgumentNullException(nameof(currentUserProvider));
 
 			trackedJobs = new Dictionary<long, Job>();

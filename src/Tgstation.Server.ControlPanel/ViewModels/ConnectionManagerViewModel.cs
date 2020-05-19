@@ -298,6 +298,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Icon = LoadingGif
 			};
 
+			var dmapiVersionNode = new BasicNode
+			{
+				Title = "DMAPI Version",
+				Icon = LoadingGif
+			};
+
 			var instanceLimitNode = new BasicNode
 			{
 				Title = "Instance Limit",
@@ -326,6 +332,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					
 					versionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", versionNode.Title, serverInfo.Version);
 					apiVersionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", apiVersionNode.Title, serverInfo.ApiVersion);
+					dmapiVersionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", dmapiVersionNode.Title, serverInfo.DMApiVersion);
 					instanceLimitNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", instanceLimitNode.Title, serverInfo.InstanceLimit);
 					userLimitNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", userLimitNode.Title, serverInfo.UserLimit);
 					versionNode.Icon = InfoIcon;
@@ -343,12 +350,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					versionNode.Icon = ErrorIcon;
 					apiVersionNode.Icon = ErrorIcon;
+					dmapiVersionNode.Icon = ErrorIcon;
 					instanceLimitNode.Icon = ErrorIcon;
 					userLimitNode.Icon = ErrorIcon;
 					return;
 				}
 				versionNode.RaisePropertyChanged(nameof(Icon));
 				apiVersionNode.RaisePropertyChanged(nameof(Icon));
+				dmapiVersionNode.RaisePropertyChanged(nameof(Icon));
 				instanceLimitNode.RaisePropertyChanged(nameof(Icon));
 				userLimitNode.RaisePropertyChanged(nameof(Icon));
 
@@ -379,6 +388,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				versionNode,
 				apiVersionNode,
+				dmapiVersionNode,
 				instanceLimitNode,
 				userLimitNode,
 				fakeUserNode
