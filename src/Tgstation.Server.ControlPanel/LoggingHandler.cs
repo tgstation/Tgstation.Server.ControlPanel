@@ -21,7 +21,7 @@ namespace Tgstation.Server.ControlPanel
 		{
 			await requestLogger.LogRequest(request, cancellationToken).ConfigureAwait(false);
 			var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-			await requestLogger.LogRequest(request, cancellationToken).ConfigureAwait(false);
+			await requestLogger.LogResponse(response, cancellationToken).ConfigureAwait(false);
 			return response;
 		}
 	}
