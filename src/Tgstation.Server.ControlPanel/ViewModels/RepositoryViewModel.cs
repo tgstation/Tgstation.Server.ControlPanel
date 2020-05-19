@@ -534,29 +534,60 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			loadingPRs = true;
 			DirectAddPR.Recheck();
 			RefreshPRs.Recheck();
+			var run = pullRequests?.ContainsKey(number) != true;
 			try
 			{
-				var run = pullRequests?.ContainsKey(number) != true;
 				if (run)
-				{
-					var prTask = gitHubClient.Issue.Get(Repository.GitHubOwner, Repository.GitHubName, number);
-					var commits = await gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, ManualPR).ConfigureAwait(true);
-					var pr = await prTask.ConfigureAwait(true);
-					DigestPR(pr, commits);
-				}
-				if (run || forceRebuild)
-					RebuildTestMergeList();
+					try
+					{
+						var prTask = gitHubClient.Issue.Get(Repository.GitHubOwner, Repository.GitHubName, number);
+						var commits = await gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, ManualPR).ConfigureAwait(true);
+						var pr = await prTask.ConfigureAwait(true);
+						DigestPR(pr, commits);
+					}
+					catch (Octokit.RateLimitExceededException e)
+					{
+						HandleRateLimit(e);
+					}
+					catch (Octokit.ApiException ex)
+					{
+						MainWindowViewModel.HandleException(ex);
+					}
 			}
-			catch (Octokit.RateLimitExceededException e)
+			catch
 			{
-				HandleRateLimit(e);
-			}
-			catch(Octokit.ApiException ex)
-			{
-				MainWindowViewModel.HandleException(ex);
+				// manual addition
+				var manualPr = new Octokit.Issue(
+					String.Empty,
+					$"https://github.com/{Repository.GitHubOwner}/{Repository.GitHubName}/pull/{number}",
+					String.Empty,
+					String.Empty,
+					number,
+					Octokit.ItemState.Open,
+					"Unable to Load PR Details",
+					String.Empty,
+					null,
+					new Octokit.User(),
+					Array.Empty<Octokit.Label>(),
+					null,
+					Array.Empty<Octokit.User>(),
+					null,
+					0,
+					null,
+					null,
+					default,
+					null,
+					0,
+					String.Empty,
+					false,
+					null,
+					null);
+				DigestPR(manualPr, null);
 			}
 			finally
 			{
+				if (run || forceRebuild)
+					RebuildTestMergeList();
 				loadingPRs = false;
 				DirectAddPR.Recheck();
 				RefreshPRs.Recheck();
