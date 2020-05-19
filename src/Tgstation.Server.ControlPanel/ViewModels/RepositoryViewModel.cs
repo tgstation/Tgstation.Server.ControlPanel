@@ -465,7 +465,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				HandleRateLimit(e);
 			}
-
+			catch(Exception ex)
+			{
+				MainWindowViewModel.HandleException(ex);
+			}
 			finally
 			{
 				loadingPRs = false;
