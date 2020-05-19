@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Octokit.Internal;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -181,7 +182,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 		void UpdateGitHubClient()
 		{
-			var tmpClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue(productHeaderValue.Name, productHeaderValue.Version));
+			var tmpClient = new Octokit.GitHubClient(
+				new Octokit.Connection(
+					new Octokit.ProductHeaderValue(productHeaderValue.Name, productHeaderValue.Version),
+					new HttpClientAdapter(() => new LoggingHandler(this))));
 			if (!String.IsNullOrEmpty(GitHubToken))
 				tmpClient.Credentials = new Octokit.Credentials(GitHubToken);
 			gitHubClient = tmpClient;
