@@ -688,7 +688,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						// Wait until the job has progress
 						if (job != null)
 						{
-							while(!job.StoppedAt.HasValue || !job.Progress.HasValue)
+							while(!job.StoppedAt.HasValue && !job.Progress.HasValue)
 							{
 								await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 								job = await jobsClient.GetId(job, cancellationToken).ConfigureAwait(false);
