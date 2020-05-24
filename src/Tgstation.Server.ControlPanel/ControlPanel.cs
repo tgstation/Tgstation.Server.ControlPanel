@@ -8,15 +8,13 @@ namespace Tgstation.Server.ControlPanel
 {
 	public static class ControlPanel
 	{
-		public static void Run(IUrlEncoder urlEncoder, IUpdater updater)
+		public static void Run(IUpdater updater)
 		{
-			using (var mwvm = new MainWindowViewModel(urlEncoder, updater))
-			{
-				var app = BuildAvaloniaApp();
+			using var mwvm = new MainWindowViewModel(updater);
+			var app = BuildAvaloniaApp();
 
-				app.BeforeStarting(x => mwvm.AsyncStart());
-				app.Start<MainWindow>(() => mwvm);
-			}
+			app.BeforeStarting(x => mwvm.AsyncStart());
+			app.Start<MainWindow>(() => mwvm);
 		}
 
 		public static AppBuilder BuildAvaloniaApp()

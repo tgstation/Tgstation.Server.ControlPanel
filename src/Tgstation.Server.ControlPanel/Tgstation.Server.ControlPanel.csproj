@@ -1,17 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworks>netcoreapp2.1;net471</TargetFrameworks>
-    <ApplicationIcon />
-    <StartupObject />
+    <OutputType>Exe</OutputType>
+    <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <Version>1.6.0</Version>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <LangVersion>7.3</LangVersion>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <NoWarn>1701;1702;1705;CA1816;CA1063</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>7.3</LangVersion>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <NoWarn>1701;1702;1705;CA1816;CA1063;CA1812</NoWarn>
   </PropertyGroup>
   <ItemGroup>

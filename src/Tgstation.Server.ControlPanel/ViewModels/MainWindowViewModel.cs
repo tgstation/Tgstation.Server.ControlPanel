@@ -15,6 +15,7 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Input;
 using Tgstation.Server.Api;
 using Tgstation.Server.Api.Models;
@@ -114,7 +115,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly IUpdater updater;
 		readonly IServerClientFactory serverClientFactory;
-		readonly IUrlEncoder urlEncoder;
 		readonly CancellationTokenSource settingsSaveLoopCts;
 		readonly Task settingsSaveLoop;
 		readonly UserSettings settings;
@@ -139,10 +139,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Singleton.AddToConsole($"UNCAUGHT EXCEPTION! Exception: {ex}");
 		}
 
-		public MainWindowViewModel(IUrlEncoder urlEncoder, IUpdater updater)
+		public MainWindowViewModel(IUpdater updater)
 		{
 			Singleton = this;
-			this.urlEncoder = urlEncoder ?? throw new ArgumentNullException(nameof(urlEncoder));
 			this.updater = updater ?? throw new ArgumentNullException(nameof(updater));
 
 			var assemblyName = Assembly.GetExecutingAssembly().GetName();
@@ -215,8 +214,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			if (settings == null)
 				settings = new UserSettings();
-			settings.Connections = settings.Connections ?? new List<Connection>();
-			settings.GitHubToken = settings.GitHubToken ?? new Credentials()
+			settings.Connections ??= new List<Connection>();
+			settings.GitHubToken ??= new Credentials()
 			{
 				Password = String.Empty
 			};
@@ -431,7 +430,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					break;
 				case MainWindowCommand.ReportIssue:
 					var body = String.Format("<Please describe your issue here>{0}{0}{0}Console:{0}```{0}{1}{0}```{0}Reported from version {2}", Environment.NewLine, ConsoleContent, Assembly.GetExecutingAssembly().GetName().Version);
-					ControlPanel.LaunchUrl(String.Format(CultureInfo.InvariantCulture, "https://github.com/tgstation/Tgstation.Server.ControlPanel/issues/new?body={0}", urlEncoder.UrlEncode(body)));
+					ControlPanel.LaunchUrl(String.Format(CultureInfo.InvariantCulture, "https://github.com/tgstation/Tgstation.Server.ControlPanel/issues/new?body={0}", HttpUtility.UrlEncode(body)));
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");

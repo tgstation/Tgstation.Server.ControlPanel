@@ -2,11 +2,11 @@
 using System.Net;
 using System.Web;
 
-namespace Tgstation.Server.ControlPanel.Windows
+namespace Tgstation.Server.ControlPanel
 {
-	class Program : IUrlEncoder
+	static class Program
 	{
-		public static void Main() => ControlPanel.Run(new Program(), new NoopUpdater());
+		public static void Main() => ControlPanel.Run(new NoopUpdater());
 		public static AppBuilder BuildAvaloniaApp()
 		{
 			// Add Tls1.2 to the existing enabled protocols
@@ -14,7 +14,5 @@ namespace Tgstation.Server.ControlPanel.Windows
 
 			return ControlPanel.BuildAvaloniaApp();
 		}
-
-		public string UrlEncode(string input) => HttpUtility.UrlEncode(input);
 	}
 }

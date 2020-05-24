@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Tgstation.Server.ControlPanel.Core
+namespace Tgstation.Server.ControlPanel
 {
 	sealed class NoopUpdater : IUpdater
 	{
