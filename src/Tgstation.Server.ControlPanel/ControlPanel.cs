@@ -17,7 +17,7 @@ namespace Tgstation.Server.ControlPanel
 
 			using var mwvm = new MainWindowViewModel(updater);
 			AppBuilder app;
-			if (args.FirstOrDefault().ToUpperInvariant() == "--WIN32-HACK")
+			if (args.FirstOrDefault()?.ToUpperInvariant() == "--WIN32-HACK")
 				app = AppBuilder.Configure<App>()
 				.UseWin32()
 				.UseDirect2D1()
