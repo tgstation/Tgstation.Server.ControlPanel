@@ -204,7 +204,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			newSecurityLevel = DreamDaemonSecurity.Safe;
 
-			async void InitialLoad() => await DoRefresh(default).ConfigureAwait(true);
+			async void InitialLoad()
+			{
+				try
+				{
+					await DoRefresh(default).ConfigureAwait(true);
+				}
+				catch (Exception ex)
+				{
+					MainWindowViewModel.HandleException(ex);
+				}
+			}
 			InitialLoad();
 		}
 
@@ -292,29 +302,21 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(CompilerCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case CompilerCommand.Close:
-					return true;
-				case CompilerCommand.Update:
-					return !Refreshing 
-						&& (CanPort || CanDme || CanSecurity) 
-						&& (
-						//either a new dme name is set, or the checkbox is different than the model
-						(!String.IsNullOrEmpty(NewDme) || (AutoDetectDme ^ (Model?.ProjectName == null))) 
-						|| NewPort != 0
-						|| newSecurityLevel != Model.ApiValidationSecurityLevel);
-				case CompilerCommand.Compile:
-					return !Refreshing && CanCompile;
-				case CompilerCommand.LastPage:
-					return !Refreshing && CanGetJobs && selectedPage > 0;
-				case CompilerCommand.NextPage:
-					return !Refreshing && selectedPage < numPages && CanGetJobs;
-				case CompilerCommand.Refresh:
-					return !Refreshing && (CanGetJobs | CanRead);
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
+				CompilerCommand.Close => true,
+				CompilerCommand.Update => !Refreshing
+					&& (CanPort || CanDme || CanSecurity)
+					//either a new dme name is set, or the checkbox is different than the model
+					&& (!String.IsNullOrEmpty(NewDme) || (AutoDetectDme ^ (Model?.ProjectName == null))
+					|| NewPort != 0
+					|| newSecurityLevel != Model?.ApiValidationSecurityLevel),
+				CompilerCommand.Compile => !Refreshing && CanCompile,
+				CompilerCommand.LastPage => !Refreshing && CanGetJobs && selectedPage > 0,
+				CompilerCommand.NextPage => !Refreshing && selectedPage < numPages && CanGetJobs,
+				CompilerCommand.Refresh => !Refreshing && (CanGetJobs | CanRead),
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
 		}
 
 		public async Task RunCommand(CompilerCommand command, CancellationToken cancellationToken)

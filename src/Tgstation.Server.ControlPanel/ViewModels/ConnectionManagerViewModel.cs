@@ -221,8 +221,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly Octokit.IGitHubClient gitHubClient;
 
-		CancellationTokenSource refreshLoopCTS;
-
 		IReadOnlyList<ITreeNode> children;
 
 		IServerClient serverClient;
@@ -230,8 +228,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		DateTimeOffset? startedConnectingAt;
 
 		UserViewModel userVM;
-
-		Task refreshLoopTask;
 
 		bool usingHttp;
 		bool confirmingDelete;
@@ -270,10 +266,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		void Disconnect()
 		{
-			refreshLoopCTS?.Cancel();
-			refreshLoopTask?.GetAwaiter().GetResult();
 			serverClient?.Dispose();
-			refreshLoopCTS?.Dispose();
 			userVM = null;
 			this.RaisePropertyChanged(nameof(Title));
 			serverClient = null;
@@ -396,34 +389,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			};
 			Children = childNodes;
 			await GetServerVersionAndUserPerms().ConfigureAwait(true);
-
-			refreshLoopCTS = new CancellationTokenSource();
-			refreshLoopTask = RefreshLoop(refreshLoopCTS.Token);
-		}
-
-		async Task RefreshLoop(CancellationToken cancellationToken)
-		{
-			try
-			{
-				while (!cancellationToken.IsCancellationRequested)
-				{
-					var now = DateTimeOffset.Now;
-					if (now < serverClient.Token.ExpiresAt)
-						await Task.Delay(serverClient.Token.ExpiresAt - now, cancellationToken).ConfigureAwait(true);
-					if (await HandleConnectException(async () =>
-					 {
-						 var newConnection = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
-						 serverClient.Token = newConnection.Token;
-						 connection.LastToken = serverClient.Token;
-					 }).ConfigureAwait(true))
-					{
-						async void DisconnectAsync() => await Task.Run(Disconnect).ConfigureAwait(false);
-						DisconnectAsync();
-					}
-
-				}
-			}
-			catch (OperationCanceledException) { }
 		}
 
 		public Task OnLoadConnect(CancellationToken cancellationToken)
@@ -516,8 +481,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			if (!await HandleConnectException(async () =>
 			 {
-				 serverClient = await serverClientFactory.CreateServerClient(connection.Url, connection.Username, connection.Credentials.Password, connection.Timeout, cancellationToken).ConfigureAwait(true);
-				 serverClient.AddRequestLogger(requestLogger);
+				 serverClient = await serverClientFactory.CreateFromLogin(connection.Url, connection.Username, connection.Credentials.Password, new List<IRequestLogger> { requestLogger }, connection.Timeout, true, cancellationToken).ConfigureAwait(true);
 				 connection.LastToken = serverClient.Token;
 			 }).ConfigureAwait(true))
 				await PostConnect(cancellationToken).ConfigureAwait(true);

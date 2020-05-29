@@ -153,17 +153,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(AddChatBotCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case AddChatBotCommand.Close:
-					return true;
-				case AddChatBotCommand.Add:
-					return !loading && !String.IsNullOrEmpty(BotName) && rightsProvider.ChatBotRights.HasFlag(ChatBotRights.Create)
-						&& ((DiscordSelected && !String.IsNullOrEmpty(DiscordBotToken))
-						|| (IrcSelected && !String.IsNullOrEmpty(IrcServer) && !String.IsNullOrEmpty(IrcNick) && (!IrcUsingPassword || !String.IsNullOrEmpty(IrcPassword))));
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
+				AddChatBotCommand.Close => true,
+				AddChatBotCommand.Add => !loading
+					&& !String.IsNullOrEmpty(BotName)
+					&& rightsProvider.ChatBotRights.HasFlag(ChatBotRights.Create)
+					&& ((DiscordSelected && !String.IsNullOrEmpty(DiscordBotToken))
+						|| (IrcSelected && !String.IsNullOrEmpty(IrcServer)
+						&& !String.IsNullOrEmpty(IrcNick)
+						&& (!IrcUsingPassword 
+						|| !String.IsNullOrEmpty(IrcPassword)))),
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
 		}
 
 		public async Task RunCommand(AddChatBotCommand command, CancellationToken cancellationToken)

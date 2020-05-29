@@ -293,7 +293,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				}
 			};
 
-			async void InitialLoad() => await DoRefresh(default).ConfigureAwait(true);
+			async void InitialLoad()
+			{
+				try
+				{
+					await DoRefresh(default).ConfigureAwait(true);
+				}
+				catch (Exception ex)
+				{
+					MainWindowViewModel.HandleException(ex);
+				}
+			}
 			InitialLoad();
 		}
 
@@ -348,23 +358,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(DreamDaemonCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case DreamDaemonCommand.Close:
-					return true;
-				case DreamDaemonCommand.Refresh:
-					return !Refreshing;
-				case DreamDaemonCommand.Start:
-					return !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Start) && Model?.Running != true;
-				case DreamDaemonCommand.Stop:
-					return !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Shutdown) && Model?.Running != false;
-				case DreamDaemonCommand.Restart:
-					return !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Restart) && Model?.Running != false;
-				case DreamDaemonCommand.Update:
-					return !Refreshing && (CanAutoStart || CanPort || CanWebClient || CanSecurity || CanSoftRestart || CanSoftStop || CanTimeout) && !(NewPrimaryPort != 0 && NewPrimaryPort == NewSecondaryPort);
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
+				DreamDaemonCommand.Close => true,
+				DreamDaemonCommand.Refresh => !Refreshing,
+				DreamDaemonCommand.Start => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Start) && Model?.Running != true,
+				DreamDaemonCommand.Stop => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Shutdown) && Model?.Running != false,
+				DreamDaemonCommand.Restart => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Restart) && Model?.Running != false,
+				DreamDaemonCommand.Update => !Refreshing && (CanAutoStart || CanPort || CanWebClient || CanSecurity || CanSoftRestart || CanSoftStop || CanTimeout) && !(NewPrimaryPort != 0 && NewPrimaryPort == NewSecondaryPort),
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
 		}
 
 		public async Task RunCommand(DreamDaemonCommand command, CancellationToken cancellationToken)

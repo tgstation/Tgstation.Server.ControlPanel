@@ -316,8 +316,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				//may contain the password for some things, User models, censor it
 
 				var express = CensorBodyString<UserUpdate>(x => x.Password, ref bodyString)
-					|| CensorBodyString<UserUpdate>(x => x.SystemIdentifier, ref bodyString)
-					|| CensorBodyString<UserUpdate>(x => x.Name, ref bodyString)
 					|| CensorBodyString<Repository>(x => x.AccessToken, ref bodyString)
 					|| CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString);
 
@@ -346,8 +344,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				var express = CensorBodyString<Repository>(x => x.AccessToken, ref bodyString)
 					|| CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString)
-					|| CensorBodyString<User>(x => x.Name, ref bodyString)
-					|| CensorBodyString<User>(x => x.SystemIdentifier, ref bodyString);
+					|| CensorBodyString<Token>(x => x.Bearer, ref bodyString);
 
 				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			}
