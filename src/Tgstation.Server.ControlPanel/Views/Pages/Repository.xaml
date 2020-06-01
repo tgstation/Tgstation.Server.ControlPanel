@@ -117,8 +117,8 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.NewAutoUpdatesKeepTestMerges, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}"/>
-              <TextBlock DockPanel.Dock="Right" Text="Automatic Updates Merge instead of Hard Reset" Margin="5,4,0,0" />
+              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.NewAutoUpdatesKeepTestMerges, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}" ToolTip.Tip="Enabling this may cause automatic updates to fail due to merge conflicts" />
+              <TextBlock DockPanel.Dock="Right" Text="Automatic Updates Maintain Test Merges" ToolTip.Tip="Enabling this may cause automatic updates to fail due to merge conflicts" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.NewAutoUpdatesSynchronize, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}"/>
