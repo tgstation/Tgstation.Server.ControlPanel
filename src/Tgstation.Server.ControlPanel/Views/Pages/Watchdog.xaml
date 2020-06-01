@@ -87,7 +87,7 @@
           <TextBlock Text="Launch Inactivity Timeout Period (seconds):" Margin="0,5,5,0" Grid.Column="0" Grid.Row="5"/>
           <NumericUpDown Minimum="1" Height="25" Value="{Binding PageContext.ActiveObject.NewStartupTimeout}" Grid.Column="1" Grid.Row="5" IsEnabled="{Binding PageContext.ActiveObject.CanTimeout}" />
           <TextBlock Text="Heartbeat Seconds (0 disables):" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Margin="0,5,5,0" Grid.Column="0" Grid.Row="7"/>
-          <NumericUpDown Minimum="1" Height="25" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Value="{Binding PageContext.ActiveObject.NewHeartbeatSeconds}" Grid.Column="1" Grid.Row="7" IsEnabled="{Binding PageContext.ActiveObject.CanHeartbeat}" />
+          <NumericUpDown Minimum="0" Height="25" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Value="{Binding PageContext.ActiveObject.NewHeartbeatSeconds}" Grid.Column="1" Grid.Row="7" IsEnabled="{Binding PageContext.ActiveObject.CanHeartbeat}" />
         </Grid>
         <Grid Margin="0,5,0,0">
           <Grid.RowDefinitions>
