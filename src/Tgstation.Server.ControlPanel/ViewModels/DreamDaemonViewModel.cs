@@ -74,12 +74,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => refreshing;
 			set
 			{
+				this.RaiseAndSetIfChanged(ref refreshing, value);
+				this.RaisePropertyChanged(nameof(Icon));
 				Start.Recheck();
 				Stop.Recheck();
 				Update.Recheck();
 				Refresh.Recheck();
-				this.RaiseAndSetIfChanged(ref refreshing, value);
-				this.RaisePropertyChanged(nameof(Icon));
+				Restart.Recheck();
 			}
 		}
 
