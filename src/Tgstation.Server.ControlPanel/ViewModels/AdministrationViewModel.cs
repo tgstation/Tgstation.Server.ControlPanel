@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Controls;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -14,7 +15,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 	{
 		const string ConfirmText = "Confirm?";
 		const string InitialRestartText = "Restart Server";
-		const string InitialUpdateText = "Update Server";
+		const string DoUpdateText = "Update Server";
+		const string InitialUpdateText = "Read Release Notes";
 
 		public enum AdministrationCommand
 		{
@@ -50,6 +52,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref newVersion, value);
 				Update.Recheck();
+				this.UpdateText = InitialUpdateText;
+				this.RaisePropertyChanged(nameof(UpdateText));
 			}
 		}
 
@@ -94,6 +98,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		bool confirmingRestart;
 		bool confirmingUpdate;
+		string readReleaseNotes;
 		bool refreshing;
 
 		public AdministrationViewModel(PageContextViewModel pageContext, IAdministrationClient administrationClient, IUserRightsProvider userRightsProvider, ConnectionManagerViewModel connectionManagerViewModel, Version tgsVersion)
@@ -171,21 +176,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(AdministrationCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case AdministrationCommand.Close:
-					return true;
-				case AdministrationCommand.Refresh:
-					return !Refreshing;
-				case AdministrationCommand.Restart:
-					return userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.RestartHost);
-				case AdministrationCommand.Update:
-					return Version.TryParse(NewVersion, out var success) && userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.ChangeVersion);
-				case AdministrationCommand.OpenGitHub:
-					return model?.TrackedRepositoryUrl != null;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
+				AdministrationCommand.Close => true,
+				AdministrationCommand.Refresh => !Refreshing,
+				AdministrationCommand.Restart => userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.RestartHost),
+				AdministrationCommand.Update => Version.TryParse(NewVersion, out var _) && userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.ChangeVersion),
+				AdministrationCommand.OpenGitHub => model?.TrackedRepositoryUrl != null,
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
 		}
 
 		public async Task RunCommand(AdministrationCommand command, CancellationToken cancellationToken)
@@ -202,7 +201,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				else
 				{
 					confirmingUpdate = false;
-					UpdateText = InitialUpdateText;
+					UpdateText = DoUpdateText;
 					this.RaisePropertyChanged(nameof(UpdateText));
 				}
 			}
@@ -234,7 +233,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					await Refresh(cancellationToken).ConfigureAwait(true);
 					break;
 				case AdministrationCommand.Update:
-					if (!confirmingUpdate)
+					if (readReleaseNotes != NewVersion)
+					{
+						readReleaseNotes = NewVersion;
+						UpdateText = DoUpdateText;
+						this.RaisePropertyChanged(nameof(UpdateText));
+						ControlPanel.LaunchUrl(model.TrackedRepositoryUrl + "/releases/tag/tgstation-server-v" + NewVersion);
+						break;
+					}
+					else if (!confirmingUpdate)
 					{
 						confirmingUpdate = true;
 						UpdateText = ConfirmText;
