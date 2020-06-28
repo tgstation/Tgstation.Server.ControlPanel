@@ -26,14 +26,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			BrowseUpload,
 			BrowseDownload,
 			Delete,
-			Download
-		}
-		static class Chars
-		{
-			public static char NUL = (char)0; // Null char
-			public static char BS = (char)8; // Back Space
-			public static char CR = (char)13; // Carriage Return
-			public static char SUB = (char)26; // Substitute
+			Download,
+			EnableEditor
 		}
 
 		public bool Refreshing
@@ -43,6 +37,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref refreshing, value);
 				this.RaisePropertyChanged(nameof(Icon));
+				EditorEnabled = false;
 				Refresh.Recheck();
 				Write.Recheck();
 				Delete.Recheck();
@@ -50,6 +45,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Download.Recheck();
 				BrowseDownload.Recheck();
 				BrowseUpload.Recheck();
+				EnableEditor.Recheck();
 			}
 		}
 
@@ -74,6 +70,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref denied, value);
 				this.RaisePropertyChanged(nameof(Icon));
+			}
+		}
+
+		public bool EditorEnabled
+		{
+			get => editorEnabled;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref editorEnabled, value);
 			}
 		}
 
@@ -119,15 +124,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set
 			{
 				this.RaiseAndSetIfChanged(ref configurationFile, value);
-				if (configurationFile.Content != null && !IsBinary(configurationFile.Content))
+				try
+				{
 					TextBlob = Encoding.UTF8.GetString(configurationFile.Content);
-				else
-					TextBlob = null;
+				}
+				catch { }
 				textChanged = false;
 				Write.Recheck();
 				Delete.Recheck();
 				Download.Recheck();
 				Upload.Recheck();
+				EnableEditor.Recheck();
 			}
 		}
 
@@ -139,6 +146,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<StaticFileCommand> Download { get; }
 		public EnumCommand<StaticFileCommand> BrowseUpload { get; }
 		public EnumCommand<StaticFileCommand> BrowseDownload { get; }
+		public EnumCommand<StaticFileCommand> EnableEditor { get; }
 
 		public string Title =>  System.IO.Path.GetFileName(Path);
 
@@ -162,26 +170,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool denied;
 		bool firstLoad;
 		bool textChanged;
+		bool editorEnabled;
 
 		bool confirmingDelete;
-
-		static bool IsBinary(byte[] data)
-		{
-			var length = data.Length;
-			if (length == 0)
-				return false;
-
-			using (var stream = new StreamReader(new MemoryStream(data)))
-			{
-				int ch;
-				while ((ch = stream.Read()) != -1)
-				{
-					if ((ch > Chars.NUL && ch < Chars.BS) || (ch > Chars.CR && ch < Chars.SUB))
-						return true;
-				}
-			}
-			return false;
-		}
 
 		public StaticFileViewModel(PageContextViewModel pageContext, IConfigurationClient configurationClient, IInstanceUserRightsProvider rightsProvider, IStaticNode parent, string path)
 		{
@@ -199,6 +190,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Download = new EnumCommand<StaticFileCommand>(StaticFileCommand.Download, this);
 			BrowseDownload = new EnumCommand<StaticFileCommand>(StaticFileCommand.BrowseDownload, this);
 			BrowseUpload = new EnumCommand<StaticFileCommand>(StaticFileCommand.BrowseUpload, this);
+			EnableEditor = new EnumCommand<StaticFileCommand>(StaticFileCommand.EnableEditor, this);
 
 			rightsProvider.OnUpdated += (a, b) =>
 			{
@@ -278,6 +270,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}
 				case StaticFileCommand.BrowseDownload:
 				case StaticFileCommand.BrowseUpload:
+				case StaticFileCommand.EnableEditor:
 					return !Refreshing;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
@@ -371,6 +364,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						AllowMultiple = false
 					};
 					UploadPath = (await ofd.ShowAsync(Application.Current.MainWindow).ConfigureAwait(true))[0] ?? UploadPath;
+					break;
+				case StaticFileCommand.EnableEditor:
+					EditorEnabled = true;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");

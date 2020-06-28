@@ -65,14 +65,15 @@
             <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
             <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
             <TextBlock Text="Edit Text" FontSize="20" />
-            <TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding PageContext.ActiveObject.TextBlob}" MinHeight="500"/>
+            <Button Content="Enable Text Editor" Command="{Binding PageContext.ActiveObject.EnableEditor}" IsVisible="{Binding !PageContext.ActiveObject.EditorEnabled}"/>
+            <TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding PageContext.ActiveObject.TextBlob}" MinHeight="500" IsVisible="{Binding PageContext.ActiveObject.EditorEnabled}"/>
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5*" />
                 <ColumnDefinition Width="2*" />
                 <ColumnDefinition Width="5*" />
               </Grid.ColumnDefinitions>
-              <Button Content="Save" Command="{Binding PageContext.ActiveObject.Write}" Grid.Column="1" Margin="0,5,0,0"/>
+              <Button Content="Save" Command="{Binding PageContext.ActiveObject.Write}" Grid.Column="1" Margin="0,5,0,0" IsVisible="{Binding PageContext.ActiveObject.EditorEnabled}"/>
             </Grid>
           </StackPanel>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
