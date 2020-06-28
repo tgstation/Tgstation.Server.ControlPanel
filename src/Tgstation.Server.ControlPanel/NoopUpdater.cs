@@ -7,6 +7,8 @@ namespace Tgstation.Server.ControlPanel
 	{
 		public bool Functional => false;
 
+		public bool CanRestart => false;
+
 		public Task ApplyUpdate(Action<int> progress) => throw new NotSupportedException();
 
 		public void Dispose() { }

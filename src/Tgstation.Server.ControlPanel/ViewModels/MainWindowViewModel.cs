@@ -417,7 +417,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						UpdateProgress = 0;
 						UpdateText = "Installing Update: ";
 						await updater.ApplyUpdate(progress => UpdateProgress = progress);
-						updateInstalled = true;
+						updateInstalled = updater.CanRestart;
 						updateReady = true;
 						UpdateText = "Update Ready!";
 						AppUpdate.Recheck();
@@ -465,7 +465,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				UpdateProgress = 0;
 			}
 
-			if (newVersion == null || newVersion > Assembly.GetExecutingAssembly().GetName().Version)
+			if (newVersion != null && newVersion > Assembly.GetExecutingAssembly().GetName().Version)
 			{
 				UpdateText = "Update Available!";
 				updateReady = true;

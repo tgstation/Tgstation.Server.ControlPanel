@@ -8,6 +8,8 @@ namespace Tgstation.Server.ControlPanel
 	{
 		bool Functional { get; }
 
+		bool CanRestart { get; }
+
 		Task<Version> LatestVersion(Action<int> progress);
 
 		Task ApplyUpdate(Action<int> progress);

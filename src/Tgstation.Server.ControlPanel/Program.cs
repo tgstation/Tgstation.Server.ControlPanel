@@ -6,6 +6,6 @@ namespace Tgstation.Server.ControlPanel
 {
 	static class Program
 	{
-		public static void Main(string[] args) => ControlPanel.Run(new NoopUpdater(), args);
+		public static void Main(string[] args) => ControlPanel.Run(new NotificationUpdater(), args);
 	}
 }
