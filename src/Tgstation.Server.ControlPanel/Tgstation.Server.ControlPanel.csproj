@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
-    <Version>1.6.0</Version>
+    <Version>1.8.0</Version>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
