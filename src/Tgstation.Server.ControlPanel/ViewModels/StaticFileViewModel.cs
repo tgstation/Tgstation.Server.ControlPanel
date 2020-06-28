@@ -87,7 +87,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => textBlob;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref textBlob, value);
+				this.RaiseAndSetIfChanged(ref textBlob, value.Replace("\r", String.Empty));
 				this.RaisePropertyChanged(nameof(IsText));
 				textChanged = true;
 				Write.Recheck();
