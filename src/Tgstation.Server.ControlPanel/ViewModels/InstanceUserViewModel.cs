@@ -383,10 +383,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 		public bool DDPort
 		{
-			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.SetPorts);
+			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.SetPort);
 			set
 			{
-				var right = DreamDaemonRights.SetPorts;
+				var right = DreamDaemonRights.SetPort;
 				if (value)
 					newDreamDaemonRights |= right;
 				else
@@ -514,12 +514,26 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newDreamDaemonRights &= ~right;
 			}
 		}
+
 		public bool DDHeart
 		{
 			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.SetHeartbeatInterval);
 			set
 			{
 				var right = DreamDaemonRights.SetHeartbeatInterval;
+				if (value)
+					newDreamDaemonRights |= right;
+				else
+					newDreamDaemonRights &= ~right;
+			}
+		}
+
+		public bool DDDump
+		{
+			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.CreateDump);
+			set
+			{
+				var right = DreamDaemonRights.CreateDump;
 				if (value)
 					newDreamDaemonRights |= right;
 				else

@@ -39,13 +39,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IUserProvider userProvider;
 		readonly IServerJobSink serverJobSink;
 		readonly Octokit.IGitHubClient gitHubClient;
+		readonly string serverAddress;
 
 		IReadOnlyList<ITreeNode> children;
 		string icon;
 		bool loading;
 		bool isExpanded;
 
-		public InstanceRootViewModel(PageContextViewModel pageContext, ServerInformation serverInformation, IInstanceManagerClient instanceManagerClient, IUserRightsProvider userRightsProvider, IUserProvider userProvider, IServerJobSink serverJobSink, Octokit.IGitHubClient gitHubClient)
+		public InstanceRootViewModel(PageContextViewModel pageContext, ServerInformation serverInformation, IInstanceManagerClient instanceManagerClient, IUserRightsProvider userRightsProvider, IUserProvider userProvider, IServerJobSink serverJobSink, Octokit.IGitHubClient gitHubClient, string serverAddress)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
@@ -54,6 +55,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.userProvider = userProvider ?? throw new ArgumentNullException(nameof(userProvider));
 			this.serverJobSink = serverJobSink ?? throw new ArgumentNullException(nameof(serverJobSink));
 			this.gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
+			this.serverAddress = serverAddress ?? throw new ArgumentNullException(nameof(serverAddress));
 
 			async void InitalLoad() => await Refresh(default).ConfigureAwait(false);
 			InitalLoad();
@@ -117,7 +119,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 									Title = "Instance Limit Reached",
 									Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
 								});
-						newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x, userRightsProvider, this, userProvider, serverJobSink, gitHubClient)));
+						newChildren.AddRange(instances.Select(x => new InstanceViewModel(instanceManagerClient, pageContext, x, userRightsProvider, this, userProvider, serverJobSink, gitHubClient, serverAddress)));
 						if (instances.Count == 1)
 							newChildren[hasCreateRight ? 1 : 0].IsExpanded = true;
 						Children = newChildren;
@@ -159,7 +161,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public void DirectAddInstance(Instance instance)
 		{
 			var newChildren = new List<ITreeNode>(Children);
-			var newThing = new InstanceViewModel(instanceManagerClient, pageContext, instance, userRightsProvider, this, userProvider, serverJobSink, gitHubClient);
+			var newThing = new InstanceViewModel(instanceManagerClient, pageContext, instance, userRightsProvider, this, userProvider, serverJobSink, gitHubClient, serverAddress);
 			newChildren.Add(newThing);
 			Children = newChildren;
 			pageContext.ActiveObject = newThing;

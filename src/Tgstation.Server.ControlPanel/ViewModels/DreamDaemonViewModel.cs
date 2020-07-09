@@ -20,12 +20,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Start,
 			Stop,
 			Update,
-			Restart
+			Restart,
+			Dump,
+			Join
 		}
 
 		public string Title => "Dream Daemon";
 
-		public string Icon => Refreshing ? "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png" : rightsProvider.DreamDaemonRights == DreamDaemonRights.None ? "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg" : Model?.Running != false ? "resm:Tgstation.Server.ControlPanel.Assets.dd.ico" : "resm:Tgstation.Server.ControlPanel.Assets.dd_down.ico";
+		public string Icon => Refreshing ? "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png" : rightsProvider.DreamDaemonRights == DreamDaemonRights.None ? "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg" : Model?.Status != WatchdogStatus.Offline ? "resm:Tgstation.Server.ControlPanel.Assets.dd.ico" : "resm:Tgstation.Server.ControlPanel.Assets.dd_down.ico";
 
 		public bool IsExpanded { get; set; }
 
@@ -50,7 +52,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(Graceful));
 				this.RaisePropertyChanged(nameof(HasRevision));
 				this.RaisePropertyChanged(nameof(HasStagedRevision));
-				onRunningChanged(model?.Running != false);
+				onRunningChanged(model?.Status != WatchdogStatus.Offline);
 			}
 		}
 
@@ -58,13 +60,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string StopWord => confirmingShutdown ? "Confirm?" : "Stop Server";
 
 		public string WebClient => (Model?.CurrentAllowWebclient ?? Model?.AllowWebClient)?.ToString(CultureInfo.InvariantCulture) ?? "Unknown";
-		public string Port => (Model?.CurrentPort ?? Model?.PrimaryPort)?.ToString(CultureInfo.InvariantCulture) ?? "Unknown";
+		public string Port => (Model?.CurrentPort ?? Model?.Port)?.ToString(CultureInfo.InvariantCulture) ?? "Unknown";
 		public string Graceful => Model == null || !CanRevision ? "Unknown" : Model.SoftRestart.Value ? "Restart" : Model.SoftShutdown.Value ? "Stop" : "None";
 
 		public string CurrentSecurity => !(Model?.CurrentSecurity ?? Model?.SecurityLevel).HasValue ? "Unknown" : Model.CurrentSecurity == DreamDaemonSecurity.Safe ? "Safe" : Model.CurrentSecurity == DreamDaemonSecurity.Ultrasafe ? "Ultrasafe" : "Trusted";
-		public string StatusString => !(Model?.Running).HasValue ? "Unknown" : Model.Running.Value ? "Active" : "Inactive";
+		public string StatusString => !(Model?.Status).HasValue ? "Unknown" : Model.Status.ToString();
 
-		public IBrush StatusColour => new SolidColorBrush(!(Model?.Running).HasValue ? Colors.Black : Model.Running.Value ? Colors.Green : Colors.Red);
+		public IBrush StatusColour => new SolidColorBrush(!(Model?.Status).HasValue ? Colors.Black :
+			Model.Status.Value == WatchdogStatus.Online ? Colors.Green :
+			(Model.Status.Value == WatchdogStatus.Offline ? Colors.Red : Colors.Yellow));
 
 		public IReadOnlyList<CompileJobViewModel> ActiveCompileJob => Model?.ActiveCompileJob != null ? new List<CompileJobViewModel> { new CompileJobViewModel(Model.ActiveCompileJob) } : null;
 		public IReadOnlyList<CompileJobViewModel> StagedCompileJob => Model?.StagedCompileJob != null ? new List<CompileJobViewModel> { new CompileJobViewModel(Model.StagedCompileJob) } : null;
@@ -81,6 +85,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Update.Recheck();
 				Refresh.Recheck();
 				Restart.Recheck();
+				Join.Recheck();
 			}
 		}
 
@@ -187,16 +192,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public ushort NewSecondaryPort
-		{
-			get => newSecondaryPort;
-			set
-			{
-				this.RaiseAndSetIfChanged(ref newSecondaryPort, value);
-				Update.Recheck();
-			}
-		}
-
 		public bool NewAllowWebClient
 		{
 			get => newAllowWebClient;
@@ -213,7 +208,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool HasStagedRevision => HasRevision && Model.StagedCompileJob != null;
 
 
-		public bool CanPort => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetPorts);
+		public bool CanPort => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetPort);
 		public bool CanAutoStart => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetAutoStart);
 		public bool CanSecurity => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetSecurity);
 		public bool CanWebClient => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetWebClient);
@@ -223,6 +218,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanMetadata => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.ReadMetadata);
 		public bool CanRevision => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.ReadRevision);
 		public bool CanHeartbeat => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetHeartbeatInterval);
+		public bool CanDump => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.CreateDump);
 
 		public EnumCommand<DreamDaemonCommand> Close { get; }
 		public EnumCommand<DreamDaemonCommand> Refresh { get; }
@@ -230,12 +226,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<DreamDaemonCommand> Stop { get; }
 		public EnumCommand<DreamDaemonCommand> Update { get; }
 		public EnumCommand<DreamDaemonCommand> Restart { get; }
+		public EnumCommand<DreamDaemonCommand> Dump { get; }
+		public EnumCommand<DreamDaemonCommand> Join { get; }
 
 		readonly PageContextViewModel pageContext;
 		readonly IDreamDaemonClient dreamDaemonClient;
 		readonly IInstanceJobSink jobSink;
 		readonly IInstanceUserRightsProvider rightsProvider;
 		readonly Action<bool> onRunningChanged;
+
+		readonly string serverAddress;
 
 		DreamDaemon model;
 
@@ -244,7 +244,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		uint newStartupTimeout;
 		uint newHeartbeatSeconds;
 		ushort newPrimaryPort;
-		ushort newSecondaryPort;
 		bool newAutoStart;
 		bool newAllowWebClient;
 
@@ -257,13 +256,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool softStop;
 		bool clearSoft;
 
-		public DreamDaemonViewModel(PageContextViewModel pageContext, IDreamDaemonClient dreamDaemonClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider, Action<bool> onRunningChanged)
+		public DreamDaemonViewModel(PageContextViewModel pageContext, IDreamDaemonClient dreamDaemonClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider, Action<bool> onRunningChanged, string serverAddress)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.dreamDaemonClient = dreamDaemonClient ?? throw new ArgumentNullException(nameof(dreamDaemonClient));
 			this.jobSink = jobSink ?? throw new ArgumentNullException(nameof(jobSink));
 			this.rightsProvider = rightsProvider ?? throw new ArgumentNullException(nameof(rightsProvider));
 			this.onRunningChanged = onRunningChanged ?? throw new ArgumentNullException(nameof(onRunningChanged));
+			this.serverAddress = serverAddress ?? throw new ArgumentNullException(nameof(serverAddress));
 
 			Close = new EnumCommand<DreamDaemonCommand>(DreamDaemonCommand.Close, this);
 			Refresh = new EnumCommand<DreamDaemonCommand>(DreamDaemonCommand.Refresh, this);
@@ -271,6 +271,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Stop = new EnumCommand<DreamDaemonCommand>(DreamDaemonCommand.Stop, this);
 			Update = new EnumCommand<DreamDaemonCommand>(DreamDaemonCommand.Update, this);
 			Restart = new EnumCommand<DreamDaemonCommand>(DreamDaemonCommand.Restart, this);
+			Dump = new EnumCommand<DreamDaemonCommand>(DreamDaemonCommand.Dump, this);
+			Join = new EnumCommand<DreamDaemonCommand>(DreamDaemonCommand.Join, this);
 
 			rightsProvider.OnUpdated += (a, b) =>
 			{
@@ -315,8 +317,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Model = model;
 				NewStartupTimeout = Model.StartupTimeout ?? 0;
 				NewHeartbeatSeconds = Model.HeartbeatSeconds ?? 0;
-				NewPrimaryPort = Model.PrimaryPort ?? 0;
-				NewSecondaryPort = Model.SecondaryPort ?? 0;
+				NewPrimaryPort = Model.Port ?? 0;
 				NewAutoStart = Model.AutoStart ?? false;
 				NewAllowWebClient = Model.AllowWebClient ?? false;
 				initalSecurityLevel = Model.SecurityLevel;
@@ -363,10 +364,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				DreamDaemonCommand.Close => true,
 				DreamDaemonCommand.Refresh => !Refreshing,
-				DreamDaemonCommand.Start => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Start) && Model?.Running != true,
-				DreamDaemonCommand.Stop => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Shutdown) && Model?.Running != false,
-				DreamDaemonCommand.Restart => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Restart) && Model?.Running != false,
-				DreamDaemonCommand.Update => !Refreshing && (CanAutoStart || CanPort || CanWebClient || CanSecurity || CanSoftRestart || CanSoftStop || CanTimeout) && !(NewPrimaryPort != 0 && NewPrimaryPort == NewSecondaryPort),
+				DreamDaemonCommand.Start => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Start) && Model?.Status.Value == WatchdogStatus.Offline,
+				DreamDaemonCommand.Stop => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Shutdown) && Model?.Status.Value != WatchdogStatus.Offline,
+				DreamDaemonCommand.Restart => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Restart) && Model?.Status.Value != WatchdogStatus.Offline,
+				DreamDaemonCommand.Update => !Refreshing && (CanAutoStart || CanPort || CanWebClient || CanSecurity || CanSoftRestart || CanSoftStop || CanTimeout) && !(NewPrimaryPort != 0),
+				DreamDaemonCommand.Dump => !Refreshing && Model?.Status.Value != WatchdogStatus.Offline && CanDump,
+				DreamDaemonCommand.Join => !Refreshing && Model?.Status.Value == WatchdogStatus.Online,
 				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
 			};
 		}
@@ -420,8 +423,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						{
 							AllowWebClient = CanWebClient && Model.AllowWebClient != NewAllowWebClient ? (bool?)NewAllowWebClient : null,
 							AutoStart = CanAutoStart && Model.AutoStart != NewAutoStart ? (bool?)NewAutoStart : null,
-							PrimaryPort = CanPort && NewPrimaryPort != Model.PrimaryPort ? (ushort?)NewPrimaryPort : null,
-							SecondaryPort = CanPort && NewSecondaryPort != Model.SecondaryPort ? (ushort?)NewSecondaryPort : null,
+							Port = CanPort && NewPrimaryPort != Model.Port ? (ushort?)NewPrimaryPort : null,
 							SecurityLevel = CanSecurity && Model.SecurityLevel != initalSecurityLevel ? Model.SecurityLevel : null,
 							StartupTimeout = CanTimeout && Model.StartupTimeout != NewStartupTimeout ? (uint?)NewStartupTimeout : null,
 							HeartbeatSeconds = CanHeartbeat && Model.HeartbeatSeconds != NewHeartbeatSeconds ? (uint?)NewHeartbeatSeconds : null,
@@ -457,6 +459,21 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						await dreamDaemonClient.Restart(cancellationToken).ConfigureAwait(true);
 						await DoRefresh(cancellationToken).ConfigureAwait(true);
 					}
+					break;
+				case DreamDaemonCommand.Dump:
+					Refreshing = true;
+					try
+					{
+						var job = await dreamDaemonClient.CreateDump(cancellationToken).ConfigureAwait(true);
+						jobSink.RegisterJob(job, DoRefresh);
+					}
+					finally
+					{
+						Refreshing = false;
+					}
+					break;
+				case DreamDaemonCommand.Join:
+					ControlPanel.LaunchUrl($"byond://{serverAddress}:{Model.CurrentPort}");
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");

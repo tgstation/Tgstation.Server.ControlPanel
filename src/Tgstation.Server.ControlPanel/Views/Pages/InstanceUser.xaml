@@ -220,7 +220,7 @@
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDPort, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Set Active and Inactive Port" Margin="5,4,0,0" />
+            <TextBlock DockPanel.Dock="Right" Text="Set DreamDaemon Port" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDAuto, Mode=TwoWay}"/>
@@ -265,6 +265,10 @@
           <DockPanel Grid.Column="0" Grid.Row="6" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDHeart, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Heartbeat Interval" Margin="5,4,0,0" />
+          </DockPanel>
+          <DockPanel Grid.Column="1" Grid.Row="6" Margin="2">
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDDump, Mode=TwoWay}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Create Process Dumps" Margin="5,4,0,0" />
           </DockPanel>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>

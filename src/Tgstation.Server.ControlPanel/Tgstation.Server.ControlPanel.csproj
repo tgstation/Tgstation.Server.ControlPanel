@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
-    <Version>1.8.1</Version>
+    <Version>1.9.0</Version>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -54,7 +54,7 @@
     <PackageReference Include="System.Reactive" Version="4.4.1" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.7.0" />
     <PackageReference Include="TextCopy" Version="3.3.0" />
-    <PackageReference Include="Tgstation.Server.Client" Version="7.1.0" />
+    <PackageReference Include="Tgstation.Server.Client" Version="7.3.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\Pages\StaticFolder.xaml.cs">

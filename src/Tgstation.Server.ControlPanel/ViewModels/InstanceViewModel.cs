@@ -103,6 +103,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IUserProvider userProvider;
 		readonly Octokit.IGitHubClient gitHubClient;
 
+		readonly string serverAddress;
+
 		IInstanceJobSink instanceJobSink;
 
 		IReadOnlyList<ITreeNode> children;
@@ -121,7 +123,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		InstanceUser instanceUser;
 
-		public InstanceViewModel(IInstanceManagerClient instanceManagerClient, PageContextViewModel pageContext, Instance instance, IUserRightsProvider userRightsProvider, InstanceRootViewModel instanceRootViewModel, IUserProvider userProvider, IServerJobSink serverJobSink, Octokit.IGitHubClient gitHubClient)
+		public InstanceViewModel(IInstanceManagerClient instanceManagerClient, PageContextViewModel pageContext, Instance instance, IUserRightsProvider userRightsProvider, InstanceRootViewModel instanceRootViewModel, IUserProvider userProvider, IServerJobSink serverJobSink, Octokit.IGitHubClient gitHubClient, string serverAddress)
 		{
 			this.instanceManagerClient = instanceManagerClient ?? throw new ArgumentNullException(nameof(instanceManagerClient));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
@@ -130,6 +132,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.instanceRootViewModel = instanceRootViewModel ?? throw new ArgumentNullException(nameof(instanceRootViewModel));
 			this.userProvider = userProvider ?? throw new ArgumentNullException(nameof(userProvider));
 			this.gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
+			this.serverAddress = serverAddress ?? throw new ArgumentNullException(nameof(serverAddress));
 
 			instanceClient = instanceManagerClient.CreateClient(instance);
 
@@ -220,7 +223,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				new RepositoryViewModel(pageContext, instanceClient.Repository, instanceClient.DreamMaker, instanceClient.Jobs, instanceJobSink, instanceUserTreeNode, gitHubClient),
 				new ByondViewModel(pageContext, instanceClient.Byond, instanceJobSink, instanceUserTreeNode),
 				new CompilerViewModel(pageContext, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode),
-				new DreamDaemonViewModel(pageContext, instanceClient.DreamDaemon, instanceJobSink, instanceUserTreeNode, x => SetDDRunning(x)),
+				new DreamDaemonViewModel(pageContext, instanceClient.DreamDaemon, instanceJobSink, instanceUserTreeNode, x => SetDDRunning(x), serverAddress),
 				new ChatRootViewModel(pageContext, instanceClient.ChatBots, instance.ChatBotLimit.Value, instanceUserTreeNode),
 			};
 

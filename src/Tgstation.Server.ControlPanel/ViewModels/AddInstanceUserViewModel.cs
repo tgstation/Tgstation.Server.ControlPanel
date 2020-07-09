@@ -69,15 +69,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(AddInstanceUserCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case AddInstanceUserCommand.Close:
-					return true;
-				case AddInstanceUserCommand.Add:
-					return !loading && rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.WriteUsers);
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
+				AddInstanceUserCommand.Close => true,
+				AddInstanceUserCommand.Add => !loading && rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.WriteUsers),
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
 		}
 
 		public async Task RunCommand(AddInstanceUserCommand command, CancellationToken cancellationToken)

@@ -275,7 +275,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 
-		async Task PostConnect(CancellationToken cancellationToken)
+		async Task PostConnect(Connection connection, CancellationToken cancellationToken)
 		{
 			IsExpanded = true;
 
@@ -366,7 +366,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM, this, serverInfo.Version));
 					var urVM = new UsersRootViewModel(serverClient.Users, serverInfo, pageContext, userVM);
 					newChildren.Add(urVM);
-					newChildren.Add(new InstanceRootViewModel(pageContext, serverInfo, serverClient.Instances, userVM, urVM, jobSink, gitHubClient));
+					newChildren.Add(new InstanceRootViewModel(pageContext, serverInfo, serverClient.Instances, userVM, urVM, jobSink, gitHubClient, connection.Url.Host));
 				}
 				catch
 				{
@@ -394,7 +394,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public Task OnLoadConnect(CancellationToken cancellationToken)
 		{
 			if (connection.LastToken?.ExpiresAt != null && connection.LastToken.ExpiresAt > DateTimeOffset.Now)
-				return PostConnect(cancellationToken);
+				return PostConnect(connection, cancellationToken);
 			else if (connection.Valid)
 				return BeginConnect(cancellationToken);
 			return Task.CompletedTask;
@@ -484,7 +484,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				 serverClient = await serverClientFactory.CreateFromLogin(connection.Url, connection.Username, connection.Credentials.Password, new List<IRequestLogger> { requestLogger }, connection.Timeout, true, cancellationToken).ConfigureAwait(true);
 				 connection.LastToken = serverClient.Token;
 			 }).ConfigureAwait(true))
-				await PostConnect(cancellationToken).ConfigureAwait(true);
+				await PostConnect(connection, cancellationToken).ConfigureAwait(true);
 		}
 
 		public Task HandleClick(CancellationToken cancellationToken)
