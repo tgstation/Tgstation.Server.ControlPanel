@@ -168,6 +168,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref newAutoUpdatesSynchronize, value);
 		}
 
+		public bool RecurseSubmodules
+		{
+			get => recurseSubmodules;
+			set => this.RaiseAndSetIfChanged(ref recurseSubmodules, value);
+		}
+
+
 		public bool NewPostTestMergeComment
 		{
 			get => newPostTestMergeComment;
@@ -290,6 +297,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string icon;
 
 		bool refreshing;
+		bool recurseSubmodules;
 		bool cloneAvailable;
 		bool deployAfter;
 
@@ -318,6 +326,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			rightsProvider.OnUpdated += (a, b) => RecheckCommands();
 			ManualPR = 1;
+			RecurseSubmodules = true;
 
 			async void InitialLoad() => await Refresh(null, null, default).ConfigureAwait(false);
 			if (CanRunCommand(RepositoryCommand.Refresh))
@@ -722,6 +731,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						Reference = String.IsNullOrEmpty(NewReference) ? null : NewReference,
 						AccessToken = String.IsNullOrEmpty(NewAccessToken) || !CanAccess ? null : NewAccessToken,
 						AccessUser = String.IsNullOrEmpty(NewAccessUser) || !CanAccess ? null : NewAccessUser,
+						RecurseSubmodules = RecurseSubmodules
 					};
 					await Refresh(clone, true, cancellationToken).ConfigureAwait(true);
 					break;
