@@ -181,6 +181,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => newHeartbeatSeconds;
 			set => this.RaiseAndSetIfChanged(ref newHeartbeatSeconds, value);
 		}
+		public uint NewTopicTimeout
+		{
+			get => newTopicTimeout;
+			set => this.RaiseAndSetIfChanged(ref newTopicTimeout, value);
+		}
 
 		public ushort NewPrimaryPort
 		{
@@ -213,6 +218,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanSecurity => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetSecurity);
 		public bool CanWebClient => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetWebClient);
 		public bool CanTimeout => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetStartupTimeout);
+		public bool CanTopic => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetTopicTimeout);
 		public bool CanSoftRestart => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SoftRestart);
 		public bool CanSoftStop => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SoftShutdown);
 		public bool CanMetadata => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.ReadMetadata);
@@ -243,6 +249,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		uint newStartupTimeout;
 		uint newHeartbeatSeconds;
+		uint newTopicTimeout;
 		ushort newPrimaryPort;
 		bool newAutoStart;
 		bool newAllowWebClient;
@@ -316,6 +323,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				Model = model;
 				NewStartupTimeout = Model.StartupTimeout ?? 0;
+				NewTopicTimeout = Model.TopicRequestTimeout ?? 0;
 				NewHeartbeatSeconds = Model.HeartbeatSeconds ?? 0;
 				NewPrimaryPort = Model.Port ?? 0;
 				NewAutoStart = Model.AutoStart ?? false;
@@ -367,7 +375,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				DreamDaemonCommand.Start => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Start) && Model?.Status.Value == WatchdogStatus.Offline,
 				DreamDaemonCommand.Stop => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Shutdown) && Model?.Status.Value != WatchdogStatus.Offline,
 				DreamDaemonCommand.Restart => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Restart) && Model?.Status.Value != WatchdogStatus.Offline,
-				DreamDaemonCommand.Update => !Refreshing && (CanAutoStart || CanPort || CanWebClient || CanSecurity || CanSoftRestart || CanSoftStop || CanTimeout) && !(NewPrimaryPort != 0),
+				DreamDaemonCommand.Update => !Refreshing && (CanAutoStart || CanPort || CanWebClient || CanSecurity || CanSoftRestart || CanSoftStop || CanTimeout || CanTopic) && NewPrimaryPort != 0,
 				DreamDaemonCommand.Dump => !Refreshing && Model?.Status.Value != WatchdogStatus.Offline && CanDump,
 				DreamDaemonCommand.Join => !Refreshing && Model?.Status.Value == WatchdogStatus.Online,
 				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
@@ -426,6 +434,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							Port = CanPort && NewPrimaryPort != Model.Port ? (ushort?)NewPrimaryPort : null,
 							SecurityLevel = CanSecurity && Model.SecurityLevel != initalSecurityLevel ? Model.SecurityLevel : null,
 							StartupTimeout = CanTimeout && Model.StartupTimeout != NewStartupTimeout ? (uint?)NewStartupTimeout : null,
+							TopicRequestTimeout = CanTopic && Model.TopicRequestTimeout != NewTopicTimeout ? (uint?)NewTopicTimeout : null,
 							HeartbeatSeconds = CanHeartbeat && Model.HeartbeatSeconds != NewHeartbeatSeconds ? (uint?)NewHeartbeatSeconds : null,
 						};
 

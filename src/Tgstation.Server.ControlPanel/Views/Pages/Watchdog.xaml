@@ -77,6 +77,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <TextBlock Text="Public Game Port:" Grid.Row="0" Grid.Column="0"/>
           <NumericUpDown Minimum="1" Maximum="65535" Height="25" IsEnabled="{Binding PageContext.ActiveObject.CanPort}" Value="{Binding PageContext.ActiveObject.NewPrimaryPort}" Grid.Row="0" Grid.Column="1"/>
@@ -86,6 +88,8 @@
           <NumericUpDown Minimum="1" Height="25" Value="{Binding PageContext.ActiveObject.NewStartupTimeout}" Grid.Column="1" Grid.Row="5" IsEnabled="{Binding PageContext.ActiveObject.CanTimeout}" />
           <TextBlock Text="Heartbeat Seconds (0 disables):" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Margin="0,5,5,0" Grid.Column="0" Grid.Row="7"/>
           <NumericUpDown Minimum="0" Height="25" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Value="{Binding PageContext.ActiveObject.NewHeartbeatSeconds}" Grid.Column="1" Grid.Row="7" IsEnabled="{Binding PageContext.ActiveObject.CanHeartbeat}" />
+          <TextBlock Text="Timeout For Sending BYOND Topics (Milliseconds):" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations." Margin="0,5,5,0" Grid.Column="0" Grid.Row="9"/>
+          <NumericUpDown Minimum="1" Height="25" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations.." Value="{Binding PageContext.ActiveObject.NewTopicTimeout}" Grid.Column="1" Grid.Row="9" IsEnabled="{Binding PageContext.ActiveObject.CanTopic}" />
         </Grid>
         <Grid Margin="0,5,0,0">
           <Grid.RowDefinitions>
@@ -103,11 +107,11 @@
             <ColumnDefinition Width="30*"/>
             <ColumnDefinition Width="10*"/>
           </Grid.ColumnDefinitions>
-          <TextBlock Text="Security Level:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="7" />
+          <TextBlock Text="Security Level:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="7" ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
           <TextBlock Text="Graceful Action:" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7" />
-          <RadioButton Content="Ultrasafe" Grid.Row="1" Grid.Column="1" IsChecked="{Binding PageContext.ActiveObject.Ultrasafe}" />
-          <RadioButton Content="Safe" Grid.Row="1" Grid.Column="3" IsChecked="{Binding PageContext.ActiveObject.Safe}" />
-          <RadioButton Content="Trusted" Grid.Row="1" Grid.Column="5" IsChecked="{Binding PageContext.ActiveObject.Trusted}" />
+          <RadioButton Content="Ultrasafe" Grid.Row="1" Grid.Column="1" IsChecked="{Binding PageContext.ActiveObject.Ultrasafe}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
+          <RadioButton Content="Safe" Grid.Row="1" Grid.Column="3" IsChecked="{Binding PageContext.ActiveObject.Safe}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
+          <RadioButton Content="Trusted" Grid.Row="1" Grid.Column="5" IsChecked="{Binding PageContext.ActiveObject.Trusted}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
           <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="None" Grid.Row="3" Grid.Column="1" IsChecked="{Binding PageContext.ActiveObject.ClearSoft}" IsEnabled="{Binding PageContext.ActiveObject.Model.Running}"/>
           <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="Restart" Grid.Row="3" Grid.Column="3" IsChecked="{Binding PageContext.ActiveObject.SoftRestart}" IsEnabled="{Binding PageContext.ActiveObject.Model.Running}" />
           <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="Shutdown" Grid.Row="3" Grid.Column="5" IsChecked="{Binding PageContext.ActiveObject.SoftStop}" IsEnabled="{Binding PageContext.ActiveObject.Model.Running}" />
