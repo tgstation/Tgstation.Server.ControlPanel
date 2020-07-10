@@ -2,6 +2,7 @@
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -58,6 +59,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		public bool Error => ErrorMessage != null;
+		public bool CanGetLogs => userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.DownloadLogs);
 
 		public string ErrorMessage
 		{
@@ -85,6 +87,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<AdministrationCommand> Update { get; }
 		public EnumCommand<AdministrationCommand> OpenGitHub { get; }
 
+		public List<LogFileViewModel> LogFiles
+		{
+			get => logFiles;
+			set => this.RaiseAndSetIfChanged(ref logFiles, value);
+		}
+
 		readonly PageContextViewModel pageContext;
 		readonly IAdministrationClient administrationClient;
 		readonly IUserRightsProvider userRightsProvider;
@@ -96,6 +104,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string icon;
 		string errorMessage;
 
+		List<LogFileViewModel> logFiles;
 		bool confirmingRestart;
 		bool confirmingUpdate;
 		string readReleaseNotes;
@@ -108,6 +117,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
 			this.connectionManagerViewModel = connectionManagerViewModel ?? throw new ArgumentNullException(nameof(connectionManagerViewModel));
 			this.tgsVersion = tgsVersion ?? throw new ArgumentNullException(nameof(tgsVersion));
+
+			logFiles = new List<LogFileViewModel>();
 
 			UpdateText = InitialUpdateText;
 			RestartText = InitialRestartText;
@@ -137,7 +148,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			ErrorMessage = null;
 			try
 			{
-				model = await administrationClient.Read(cancellationToken).ConfigureAwait(true);
+				var modelTask = administrationClient.Read(cancellationToken);
+				if (CanGetLogs)
+				{
+					LogFiles = (await administrationClient.ListLogs(cancellationToken)).Select(x => new LogFileViewModel(x, administrationClient, userRightsProvider)).ToList();
+				}
+
+				model = await modelTask.ConfigureAwait(true);
 			}
 			catch(ClientException e)
 			{
