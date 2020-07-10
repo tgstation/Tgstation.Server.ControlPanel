@@ -41,6 +41,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(AdminEditPassword));
 					this.RaisePropertyChanged(nameof(AdminChangeVersion));
 					this.RaisePropertyChanged(nameof(AdminRestartServer));
+					this.RaisePropertyChanged(nameof(AdminLogs));
 
 					this.RaisePropertyChanged(nameof(InstanceConfig));
 					this.RaisePropertyChanged(nameof(InstanceCreate));
@@ -52,6 +53,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(InstanceRename));
 					this.RaisePropertyChanged(nameof(InstanceUpdate));
 					this.RaisePropertyChanged(nameof(InstanceChatLimit));
+					this.RaisePropertyChanged(nameof(InstanceGrant));
+
 					this.RaisePropertyChanged(nameof(IsSystemUser));
 				}
 			}
@@ -165,6 +168,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set
 			{
 				var right = AdministrationRights.ChangeVersion;
+				if (value)
+					newAdministrationRights |= right;
+				else
+					newAdministrationRights &= ~right;
+			}
+		}
+		public bool AdminLogs
+		{
+			get => newAdministrationRights.HasFlag(AdministrationRights.DownloadLogs);
+			set
+			{
+				var right = AdministrationRights.DownloadLogs;
 				if (value)
 					newAdministrationRights |= right;
 				else
@@ -298,6 +313,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set
 			{
 				var right = InstanceManagerRights.SetChatBotLimit;
+				if (value)
+					newInstanceManagerRights |= right;
+				else
+					newInstanceManagerRights &= ~right;
+			}
+		}
+		public bool InstanceGrant
+		{
+			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.GrantPermissions);
+			set
+			{
+				var right = InstanceManagerRights.GrantPermissions;
 				if (value)
 					newInstanceManagerRights |= right;
 				else

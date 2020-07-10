@@ -1,8 +1,12 @@
-﻿using ReactiveUI;
+﻿using Avalonia;
+using Avalonia.Controls;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
@@ -17,7 +21,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			Update,
 			Refresh,
-			Close
+			Close,
+			Browse
 		}
 		public string Title => "Byond";
 
@@ -28,6 +33,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		public string CurrentVersion => data != null ? FormatByondVersion(data) : "Unknown";
+
+		public string ApplyText => String.IsNullOrWhiteSpace(ByondZipPath) ?
+			InstalledVersions
+				.Select(x => Version.Parse(x))
+				.Any(x => x.Major == NewMajor && x.Minor == NewMinor)
+				? "Set Active Version"
+				: "Install Version"
+			: "Upload Custom Version";
+
 		public IReadOnlyList<string> InstalledVersions
 		{
 			get => installedVersions;
@@ -35,8 +49,21 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref installedVersions, value);
 				this.RaisePropertyChanged(nameof(HasInstalledVersions));
+				this.RaisePropertyChanged(nameof(ApplyText));
 			}
 		}
+
+		public string ByondZipPath
+		{
+			get => customZipPath;
+			set
+			{
+				customZipPath = value;
+				this.RaisePropertyChanged(nameof(ApplyText));
+				Update.Recheck();
+			}
+		}
+
 		public bool HasInstalledVersions => InstalledVersions != null;
 
 		public bool IsExpanded { get; set; }
@@ -49,25 +76,61 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRead => rightsProvider.ByondRights.HasFlag(ByondRights.ReadActive);
 		public bool CanList => rightsProvider.ByondRights.HasFlag(ByondRights.ListInstalled);
-		public bool CanInstall => rightsProvider.ByondRights.HasFlag(ByondRights.ChangeVersion);
+		public bool CanInstall => rightsProvider.ByondRights.HasFlag(ByondRights.InstallOfficialOrChangeActiveVersion);
+		public bool CanUpload => rightsProvider.ByondRights.HasFlag(ByondRights.InstallCustomVersion);
 
-		public int NewMajor { get; set; }
-		public int NewMinor { get; set; }
+		public int NewMajor
+		{
+			get => newMajor;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newMajor, value);
+				this.RaisePropertyChanged(nameof(ApplyText));
+				Update.Recheck();
+			}
+		}
+
+		public int NewMinor
+		{
+			get => newMinor;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newMinor, value);
+				this.RaisePropertyChanged(nameof(ApplyText));
+				Update.Recheck();
+			}
+		}
+		public int Prebuild
+		{
+			get => prebuild;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref prebuild, value);
+				this.RaisePropertyChanged(nameof(ApplyText));
+				Update.Recheck();
+			}
+		}
 
 		public IReadOnlyList<ITreeNode> Children => null;
 
 		public EnumCommand<ByondCommand> Refresh { get; }
 		public EnumCommand<ByondCommand> Update { get; }
 		public EnumCommand<ByondCommand> Close { get; }
+		public EnumCommand<ByondCommand> Browse { get; }
 
 		readonly PageContextViewModel pageContext;
 		readonly IByondClient byondClient;
 		readonly IInstanceJobSink jobSink;
 		readonly IInstanceUserRightsProvider rightsProvider;
 
+		int newMajor;
+		int newMinor;
+		int prebuild;
+
 		IReadOnlyList<string> installedVersions;
 		Byond data;
 		string icon;
+		string customZipPath;
 		bool refreshing;
 
 		public ByondViewModel(PageContextViewModel pageContext, IByondClient byondClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider)
@@ -79,25 +142,43 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			Refresh = new EnumCommand<ByondCommand>(ByondCommand.Refresh, this);
 			Update = new EnumCommand<ByondCommand>(ByondCommand.Update, this);
+			Browse = new EnumCommand<ByondCommand>(ByondCommand.Browse, this);
 
 			rightsProvider.OnUpdated += (a, b) =>
 			{
 				this.RaisePropertyChanged(nameof(CanRead));
 				this.RaisePropertyChanged(nameof(CanInstall));
 				this.RaisePropertyChanged(nameof(CanList));
+				this.RaisePropertyChanged(nameof(CanUpload));
 
 				Refresh.Recheck();
 				Update.Recheck();
+				Browse.Recheck();
 			};
 
-			NewMajor = 511;
-			NewMinor = 1385;
+			NewMajor = 513;
+			NewMinor = 1527;
 
-			async void InitialLoad() => await Load(default).ConfigureAwait(false);
+			async void InitialLoad()
+			{
+				using var tempClient = new HttpClient();
+				var latestVersionTask = tempClient.GetAsync("https://secure.byond.com/download/version.txt");
+				await Load(default).ConfigureAwait(false);
+				var latestVersionResponse = await latestVersionTask;
+				var latestVersionText = await latestVersionResponse.Content.ReadAsStringAsync();
+				if (Version.TryParse(latestVersionText, out var latestVersion))
+				{
+					NewMajor = latestVersion.Major;
+					NewMinor = latestVersion.Minor;
+				}
+			}
 			InitialLoad();
 		}
 
-		static string FormatByondVersion(Byond byond) => byond.Version == null ? "None" : String.Format(CultureInfo.InvariantCulture, "{0}.{1}", byond.Version.Major, byond.Version.Minor);
+		static string FormatByondVersion(Byond byond) => byond.Version == null ? "None" :
+			byond.Version.Build > 0
+				? String.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}", byond.Version.Major, byond.Version.Minor, byond.Version.Build)
+				: String.Format(CultureInfo.InvariantCulture, "{0}.{1}", byond.Version.Major, byond.Version.Minor);
 
 		async Task Load(CancellationToken cancellationToken)
 		{
@@ -118,6 +199,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				data = await dataTask.ConfigureAwait(true);
 				this.RaisePropertyChanged(nameof(CurrentVersion));
 				InstalledVersions = (await installTask.ConfigureAwait(true)).Select(x => FormatByondVersion(x)).ToList();
+				Prebuild = 0;
 			}
 			finally
 			{
@@ -133,19 +215,33 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return Task.CompletedTask;
 		}
 
+		bool CheckZipExists()
+		{
+			try
+			{
+				return File.Exists(ByondZipPath);
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
 		public bool CanRunCommand(ByondCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case ByondCommand.Refresh:
-					return !Refreshing && (CanRead || CanList);
-				case ByondCommand.Update:
-					return !Refreshing && CanInstall;
-				case ByondCommand.Close:
-					return true;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
+				ByondCommand.Refresh => !Refreshing && (CanRead || CanList),
+				ByondCommand.Update => !Refreshing
+				&& ((CanInstall && String.IsNullOrWhiteSpace(ByondZipPath)
+				&& (Prebuild == 0 || InstalledVersions
+					.Select(x => Version.Parse(x))
+					.Any(x => x == new Version(NewMajor, NewMinor, Prebuild))))
+					|| CheckZipExists()),
+				ByondCommand.Close => true,
+				ByondCommand.Browse => !Refreshing && CanUpload,
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
 		}
 
 		public async Task RunCommand(ByondCommand command, CancellationToken cancellationToken)
@@ -161,9 +257,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Update.Recheck();
 					try
 					{
+						byte[] zipBytes = null;
+						if (!String.IsNullOrWhiteSpace(ByondZipPath))
+							zipBytes = await File.ReadAllBytesAsync(ByondZipPath, cancellationToken);
+
 						data = await byondClient.SetActiveVersion(new Byond
 						{
-							Version = new Version(NewMajor, NewMinor)
+							Version = Prebuild == 0 ? new Version(NewMajor, NewMinor) : new Version(NewMajor, NewMinor, Prebuild),
+							Content = zipBytes
 						}, cancellationToken).ConfigureAwait(true);
 						if (data.InstallJob != null)
 							jobSink.RegisterJob(data.InstallJob, Load);
@@ -178,6 +279,26 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					break;
 				case ByondCommand.Close:
 					pageContext.ActiveObject = null;
+					break;
+				case ByondCommand.Browse:
+					var ofd = new OpenFileDialog
+					{
+						Title = "Upload Custom BYOND Version",
+						AllowMultiple = false,
+						InitialFileName = Path.GetFileName(ByondZipPath),
+						Filters = new List<FileDialogFilter>
+						{
+							new FileDialogFilter 
+							{
+								Name = "Zip Files",
+								Extensions = new List<string>
+								{
+									"zip"
+								}
+							}
+						}
+					};
+					ByondZipPath = (await ofd.ShowAsync(Application.Current.MainWindow).ConfigureAwait(true))[0] ?? ByondZipPath;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");

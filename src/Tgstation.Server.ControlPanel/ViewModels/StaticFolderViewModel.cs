@@ -178,17 +178,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 		public bool CanRunCommand(StaticFolderCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case StaticFolderCommand.Close:
-					return true;
-				case StaticFolderCommand.Refresh:
-					return !Refreshing;
-				case StaticFolderCommand.Delete:
-					return !Refreshing && rightsProvider.ConfigurationRights.HasFlag(ConfigurationRights.Delete) && (!Children?.Where(x => x is IStaticNode).Any() ?? true);
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
+				StaticFolderCommand.Close => true,
+				StaticFolderCommand.Refresh => !Refreshing,
+				StaticFolderCommand.Delete => !Refreshing && rightsProvider.ConfigurationRights.HasFlag(ConfigurationRights.Delete) && (!Children?.Where(x => x is IStaticNode).Any() ?? true),
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
 		}
 
 		public async Task RunCommand(StaticFolderCommand command, CancellationToken cancellationToken)

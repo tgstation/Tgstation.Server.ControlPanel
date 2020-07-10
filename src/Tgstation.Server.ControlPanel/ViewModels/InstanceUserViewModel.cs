@@ -104,10 +104,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 		public bool ByondChange
 		{
-			get => newByondRights.HasFlag(ByondRights.ChangeVersion);
+			get => newByondRights.HasFlag(ByondRights.InstallOfficialOrChangeActiveVersion);
 			set
 			{
-				var right = ByondRights.ChangeVersion;
+				var right = ByondRights.InstallOfficialOrChangeActiveVersion;
 				if (value)
 					newByondRights |= right;
 				else
@@ -120,6 +120,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set
 			{
 				var right = ByondRights.CancelInstall;
+				if (value)
+					newByondRights |= right;
+				else
+					newByondRights &= ~right;
+			}
+		}
+		public bool ByondUpload
+		{
+			get => newByondRights.HasFlag(ByondRights.InstallCustomVersion);
+			set
+			{
+				var right = ByondRights.InstallCustomVersion;
 				if (value)
 					newByondRights |= right;
 				else
@@ -368,6 +380,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newDreamMakerRights &= ~right;
 			}
 		}
+		public bool CompReq
+		{
+			get => newDreamMakerRights.HasFlag(DreamMakerRights.SetApiValidationRequirement);
+			set
+			{
+				var right = DreamMakerRights.SetSecurityLevel;
+				if (value)
+					newDreamMakerRights |= right;
+				else
+					newDreamMakerRights &= ~right;
+			}
+		}
 
 		public bool DDRead
 		{
@@ -534,6 +558,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set
 			{
 				var right = DreamDaemonRights.CreateDump;
+				if (value)
+					newDreamDaemonRights |= right;
+				else
+					newDreamDaemonRights &= ~right;
+			}
+		}
+
+		public bool DDTopicTimeout
+		{
+			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.SetTopicTimeout);
+			set
+			{
+				var right = DreamDaemonRights.SetTopicTimeout;
 				if (value)
 					newDreamDaemonRights |= right;
 				else
