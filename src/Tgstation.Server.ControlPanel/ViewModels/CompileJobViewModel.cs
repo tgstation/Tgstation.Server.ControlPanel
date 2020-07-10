@@ -19,7 +19,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Revision => CompileJob.RevisionInformation.CommitSha.Substring(0, 7);
 		public string ByondVersion => $"{CompileJob.ByondVersion.Major}.{CompileJob.ByondVersion.Minor}";
-		public string DMApiVersion => $"{CompileJob.DMApiVersion.Major}.{CompileJob.DMApiVersion.Minor}.{CompileJob.DMApiVersion.Build}";
+		public string DMApiVersion => CompileJob.DMApiVersion == null ? "NO DMAPI" : $"{CompileJob.DMApiVersion.Major}.{CompileJob.DMApiVersion.Minor}.{CompileJob.DMApiVersion.Build}";
 		public string OriginRevision => CompileJob.RevisionInformation.OriginCommitSha.Substring(0, 7);
 
 		public bool HasTestMerges => CompileJob.RevisionInformation.ActiveTestMerges.Count > 0 && IsExpanded;
