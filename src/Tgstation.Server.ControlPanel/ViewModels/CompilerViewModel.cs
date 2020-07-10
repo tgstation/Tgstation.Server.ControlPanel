@@ -127,11 +127,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Update.Recheck();
 			}
 		}
+
+		public bool ApiRequire
+		{
+			get => apiRequire;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref apiRequire, value);
+				Update.Recheck();
+			}
+		}
+
 		public string SecurityLevel => (Model?.ApiValidationSecurityLevel).HasValue ? Model.ApiValidationSecurityLevel.ToString() : "Unknown";
 
 		public int ViewSelectedPage => selectedPage + 1;
 		public int ViewNumPages => numPages;
 
+		public bool CanRequire => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.SetApiValidationRequirement);
 		public bool CanCompile => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.Compile);
 		public bool CanRead => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.Read);
 		public bool CanGetJobs => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.CompileJobs);
@@ -169,6 +181,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		int newPort;
 		
 		bool refreshing;
+		bool apiRequire;
 		bool autoDetectDme;
 
 		public CompilerViewModel(PageContextViewModel pageContext, IDreamMakerClient dreamMakerClient, IInstanceJobSink jobSink, IInstanceUserRightsProvider rightsProvider)
@@ -233,6 +246,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			NewPort = 0;
 			AutoDetectDme = Model?.ProjectName == null;
 			newSecurityLevel = Model?.ApiValidationSecurityLevel ?? DreamDaemonSecurity.Safe;
+			ApiRequire = Model?.RequireDMApiValidation ?? true;
+			this.RaisePropertyChanged(nameof(Ultrasafe));
 			this.RaisePropertyChanged(nameof(Safe));
 			this.RaisePropertyChanged(nameof(Trusted));
 		}
@@ -310,7 +325,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					//either a new dme name is set, or the checkbox is different than the model
 					&& (!String.IsNullOrEmpty(NewDme) || (AutoDetectDme ^ (Model?.ProjectName == null))
 					|| NewPort != 0
-					|| newSecurityLevel != Model?.ApiValidationSecurityLevel),
+					|| newSecurityLevel != Model?.ApiValidationSecurityLevel
+					|| ApiRequire != (Model?.RequireDMApiValidation ?? true)),
 				CompilerCommand.Compile => !Refreshing && CanCompile,
 				CompilerCommand.LastPage => !Refreshing && CanGetJobs && selectedPage > 0,
 				CompilerCommand.NextPage => !Refreshing && selectedPage < numPages && CanGetJobs,
@@ -359,6 +375,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 								newModel.ProjectName = NewDme;
 							else if (AutoDetectDme)
 								newModel.ProjectName = String.Empty;
+
+						if (CanRequire)
+							newModel.RequireDMApiValidation = ApiRequire;
 
 						if (CanPort && NewPort != 0)
 							newModel.ApiValidationPort = (ushort)NewPort;

@@ -79,6 +79,7 @@
             <RowDefinition Height="5"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -89,6 +90,10 @@
           <DockPanel Grid.Row="0" Grid.Column="0">
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AutoDetectDme}" IsEnabled="{Binding PageContext.ActiveObject.CanDmeAutodetectView}" DockPanel.Dock="Left"/>
             <TextBlock Text="Auto Detect Project Name" Margin="5,0,0,0" DockPanel.Dock="Right"/>
+          </DockPanel>
+          <DockPanel Grid.Row="0" Grid.Column="1">
+            <CheckBox Background="White" ToolTip.Tip="The DMAPI facilitates communication between DreamDaemon and TGS. It enables features such as heartbeats, custom chat commands/messages, and graceful actions such as changing security levels or enabling and disabling the web client among other things. Without it, the server will need to be manually rebooted from TGS when such changes are made." IsChecked="{Binding PageContext.ActiveObject.ApiRequire}" IsEnabled="{Binding PageContext.ActiveObject.CanRequire}" DockPanel.Dock="Left"/>
+            <TextBlock Text="Require DMAPI for deployments to succeed (Reccommended)" ToolTip.Tip="The DMAPI facilitates communication between DreamDaemon and TGS. It enables features such as heartbeats, custom chat commands/messages, and graceful actions such as changing security levels or enabling and disabling the web client among other things. Without it, the server will need to be manually rebooted from TGS when such changes are made." Margin="5,0,0,0" DockPanel.Dock="Right"/>
           </DockPanel>
           <TextBlock Text="Port Used For TGS DMAPI Validation (should be private, 0 doesn't change):" Grid.Row="3" Grid.Column="0" Margin="0,5,0,0"/>
           <NumericUpDown Minimum="0" Maximum="65535" Height="25" Value="{Binding PageContext.ActiveObject.NewPort}" IsEnabled="{Binding PageContext.ActiveObject.CanPortView}" Margin="5,0,0,0" Grid.Row="3" Grid.Column="1"/>
