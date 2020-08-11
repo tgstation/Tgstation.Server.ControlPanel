@@ -61,6 +61,7 @@ namespace Tgstation.Server.ControlPanel
 			if (job == null)
 				throw new ArgumentNullException(nameof(job));
 			job.StartedBy = currentUserProvider() ?? job.StartedBy;
+			TaskCompletionSource<object> toComplete;
 			lock (trackedJobs)
 			{
 				if (!trackedJobs.ContainsKey(job.Id))
@@ -70,9 +71,11 @@ namespace Tgstation.Server.ControlPanel
 					lock (newestJobs)
 						newestJobs.Add(job);
 				}
-				updated.SetResult(null);
+				toComplete = updated;
 				updated = new TaskCompletionSource<object>();
 			}
+
+			toComplete.SetResult(null);
 		}
 
 		public bool DeregisterJob(Job job, out Func<CancellationToken, Task> postAction)
