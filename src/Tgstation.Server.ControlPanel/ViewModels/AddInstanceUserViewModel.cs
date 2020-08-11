@@ -91,7 +91,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						var user = new InstanceUser
 						{
-							UserId = IdMode ? UserId : users[SelectedIndex].Id,
+							UserId = IdMode ? UserId : users[SelectedIndex].Id.Value,
 						};
 						var newUser = await instanceUserClient.Create(user, cancellationToken).ConfigureAwait(true);
 						instanceUserRootViewModel.DirectAdd(newUser);

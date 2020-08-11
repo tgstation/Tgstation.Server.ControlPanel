@@ -29,7 +29,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public IReadOnlyList<ITreeNode> Children => null;
 
-		public long Id => instanceUser.UserId.Value;
+		public long Id => instanceUser.UserId;
 
 		public InstanceUserRights InstanceUserRights => instanceUser.InstanceUserRights.Value;
 		public RepositoryRights RepositoryRights => instanceUser.RepositoryRights.Value;
