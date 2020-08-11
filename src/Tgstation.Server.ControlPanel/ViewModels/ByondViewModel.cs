@@ -161,15 +161,22 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			async void InitialLoad()
 			{
-				using var tempClient = new HttpClient();
-				var latestVersionTask = tempClient.GetAsync("https://secure.byond.com/download/version.txt");
-				await Load(default).ConfigureAwait(false);
-				var latestVersionResponse = await latestVersionTask;
-				var latestVersionText = await latestVersionResponse.Content.ReadAsStringAsync();
-				if (Version.TryParse(latestVersionText, out var latestVersion))
+				try
 				{
-					NewMajor = latestVersion.Major;
-					NewMinor = latestVersion.Minor;
+					using var tempClient = new HttpClient();
+					var latestVersionTask = tempClient.GetAsync("https://secure.byond.com/download/version.txt");
+					await Load(default).ConfigureAwait(false);
+					var latestVersionResponse = await latestVersionTask;
+					var latestVersionText = await latestVersionResponse.Content.ReadAsStringAsync();
+					if (Version.TryParse(latestVersionText, out var latestVersion))
+					{
+						NewMajor = latestVersion.Major;
+						NewMinor = latestVersion.Minor;
+					}
+				}
+				catch (Exception ex)
+				{
+					MainWindowViewModel.HandleException(ex);
 				}
 			}
 			InitialLoad();
