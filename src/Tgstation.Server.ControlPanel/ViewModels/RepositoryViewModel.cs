@@ -214,7 +214,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref refreshing, value);
 		}
 
-		public string UpdateText => String.IsNullOrEmpty(NewSha) && (String.IsNullOrEmpty(NewReference) || NewReference == Repository.Reference) ? "Fetch and and Hard Reset To Tracked Origin Reference" : "Fetch and Hard Reset to Target Origin Object";
+		public string UpdateText => String.IsNullOrEmpty(NewSha) && (String.IsNullOrEmpty(NewReference) || NewReference == Repository.Reference) ? "Fetch and Hard Reset To Tracked Origin Reference" : "Fetch and Hard Reset to Target Origin Object";
 
 		public string ErrorMessage
 		{
