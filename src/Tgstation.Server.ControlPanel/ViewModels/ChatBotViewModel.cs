@@ -157,21 +157,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(ChatBotCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case ChatBotCommand.Close:
-					return true;
-				case ChatBotCommand.Update:
-					return !Refreshing && (CanChannels || CanName || CanProvider || CanConnectionString || CanChannels) && !Channels.Any(x => x.BadForm);
-				case ChatBotCommand.Delete:
-					return !Refreshing && rightsProvider.ChatBotRights.HasFlag(ChatBotRights.Delete);
-				case ChatBotCommand.Refresh:
-					return !Refreshing;
-				case ChatBotCommand.AddChannel:
-					return !Refreshing && CanChannels;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
+				ChatBotCommand.Close => true,
+				ChatBotCommand.Update => !Refreshing && (CanChannels || CanName || CanProvider || CanConnectionString || CanChannels) && !Channels.Any(x => x.BadForm),
+				ChatBotCommand.Delete => !Refreshing && rightsProvider.ChatBotRights.HasFlag(ChatBotRights.Delete),
+				ChatBotCommand.Refresh => !Refreshing,
+				ChatBotCommand.AddChannel => !Refreshing && CanChannels,
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
 		}
 
 		public async Task RunCommand(ChatBotCommand command, CancellationToken cancellationToken)

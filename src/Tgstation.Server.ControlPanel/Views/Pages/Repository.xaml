@@ -115,6 +115,7 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.NewAutoUpdatesKeepTestMerges, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}" ToolTip.Tip="Enabling this may cause automatic updates to fail due to merge conflicts" />
@@ -126,6 +127,7 @@
             </DockPanel>
             <CheckBox Background="White" Content="Show Merger Usernames in Public Metadata" IsChecked="{Binding PageContext.ActiveObject.NewShowTestMergeCommitters, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanShowTMCommitters}" Grid.Column="0" Grid.Row="1"/>
             <CheckBox Background="White" Content="Post GitHub comment when test merge is deployed" IsChecked="{Binding PageContext.ActiveObject.NewPostTestMergeComment, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanShowTMCommitters}" Grid.Column="1" Grid.Row="1"/>
+            <CheckBox Background="White" Content="Create GitHub Deployment Statuses" IsChecked="{Binding PageContext.ActiveObject.NewGitHubDeployments, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanShowTMCommitters}" Grid.Column="0" Grid.Row="2"/>
           </Grid>
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" Grid.Row="2"/>

@@ -77,8 +77,18 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
           <TextBlock Text="Bot Token:" Grid.Row="0" Grid.Column="0" Margin="0,5,0,0"/>
           <TextBox Text="{Binding PageContext.ActiveObject.DiscordBotToken}" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0"/>
+          <DropDown SelectedIndex="{Binding PageContext.ActiveObject.DiscordDMDisplay, Mode=TwoWay}" Grid.Column="0" Grid.Row="1" Margin="5,0,0,0">
+            <DropDownItem>Always Show DM Output</DropDownItem>
+            <DropDownItem>Show DM Output on Error</DropDownItem>
+            <DropDownItem>Never Show DM Output</DropDownItem>
+          </DropDown>
+          <CheckBox Content="Based on the Hardware that's Installed in it" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1" IsChecked="{Binding PageContext.ActiveObject.DiscordMeme}" />
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

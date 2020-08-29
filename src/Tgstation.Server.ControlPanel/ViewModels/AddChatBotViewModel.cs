@@ -81,6 +81,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public int DiscordDMDisplay
+		{
+			get => discordDmDisplay;
+			set => this.RaiseAndSetIfChanged(ref discordDmDisplay, value);
+		}
+
 		public bool IrcUsingPassword => IrcPasswordType != 3;
 
 		public string DiscordBotToken
@@ -91,6 +97,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaiseAndSetIfChanged(ref discordBotToken, value);
 				Add.Recheck();
 			}
+		}
+
+		public bool DiscordMeme
+		{
+			get => discordMeme;
+			set => this.RaiseAndSetIfChanged(ref discordMeme, value);
 		}
 
 		public bool Enabled
@@ -126,6 +138,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool loading;
 		string botName;
 		bool enabled;
+		bool discordMeme;
+		int discordDmDisplay;
 		int ircPasswordType;
 		string ircPassword;
 		string ircServer;
@@ -143,6 +157,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Add = new EnumCommand<AddChatBotCommand>(AddChatBotCommand.Add, this);
 			IrcPasswordType = 3;
 			IrcPort = 6667;
+			DiscordMeme = true;
 		}
 
 		public Task HandleClick(CancellationToken cancellationToken)
@@ -193,7 +208,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							case ChatProvider.Discord:
 								newBot.SetConnectionStringBuilder(new DiscordConnectionStringBuilder
 								{
-									BotToken = DiscordBotToken
+									BotToken = DiscordBotToken,
+									BasedMeme = DiscordMeme,
+									DMOutputDisplay = (DiscordDMOutputDisplayType)DiscordDMDisplay
 								});
 								break;
 							case ChatProvider.Irc:

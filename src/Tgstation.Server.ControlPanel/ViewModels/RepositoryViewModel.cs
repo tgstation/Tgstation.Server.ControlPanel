@@ -181,6 +181,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref newPostTestMergeComment, value);
 		}
 
+		public bool NewGitHubDeployments
+		{
+			get => newGitHubDeployments;
+			set => this.RaiseAndSetIfChanged(ref newGitHubDeployments, value);
+		}
+
 		public string DeleteText => confirmingDelete ? "Confirm?" : "Delete Repository";
 
 		public bool CanClone => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetOrigin);
@@ -288,6 +294,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool newAutoUpdatesKeepTestMerges;
 		bool newAutoUpdatesSynchronize;
 		bool newPostTestMergeComment;
+		bool newGitHubDeployments;
 		bool rateLimited;
 
 		string errorMessage;
@@ -403,10 +410,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 					UpdateHard = false;
 					UpdateMerge = false;
-					NewAutoUpdatesKeepTestMerges = Repository.AutoUpdatesKeepTestMerges ?? update.AutoUpdatesKeepTestMerges ?? oldRepo.AutoUpdatesKeepTestMerges ?? NewAutoUpdatesKeepTestMerges;
-					NewAutoUpdatesSynchronize = Repository.AutoUpdatesSynchronize ?? update.AutoUpdatesSynchronize ?? oldRepo.AutoUpdatesSynchronize ?? NewAutoUpdatesSynchronize;
-					NewShowTestMergeCommitters = Repository.ShowTestMergeCommitters ?? update.ShowTestMergeCommitters ?? oldRepo.ShowTestMergeCommitters ?? NewShowTestMergeCommitters;
-					NewPostTestMergeComment = Repository.PostTestMergeComment ?? update.PostTestMergeComment ?? oldRepo.PostTestMergeComment ?? NewPostTestMergeComment;
+					NewAutoUpdatesKeepTestMerges = Repository.AutoUpdatesKeepTestMerges ?? update?.AutoUpdatesKeepTestMerges ?? oldRepo?.AutoUpdatesKeepTestMerges ?? NewAutoUpdatesKeepTestMerges;
+					NewAutoUpdatesSynchronize = Repository.AutoUpdatesSynchronize ?? update?.AutoUpdatesSynchronize ?? oldRepo?.AutoUpdatesSynchronize ?? NewAutoUpdatesSynchronize;
+					NewShowTestMergeCommitters = Repository.ShowTestMergeCommitters ?? update?.ShowTestMergeCommitters ?? oldRepo?.ShowTestMergeCommitters ?? NewShowTestMergeCommitters;
+					NewPostTestMergeComment = Repository.PostTestMergeComment ?? update?.PostTestMergeComment ?? oldRepo?.PostTestMergeComment ?? NewPostTestMergeComment;
+					NewGitHubDeployments = Repository.CreateGitHubDeployments ?? update?.CreateGitHubDeployments ?? oldRepo?.CreateGitHubDeployments ?? NewGitHubDeployments;
 
 					CloneAvailable = Repository.Origin == null;
 				}
@@ -678,6 +686,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 						PostTestMergeComment = CanShowTMCommitters ? (bool?)NewPostTestMergeComment : null,
 						ShowTestMergeCommitters = CanShowTMCommitters ? (bool?)NewShowTestMergeCommitters : null,
+						CreateGitHubDeployments = CanShowTMCommitters ? (bool?)NewGitHubDeployments : null,
 
 						CommitterEmail = !String.IsNullOrEmpty(NewCommitterEmail) ? NewCommitterEmail : null,
 						CommitterName = !String.IsNullOrEmpty(NewCommitterName) ? NewCommitterName : null
