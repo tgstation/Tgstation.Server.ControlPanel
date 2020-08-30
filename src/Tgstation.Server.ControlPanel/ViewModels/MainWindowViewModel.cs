@@ -270,10 +270,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			try
 			{
 				var model = JsonConvert.DeserializeObject<TBodyType>(bodyString, serializerSettings);
-				var censorField = (string)property.GetValue(model);
+				var censorField = property.GetValue(model);
 				if (censorField != null)
 				{
-					property.SetValue(model, String.Join("", Enumerable.Repeat('*', censorField.Length)));
+					property.SetValue(model, String.Join("", Enumerable.Repeat('*', ((string)censorField).Length)));
 					bodyString = JsonConvert.SerializeObject(model, serializerSettings);
 
 					return true;
@@ -281,24 +281,28 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 			catch (JsonException)
 			{
-				var models = JsonConvert.DeserializeObject<List<TBodyType>>(bodyString, serializerSettings);
-				bool anyFound = false;
-				foreach (var model in models)
+				try
 				{
-					var censorField = (string)property.GetValue(model);
-					if (censorField != null)
+					var models = JsonConvert.DeserializeObject<List<TBodyType>>(bodyString, serializerSettings);
+					bool anyFound = false;
+					foreach (var model in models)
 					{
-						property.SetValue(model, String.Join("", Enumerable.Repeat('*', censorField.Length)));
+						var censorField = (string)property.GetValue(model);
+						if (censorField != null)
+						{
+							property.SetValue(model, String.Join("", Enumerable.Repeat('*', censorField.Length)));
 
-						anyFound = true;
+							anyFound = true;
+						}
+					}
+
+					if (anyFound)
+					{
+						bodyString = JsonConvert.SerializeObject(models, serializerSettings);
+						return true;
 					}
 				}
-
-				if (anyFound)
-				{
-					bodyString = JsonConvert.SerializeObject(models, serializerSettings);
-					return true;
-				}
+				catch (JsonException) { }
 			}
 
 			return false;

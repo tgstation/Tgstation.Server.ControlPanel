@@ -102,15 +102,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(AddUserCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case AddUserCommand.Close:
-					return true;
-				case AddUserCommand.Add:
-					return ((Username.Length > 0 && Password.Length >= serverInformation.MinimumPasswordLength) ^ (SystemIdentifier.Length > 0)) && Password == ConfirmPassword;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
+				AddUserCommand.Close => true,
+				AddUserCommand.Add => ((Username.Length > 0 && Password.Length >= serverInformation.MinimumPasswordLength) ^ (SystemIdentifier.Length > 0)) && Password == ConfirmPassword,
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
 		}
 
 		public async Task RunCommand(AddUserCommand command, CancellationToken cancellationToken)
@@ -133,12 +130,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							Name = Username,
 							Password = Password
 						};
-					try
-					{
-						var newUser = await usersClient.Create(uu, cancellationToken).ConfigureAwait(true);
-						usersRootViewModel.DirectAdd(newUser);
-					}
-					catch { }
+					var newUser = await usersClient.Create(uu, cancellationToken).ConfigureAwait(true);
+					usersRootViewModel.DirectAdd(newUser);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
