@@ -10,16 +10,20 @@ Official management suite for tgstation-server v4
 
 ## Installing
 
-If you're running Windows [Click Here](https://github.com/tgstation/Tgstation.Server.ControlPanel/releases/latest) for the self updating version.
+### Windows
+
+First, ensure you have the .NET Core 3.1 runtime installed. See [here](https://dotnet.microsoft.com/download/dotnet-core/current/runtime) for download.
+
+Once that's done, [Click Here](https://github.com/tgstation/Tgstation.Server.ControlPanel/releases/latest) for a download link to the self updating version.
 
 ### OSX/Linux
 
 To install the latest version of the code
 
 1. Download and install the [Dotnet 2.1 SDK](https://www.microsoft.com/net/download/dotnet-core/2.1)
-2. Clone this repository
-3. Navigate to `src/Tgstation.Server.ControlPanel.Core`
-4. Run `dotnet publish -c Release -o <Your chosen installation directory>`
+1. Clone this repository
+1. Navigate to `src/Tgstation.Server.ControlPanel.Core`
+1. Run `dotnet publish -c Release -o <Your chosen installation directory>`
 
 To run the installation
 
