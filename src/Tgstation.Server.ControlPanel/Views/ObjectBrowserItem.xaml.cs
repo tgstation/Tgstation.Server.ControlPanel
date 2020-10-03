@@ -1,7 +1,7 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using System;
 using Tgstation.Server.ControlPanel.ViewModels;
 
 namespace Tgstation.Server.ControlPanel.Views
@@ -14,6 +14,16 @@ namespace Tgstation.Server.ControlPanel.Views
 			Tapped += HandleTap;
 		}
 
-		async void HandleTap(object sender, RoutedEventArgs eventArgs) => await ((ITreeNode)DataContext).HandleClick(default).ConfigureAwait(false);
+		async void HandleTap(object sender, RoutedEventArgs eventArgs)
+		{
+			try
+			{
+				await ((ITreeNode)DataContext).HandleClick(default).ConfigureAwait(false);
+			}
+			catch (Exception ex)
+			{
+				MainWindowViewModel.HandleException(ex);
+			}
+		}
 	}
 }
