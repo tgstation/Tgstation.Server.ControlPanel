@@ -256,7 +256,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			updater.Dispose();
 		}
 
-		static bool CensorBodyString<TBodyType>(Expression<Func<TBodyType, string>> censorExpression, ref string bodyString)
+		static void CensorBodyString<TBodyType>(Expression<Func<TBodyType, object>> censorExpression, ref string bodyString)
+			where TBodyType : new()
 		{
 			var serializerSettings = new JsonSerializerSettings
 			{
@@ -267,45 +268,51 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var memberSelectorExpression = (MemberExpression)censorExpression.Body;
 			var property = (PropertyInfo)memberSelectorExpression.Member;
 
+			if (property.PropertyType != typeof(string)
+				&& property.PropertyType != typeof(byte[]))
+				throw new InvalidOperationException("Must be string or byte array!");
+
+			var workingBodyString = bodyString;
+			bool TryCensorProperty(object model)
+			{
+				var censorField = property.GetValue(model);
+				if (censorField == null)
+					return false;
+
+				if (property.PropertyType == typeof(string))
+					property.SetValue(
+						model,
+						String.Join(
+							String.Empty,
+							Enumerable.Repeat(
+								'*',
+								((string)censorField).Length)));
+				else
+					workingBodyString = workingBodyString.Replace(
+						$"\"{Convert.ToBase64String((byte[])censorField)}\"",
+						"\"***\"");
+
+				return true;
+			}
+
 			try
 			{
-				var model = JsonConvert.DeserializeObject<TBodyType>(bodyString, serializerSettings);
-				var censorField = property.GetValue(model);
-				if (censorField != null)
-				{
-					property.SetValue(model, String.Join("", Enumerable.Repeat('*', ((string)censorField).Length)));
-					bodyString = JsonConvert.SerializeObject(model, serializerSettings);
-
-					return true;
-				}
+				var model = JsonConvert.DeserializeObject<TBodyType>(workingBodyString, serializerSettings);
+				if (TryCensorProperty(model))
+					workingBodyString = JsonConvert.SerializeObject(model, serializerSettings);
 			}
 			catch (JsonException)
 			{
 				try
 				{
-					var models = JsonConvert.DeserializeObject<List<TBodyType>>(bodyString, serializerSettings);
-					bool anyFound = false;
-					foreach (var model in models)
-					{
-						var censorField = (string)property.GetValue(model);
-						if (censorField != null)
-						{
-							property.SetValue(model, String.Join("", Enumerable.Repeat('*', censorField.Length)));
-
-							anyFound = true;
-						}
-					}
-
-					if (anyFound)
-					{
-						bodyString = JsonConvert.SerializeObject(models, serializerSettings);
-						return true;
-					}
+					var models = JsonConvert.DeserializeObject<List<TBodyType>>(workingBodyString, serializerSettings);
+					if (models.Any(x => TryCensorProperty(x)))
+						workingBodyString = JsonConvert.SerializeObject(models, serializerSettings);
 				}
 				catch (JsonException) { }
 			}
 
-			return false;
+			bodyString = workingBodyString;
 		}
 
 		public async Task LogRequest(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
@@ -318,10 +325,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			if (!String.IsNullOrEmpty(bodyString))
 			{
 				//may contain the password for some things, User models, censor it
-
-				var express = CensorBodyString<UserUpdate>(x => x.Password, ref bodyString)
-					|| CensorBodyString<Repository>(x => x.AccessToken, ref bodyString)
-					|| CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString);
+				CensorBodyString<UserUpdate>(x => x.Password, ref bodyString);
+				CensorBodyString<Repository>(x => x.AccessToken, ref bodyString);
+				CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString);
+				CensorBodyString<ConfigurationFile>(x => x.Content, ref bodyString);
 
 				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			}
@@ -346,9 +353,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var bodyPart = String.Empty;
 			if (!String.IsNullOrEmpty(bodyString))
 			{
-				var express = CensorBodyString<Repository>(x => x.AccessToken, ref bodyString)
-					|| CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString)
-					|| CensorBodyString<Token>(x => x.Bearer, ref bodyString);
+				CensorBodyString<Repository>(x => x.AccessToken, ref bodyString);
+				CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString);
+				CensorBodyString<Token>(x => x.Bearer, ref bodyString);
+				CensorBodyString<LogFile>(x => x.Content, ref bodyString);
+				CensorBodyString<ConfigurationFile>(x => x.Content, ref bodyString);
 
 				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			}
