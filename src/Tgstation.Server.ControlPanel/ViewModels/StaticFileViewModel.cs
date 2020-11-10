@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -353,8 +354,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var ext = System.IO.Path.GetExtension(Path);
 					if (!String.IsNullOrEmpty(ext))
 						sfd.DefaultExtension = ext;
-
-					DownloadPath = (await sfd.ShowAsync(Application.Current.MainWindow).ConfigureAwait(true)) ?? DownloadPath;
+					
+					if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime1)
+						DownloadPath = (await sfd.ShowAsync(lifetime1.MainWindow).ConfigureAwait(true)) ?? DownloadPath;
 					break;
 				case StaticFileCommand.BrowseUpload:
 					var ofd = new OpenFileDialog
@@ -363,7 +365,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						InitialFileName = System.IO.Path.GetFileName(Path),
 						AllowMultiple = false
 					};
-					UploadPath = (await ofd.ShowAsync(Application.Current.MainWindow).ConfigureAwait(true))[0] ?? UploadPath;
+					if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime2)
+						UploadPath = (await ofd.ShowAsync(lifetime2.MainWindow).ConfigureAwait(true))[0] ?? UploadPath;
 					break;
 				case StaticFileCommand.EnableEditor:
 					EditorEnabled = true;

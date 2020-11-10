@@ -1,5 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Tgstation.Server.ControlPanel.Views.Pages.InstanceManager">
   <Grid Background="#CFD6E5">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -62,11 +63,11 @@
             <ColumnDefinition Width="400"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="Static File Mode:" Margin="0,5,50,0" Grid.Column="0" Grid.Row="0"/>
-          <DropDown SelectedIndex="{Binding PageContext.ActiveObject.ConfigMode, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanConfig}" Grid.Column="1" Grid.Row="0">
-            <DropDownItem>No File Management</DropDownItem>
-            <DropDownItem>Authorized users can read and write any file</DropDownItem>
-            <DropDownItem>Authorized users read and write using their system identity</DropDownItem>
-          </DropDown>
+          <ComboBox SelectedIndex="{Binding PageContext.ActiveObject.ConfigMode, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanConfig}" Grid.Column="1" Grid.Row="0">
+            <ComboBoxItem>No File Management</ComboBoxItem>
+            <ComboBoxItem>Authorized users can read and write any file</ComboBoxItem>
+            <ComboBoxItem>Authorized users read and write using their system identity</ComboBoxItem>
+          </ComboBox>
           <TextBlock Text="Automatic Update Interval (Minutes) (0 to disable):" Margin="0,5,50,0" Grid.Column="0" Grid.Row="1" />
           <NumericUpDown Height="25" Minimum="0" Value="{Binding PageContext.ActiveObject.AutoUpdateInterval, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}" Grid.Column="1" Grid.Row="1"/>
         </Grid>

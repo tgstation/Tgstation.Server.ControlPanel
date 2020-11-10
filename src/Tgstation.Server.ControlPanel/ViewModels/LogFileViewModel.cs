@@ -1,6 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
+using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using System;
 using System.IO;
@@ -65,11 +65,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Working = true;
 			try
 			{
-				var savePath = await sfd.ShowAsync(Application.Current.MainWindow).ConfigureAwait(true);
-				if (Directory.Exists(System.IO.Path.GetDirectoryName(savePath)))
-				{
-					var fullLog = await administrationClient.GetLog(logFile, cancellationToken);
-					await File.WriteAllBytesAsync(savePath, fullLog.Content, cancellationToken);
+				if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime) {
+					var savePath = await sfd.ShowAsync(lifetime.MainWindow).ConfigureAwait(true);
+					if (Directory.Exists(System.IO.Path.GetDirectoryName(savePath)))
+					{
+						var fullLog = await administrationClient.GetLog(logFile, cancellationToken);
+						await File.WriteAllBytesAsync(savePath, fullLog.Content, cancellationToken);
+					}
 				}
 			}
 			catch { }

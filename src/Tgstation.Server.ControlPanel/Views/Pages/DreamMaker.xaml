@@ -1,6 +1,7 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views.Pages">
+        xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views.Pages"
+        x:Class="Tgstation.Server.ControlPanel.Views.Pages.DreamMaker">
   <Grid Background="#CFD6E5">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>

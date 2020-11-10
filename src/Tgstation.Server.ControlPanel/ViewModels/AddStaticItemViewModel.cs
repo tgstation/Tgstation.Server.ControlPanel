@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -185,7 +186,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						InitialFileName = ItemName,
 						AllowMultiple = false
 					};
-					ItemPath = (await ofd.ShowAsync(Application.Current.MainWindow).ConfigureAwait(true))[0] ?? ItemPath;
+					if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime) {
+						ItemPath = (await ofd.ShowAsync(lifetime.MainWindow).ConfigureAwait(true))[0] ?? ItemPath;
+					}
 					break;
 				case AddStaticItemCommand.Add:
 					Refreshing = true;
