@@ -1,5 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Tgstation.Server.ControlPanel.Views.Pages.AddChatBot">
   <Grid Background="#CFD6E5">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -32,10 +33,10 @@
           <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.BotName, Mode=TwoWay}"/>
           <TextBlock Text="Provider:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
 
-          <DropDown SelectedIndex="{Binding PageContext.ActiveObject.Provider, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" Margin="50,0,0,5">
-            <DropDownItem>Internet Relay Chat</DropDownItem>
-            <DropDownItem>Discord</DropDownItem>
-          </DropDown>
+          <ComboBox SelectedIndex="{Binding PageContext.ActiveObject.Provider, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" Margin="50,0,0,5">
+            <ComboBoxItem>Internet Relay Chat</ComboBoxItem>
+            <ComboBoxItem>Discord</ComboBoxItem>
+          </ComboBox>
         </Grid>
         <CheckBox Content="Enabled" IsChecked="{Binding PageContext.ActiveObject.Enabled}"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
@@ -58,17 +59,17 @@
           <TextBlock Text="Server Address:" Grid.Column="0" Grid.Row="0" Margin="0,5,0,0"/>
           <TextBox Text="{Binding PageContext.ActiveObject.IrcServer}" Grid.Column="1" Grid.Row="0" Margin="5,0,0,0"/>
           <TextBlock Text="Server Port:" Grid.Column="0" Grid.Row="1" Margin="0,5,0,0" />
-          <NumericUpDown Minimum="1" Maximum="65535" Value="{Binding PageContext.ActiveObject.IrcPort}" Grid.Column="1" Grid.Row="1" Margin="5,0,0,0" Height="25"/>
+          <NumericUpDown Minimum="1" Maximum="65535" Value="{Binding PageContext.ActiveObject.IrcPort}" Grid.Column="1" Grid.Row="1" Margin="5,0,0,0"/>
           <TextBlock Text="Nickname:" Grid.Column="0" Grid.Row="2" Margin="0,5,0,0"/>
           <TextBox Text="{Binding PageContext.ActiveObject.IrcNick}" Grid.Column="1" Grid.Row="2" Margin="5,0,0,0"/>
           <CheckBox Content="Use SSL" Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="4" IsChecked="{Binding PageContext.ActiveObject.IrcUseSsl}" />
           <TextBlock Text="Password Type:" Grid.Column="0" Grid.Row="6" Margin="0,5,0,0"/>
-          <DropDown SelectedIndex="{Binding PageContext.ActiveObject.IrcPasswordType, Mode=TwoWay}" Grid.Column="1" Grid.Row="6" Margin="5,0,0,0">
-            <DropDownItem>Server Authentication</DropDownItem>
-            <DropDownItem>SASL Authentication</DropDownItem>
-            <DropDownItem>NickServ Authentication</DropDownItem>
-            <DropDownItem>No Password</DropDownItem>
-          </DropDown>
+          <ComboBox SelectedIndex="{Binding PageContext.ActiveObject.IrcPasswordType, Mode=TwoWay}" Grid.Column="1" Grid.Row="6" Margin="5,0,0,0">
+            <ComboBoxItem>Server Authentication</ComboBoxItem>
+            <ComboBoxItem>SASL Authentication</ComboBoxItem>
+            <ComboBoxItem>NickServ Authentication</ComboBoxItem>
+            <ComboBoxItem>No Password</ComboBoxItem>
+          </ComboBox>
           <TextBlock Text="Password:" Grid.Column="0" Grid.Row="7" Margin="0,5,0,0"/>
           <TextBox Text="{Binding PageContext.ActiveObject.IrcPassword}" IsEnabled="{Binding PageContext.ActiveObject.IrcUsingPassword}" Grid.Column="1" Grid.Row="7"/>
         </Grid>
@@ -83,11 +84,11 @@
           </Grid.RowDefinitions>
           <TextBlock Text="Bot Token:" Grid.Row="0" Grid.Column="0" Margin="0,5,0,0"/>
           <TextBox Text="{Binding PageContext.ActiveObject.DiscordBotToken}" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0"/>
-          <DropDown SelectedIndex="{Binding PageContext.ActiveObject.DiscordDMDisplay, Mode=TwoWay}" Grid.Column="0" Grid.Row="1" Margin="5,0,0,0">
-            <DropDownItem>Always Show DM Output</DropDownItem>
-            <DropDownItem>Show DM Output on Error</DropDownItem>
-            <DropDownItem>Never Show DM Output</DropDownItem>
-          </DropDown>
+          <ComboBox SelectedIndex="{Binding PageContext.ActiveObject.DiscordDMDisplay, Mode=TwoWay}" Grid.Column="0" Grid.Row="1" Margin="5,0,0,0">
+            <ComboBoxItem>Always Show DM Output</ComboBoxItem>
+            <ComboBoxItem>Show DM Output on Error</ComboBoxItem>
+            <ComboBoxItem>Never Show DM Output</ComboBoxItem>
+          </ComboBox>
           <CheckBox Content="Based on the Hardware that's Installed in it" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1" IsChecked="{Binding PageContext.ActiveObject.DiscordMeme}" />
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>

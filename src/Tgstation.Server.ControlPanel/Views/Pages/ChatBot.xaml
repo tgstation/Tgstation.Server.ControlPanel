@@ -1,5 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Tgstation.Server.ControlPanel.Views.Pages.ChatBot">
   <Grid Background="#CFD6E5">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -61,7 +62,7 @@
           </Grid.ColumnDefinitions>
           <TextBlock Text="Channels" FontSize="20" Grid.Column="0"/>
           <TextBlock Text="Maximum:" FontSize="15" Grid.Column="1"/>
-          <NumericUpDown Minimum="1" Maximum="65535" Height="25" IsEnabled="{Binding PageContext.ActiveObject.CanChannelLimit}" Value="{Binding PageContext.ActiveObject.NewChannelLimit}" Grid.Column="2"/>
+          <NumericUpDown Minimum="1" Maximum="65535" IsEnabled="{Binding PageContext.ActiveObject.CanChannelLimit}" Value="{Binding PageContext.ActiveObject.NewChannelLimit}" Grid.Column="2"/>
           <Button Grid.Column="4" Content="Add Channel" Command="{Binding PageContext.ActiveObject.AddChannel}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>

@@ -1,6 +1,7 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:vm="clr-namespace:Tgstation.Server.ControlPanel.ViewModels;assembly=Tgstation.Server.ControlPanel"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Tgstation.Server.ControlPanel.Views.ObjectBrowserItem">
   <StackPanel Orientation="Horizontal">
     <StackPanel.Resources>
       <vm:BitmapConverter x:Key="bitmapConverter" />

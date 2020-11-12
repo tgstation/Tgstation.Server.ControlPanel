@@ -1,5 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Tgstation.Server.ControlPanel.Views.Pages.Byond">
   <Grid Background="#CFD6E5">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -60,11 +61,11 @@
             <ColumnDefinition Width="100" />
           </Grid.ColumnDefinitions>
           <TextBlock Text="Major:" Grid.Row="0" Grid.Column="0" Margin="0,5,0,0"/>
-          <NumericUpDown Minimum="1" Height="25" Value="{Binding PageContext.ActiveObject.NewMajor}" Margin="0,0,5,0" Grid.Row="0" Grid.Column="1"/>
+          <NumericUpDown Minimum="1" Value="{Binding PageContext.ActiveObject.NewMajor}" Margin="0,0,5,0" Grid.Row="0" Grid.Column="1"/>
           <TextBlock Text="Minor:" Grid.Row="2" Grid.Column="0" Margin="0,5,0,0"/>
-          <NumericUpDown Minimum="1" Height="25" Value="{Binding PageContext.ActiveObject.NewMinor}" Margin="0,0,5,0" Grid.Row="2" Grid.Column="1"/>
+          <NumericUpDown Minimum="1" Value="{Binding PageContext.ActiveObject.NewMinor}" Margin="0,0,5,0" Grid.Row="2" Grid.Column="1"/>
           <TextBlock Text="Prebuild:" Grid.Row="5" Grid.Column="0" Margin="0,5,0,0"/>
-          <NumericUpDown Minimum="1" Height="25" Value="{Binding PageContext.ActiveObject.Prebuild}" Margin="0,0,5,0" Grid.Row="5" Grid.Column="1"/>
+          <NumericUpDown Minimum="1" Value="{Binding PageContext.ActiveObject.Prebuild}" Margin="0,0,5,0" Grid.Row="5" Grid.Column="1"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

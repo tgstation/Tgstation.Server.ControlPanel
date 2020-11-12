@@ -1,93 +1,89 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <UserControl xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid Background="#CFD6E5">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
-      <Grid Margin="1" Grid.Row="0" Background="#4D6082">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
-        <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
-      </Grid>
-      <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
-        <StackPanel Orientation="Vertical">
-          <Grid >
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="5*"/>
-              <ColumnDefinition Width="2*"/>
-              <ColumnDefinition Width="5*"/>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="150"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding PageContext.ActiveObject.Path}" FontSize="26" />
-            <TextBlock IsVisible="{Binding PageContext.ActiveObject.Errored}" Text="{Binding PageContext.ActiveObject.ErrorMessage}" Grid.Column="5" Margin="0,5,0,0"/>
-            <Image Grid.Column="4" Grid.Row="0" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding PageContext.ActiveObject.Refreshing}" Margin="0,0,5,0"/>
-            <Button Grid.Column="6" Grid.Row="0" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
-          </Grid>
-          <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
-          <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" />
-              <ColumnDefinition Width="*" />
-              <ColumnDefinition Width="Auto" />
-              <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="5" />
-              <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <TextBlock Text="Upload From File:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
-            <TextBox Text="{Binding PageContext.ActiveObject.UploadPath}" Grid.Column="1" Margin="5,0,0,0" Grid.Row="0"/>
-            <Button Content="..." Command="{Binding PageContext.ActiveObject.BrowseUpload}" Grid.Column="2" Grid.Row="0"/>
-            <Button Content="Upload" Command="{Binding PageContext.ActiveObject.Upload}" Grid.Column="3" Grid.Row="0" Margin="5,0,0,0"/>
-            <TextBlock Text="Save To File:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="2"/>
-            <TextBox Text="{Binding PageContext.ActiveObject.DownloadPath}" Grid.Column="1" Margin="5,0,0,0" Grid.Row="2"/>
-            <Button Content="..." Command="{Binding PageContext.ActiveObject.BrowseDownload}" Grid.Row="2" Grid.Column="2"/>
-            <Button Content="Save" Command="{Binding PageContext.ActiveObject.Download}" Grid.Column="3" Grid.Row="2" Margin="5,0,0,0"/>
-          </Grid>
-          <StackPanel Orientation="Vertical" IsVisible="{Binding PageContext.ActiveObject.IsText}" Margin="5">
-            <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
-            <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-            <TextBlock Text="OR" HorizontalAlignment="Center" />
-            <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
-            <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-            <TextBlock Text="Edit Text" FontSize="20" />
-            <Button Content="Enable Text Editor" Command="{Binding PageContext.ActiveObject.EnableEditor}" IsVisible="{Binding !PageContext.ActiveObject.EditorEnabled}"/>
-            <TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding PageContext.ActiveObject.TextBlob}" MinHeight="500" IsVisible="{Binding PageContext.ActiveObject.EditorEnabled}"/>
-            <Grid>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="5*" />
-                <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="5*" />
-              </Grid.ColumnDefinitions>
-              <Button Content="Save" Command="{Binding PageContext.ActiveObject.Write}" Grid.Column="1" Margin="0,5,0,0" IsVisible="{Binding PageContext.ActiveObject.EditorEnabled}"/>
-            </Grid>
-          </StackPanel>
-          <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
-          <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+﻿<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Tgstation.Server.ControlPanel.Views.Pages.StaticFile">
+  <Grid Background="#CFD6E5">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Grid Margin="1" Grid.Row="0" Background="#4D6082">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White" Grid.Column="0" />
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+    </Grid>
+    <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
+      <StackPanel Orientation="Vertical">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="150" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding PageContext.ActiveObject.Path}" FontSize="26" />
+          <TextBlock IsVisible="{Binding PageContext.ActiveObject.Errored}" Text="{Binding PageContext.ActiveObject.ErrorMessage}" Grid.Column="5" Margin="0,5,0,0" />
+          <Image Grid.Column="4" Grid.Row="0" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding PageContext.ActiveObject.Refreshing}" Margin="0,0,5,0" />
+          <Button Grid.Column="6" Grid.Row="0" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD" />
+        </Grid>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" />
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5" />
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <TextBlock Text="Upload From File:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0" />
+          <TextBox Text="{Binding PageContext.ActiveObject.UploadPath}" Grid.Column="1" Margin="5,0,0,0" Grid.Row="0" />
+          <Button Content="..." Command="{Binding PageContext.ActiveObject.BrowseUpload}" Grid.Column="2" Grid.Row="0" />
+          <Button Content="Upload" Command="{Binding PageContext.ActiveObject.Upload}" Grid.Column="3" Grid.Row="0" Margin="5,0,0,0" />
+          <TextBlock Text="Save To File:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="2" />
+          <TextBox Text="{Binding PageContext.ActiveObject.DownloadPath}" Grid.Column="1" Margin="5,0,0,0" Grid.Row="2" />
+          <Button Content="..." Command="{Binding PageContext.ActiveObject.BrowseDownload}" Grid.Row="2" Grid.Column="2" />
+          <Button Content="Save" Command="{Binding PageContext.ActiveObject.Download}" Grid.Column="3" Grid.Row="2" Margin="5,0,0,0" />
+        </Grid>
+        <StackPanel Orientation="Vertical" IsVisible="{Binding PageContext.ActiveObject.IsText}" Margin="5">
+          <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" />
+          <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5" />
+          <TextBlock Text="OR" HorizontalAlignment="Center" />
+          <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" />
+          <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5" />
+          <TextBlock Text="Edit Text" FontSize="20" />
+          <Button Content="Enable Text Editor" Command="{Binding PageContext.ActiveObject.EnableEditor}" IsVisible="{Binding !PageContext.ActiveObject.EditorEnabled}" />
+          <TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding PageContext.ActiveObject.TextBlob}" MinHeight="500" IsVisible="{Binding PageContext.ActiveObject.EditorEnabled}" />
           <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="5*" />
               <ColumnDefinition Width="2*" />
               <ColumnDefinition Width="5*" />
             </Grid.ColumnDefinitions>
-            <Button Content="{Binding PageContext.ActiveObject.DeleteText}" Command="{Binding PageContext.ActiveObject.Delete}" Grid.Column="1"/>
+            <Button Content="Save" Command="{Binding PageContext.ActiveObject.Write}" Grid.Column="1" Margin="0,5,0,0" IsVisible="{Binding PageContext.ActiveObject.EditorEnabled}" />
           </Grid>
         </StackPanel>
-      </ScrollViewer>
-    </Grid>
-  </UserControl>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" />
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5" />
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="5*" />
+          </Grid.ColumnDefinitions>
+          <Button Content="{Binding PageContext.ActiveObject.DeleteText}" Command="{Binding PageContext.ActiveObject.Delete}" Grid.Column="1" />
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
 </UserControl>

@@ -1,5 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Tgstation.Server.ControlPanel.Views.Pages.AddInstanceUser">
   <Grid Background="#CFD6E5">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -28,9 +29,9 @@
             <ColumnDefinition Width="400"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="User Id:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0" IsVisible="{Binding PageContext.ActiveObject.IdMode}"/>
-          <NumericUpDown Grid.Column="1" Grid.Row="0" Height="25" Margin="50,0,0,0" Minimum="0" IsVisible="{Binding PageContext.ActiveObject.IdMode}" Text="{Binding PageContext.ActiveObject.UserId, Mode=TwoWay}"/>
+          <NumericUpDown Grid.Column="1" Grid.Row="0" Margin="50,0,0,0" Minimum="0" IsVisible="{Binding PageContext.ActiveObject.IdMode}" Text="{Binding PageContext.ActiveObject.UserId, Mode=TwoWay}"/>
           <TextBlock Text="User:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0" IsVisible="{Binding !PageContext.ActiveObject.IdMode}"/>          
-          <DropDown Items="{Binding PageContext.ActiveObject.UserStrings}" SelectedIndex="{Binding PageContext.ActiveObject.SelectedIndex}" Margin="50,0,0,0" IsVisible="{Binding !PageContext.ActiveObject.IdMode}" Grid.Column="1" Grid.Row="0"/>
+          <ComboBox Items="{Binding PageContext.ActiveObject.UserStrings}" SelectedIndex="{Binding PageContext.ActiveObject.SelectedIndex}" Margin="50,0,0,0" IsVisible="{Binding !PageContext.ActiveObject.IdMode}" Grid.Column="1" Grid.Row="0"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

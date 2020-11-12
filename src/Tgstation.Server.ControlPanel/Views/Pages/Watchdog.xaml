@@ -1,6 +1,7 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views.Pages">
+        xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views.Pages"
+        x:Class="Tgstation.Server.ControlPanel.Views.Pages.Watchdog">
   <Grid Background="#CFD6E5">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -81,15 +82,15 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <TextBlock Text="Public Game Port:" Grid.Row="0" Grid.Column="0"/>
-          <NumericUpDown Minimum="1" Maximum="65535" Height="25" IsEnabled="{Binding PageContext.ActiveObject.CanPort}" Value="{Binding PageContext.ActiveObject.NewPrimaryPort}" Grid.Row="0" Grid.Column="1"/>
+          <NumericUpDown Minimum="1" Maximum="65535"  IsEnabled="{Binding PageContext.ActiveObject.CanPort}" Value="{Binding PageContext.ActiveObject.NewPrimaryPort}" Grid.Row="0" Grid.Column="1"/>
           <CheckBox Content="Allow Web Client Connections" Grid.Column="0" Grid.Row="3" IsChecked="{Binding PageContext.ActiveObject.NewAllowWebClient}" IsEnabled="{Binding PageContext.ActiveObject.CanWebClient}" Background="White"/>
           <CheckBox Content="Automatically Start Server with Instance" Grid.Column="1" Grid.Row="3" IsChecked="{Binding PageContext.ActiveObject.NewAutoStart}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoStart}" Background="White"/>
           <TextBlock Text="Launch Inactivity Timeout Period (seconds):" Margin="0,5,5,0" Grid.Column="0" Grid.Row="5"/>
-          <NumericUpDown Minimum="1" Height="25" Value="{Binding PageContext.ActiveObject.NewStartupTimeout}" Grid.Column="1" Grid.Row="5" IsEnabled="{Binding PageContext.ActiveObject.CanTimeout}" />
+          <NumericUpDown Minimum="1" Value="{Binding PageContext.ActiveObject.NewStartupTimeout}" Grid.Column="1" Grid.Row="5" IsEnabled="{Binding PageContext.ActiveObject.CanTimeout}" />
           <TextBlock Text="Heartbeat Seconds (0 disables):" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Margin="0,5,5,0" Grid.Column="0" Grid.Row="7"/>
-          <NumericUpDown Minimum="0" Height="25" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Value="{Binding PageContext.ActiveObject.NewHeartbeatSeconds}" Grid.Column="1" Grid.Row="7" IsEnabled="{Binding PageContext.ActiveObject.CanHeartbeat}" />
+          <NumericUpDown Minimum="0" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Value="{Binding PageContext.ActiveObject.NewHeartbeatSeconds}" Grid.Column="1" Grid.Row="7" IsEnabled="{Binding PageContext.ActiveObject.CanHeartbeat}" />
           <TextBlock Text="Timeout For Sending BYOND Topics (Milliseconds):" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations." Margin="0,5,5,0" Grid.Column="0" Grid.Row="9"/>
-          <NumericUpDown Minimum="1" Height="25" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations.." Value="{Binding PageContext.ActiveObject.NewTopicTimeout}" Grid.Column="1" Grid.Row="9" IsEnabled="{Binding PageContext.ActiveObject.CanTopic}" />
+          <NumericUpDown Minimum="1" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations.." Value="{Binding PageContext.ActiveObject.NewTopicTimeout}" Grid.Column="1" Grid.Row="9" IsEnabled="{Binding PageContext.ActiveObject.CanTopic}" />
         </Grid>
         <Grid Margin="0,5,0,0">
           <Grid.RowDefinitions>

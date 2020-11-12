@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Logging.Serilog;
+using Avalonia.ReactiveUI;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -26,7 +27,7 @@ namespace Tgstation.Server.ControlPanel
 			else
 				app = BuildAvaloniaApp();
 
-			app.BeforeStarting(x => mwvm.AsyncStart());
+			mwvm.AsyncStart();
 			app.Start<MainWindow>(() => mwvm);
 		}
 

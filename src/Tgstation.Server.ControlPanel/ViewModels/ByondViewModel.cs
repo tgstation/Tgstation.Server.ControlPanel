@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -305,7 +306,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							}
 						}
 					};
-					ByondZipPath = (await ofd.ShowAsync(Application.Current.MainWindow).ConfigureAwait(true))[0] ?? ByondZipPath;
+					if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime) {
+						ByondZipPath = (await ofd.ShowAsync(lifetime.MainWindow).ConfigureAwait(true))[0] ?? ByondZipPath;
+					}
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
