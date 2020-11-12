@@ -59,7 +59,7 @@
           <TextBlock Text="Server Address:" Grid.Column="0" Grid.Row="0" Margin="0,5,0,0"/>
           <TextBox Text="{Binding PageContext.ActiveObject.IrcServer}" Grid.Column="1" Grid.Row="0" Margin="5,0,0,0"/>
           <TextBlock Text="Server Port:" Grid.Column="0" Grid.Row="1" Margin="0,5,0,0" />
-          <NumericUpDown Minimum="1" Maximum="65535" Value="{Binding PageContext.ActiveObject.IrcPort}" Grid.Column="1" Grid.Row="1" Margin="5,0,0,0" Height="25"/>
+          <NumericUpDown Minimum="1" Maximum="65535" Value="{Binding PageContext.ActiveObject.IrcPort}" Grid.Column="1" Grid.Row="1" Margin="5,0,0,0"/>
           <TextBlock Text="Nickname:" Grid.Column="0" Grid.Row="2" Margin="0,5,0,0"/>
           <TextBox Text="{Binding PageContext.ActiveObject.IrcNick}" Grid.Column="1" Grid.Row="2" Margin="5,0,0,0"/>
           <CheckBox Content="Use SSL" Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="4" IsChecked="{Binding PageContext.ActiveObject.IrcUseSsl}" />

@@ -29,7 +29,7 @@
             <ColumnDefinition Width="400"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="User Id:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0" IsVisible="{Binding PageContext.ActiveObject.IdMode}"/>
-          <NumericUpDown Grid.Column="1" Grid.Row="0" Height="25" Margin="50,0,0,0" Minimum="0" IsVisible="{Binding PageContext.ActiveObject.IdMode}" Text="{Binding PageContext.ActiveObject.UserId, Mode=TwoWay}"/>
+          <NumericUpDown Grid.Column="1" Grid.Row="0" Margin="50,0,0,0" Minimum="0" IsVisible="{Binding PageContext.ActiveObject.IdMode}" Text="{Binding PageContext.ActiveObject.UserId, Mode=TwoWay}"/>
           <TextBlock Text="User:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0" IsVisible="{Binding !PageContext.ActiveObject.IdMode}"/>          
           <ComboBox Items="{Binding PageContext.ActiveObject.UserStrings}" SelectedIndex="{Binding PageContext.ActiveObject.SelectedIndex}" Margin="50,0,0,0" IsVisible="{Binding !PageContext.ActiveObject.IdMode}" Grid.Column="1" Grid.Row="0"/>
         </Grid>

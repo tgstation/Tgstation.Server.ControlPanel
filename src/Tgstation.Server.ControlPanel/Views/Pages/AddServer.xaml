@@ -62,11 +62,11 @@
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Column="1">
               <TextBlock DockPanel.Dock="Left" Text="Connection Timeout (ms):" Margin="0,4,5,0" />
-              <NumericUpDown DockPanel.Dock="Right" Width="75" Height="25" Minimum="0" Value="{Binding PageContext.ActiveObject.TimeoutMs, Mode=TwoWay}"/>
+              <NumericUpDown DockPanel.Dock="Right" Minimum="0" Value="{Binding PageContext.ActiveObject.TimeoutMs, Mode=TwoWay}"/>
             </DockPanel>
             <DockPanel Grid.Column="3">
               <TextBlock DockPanel.Dock="Left" Text="Job Refresh Rate (ms):" Margin="0,4,5,0" />
-              <NumericUpDown DockPanel.Dock="Right" Width="75" Height="25" Minimum="0" Value="{Binding PageContext.ActiveObject.RequeryMs, Mode=TwoWay}"/>
+              <NumericUpDown DockPanel.Dock="Right" Minimum="0" Value="{Binding PageContext.ActiveObject.RequeryMs, Mode=TwoWay}"/>
             </DockPanel>
           </Grid>
 
