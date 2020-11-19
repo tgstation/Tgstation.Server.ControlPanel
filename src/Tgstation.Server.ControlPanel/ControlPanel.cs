@@ -11,31 +11,16 @@ namespace Tgstation.Server.ControlPanel
 {
 	public static class ControlPanel
 	{
-		public static void Run(IUpdater updater, string[] args)
+		public static void Run(IUpdater updater, AppBuilder app)
 		{
 			// Add Tls1.2 to the existing enabled protocols
 			ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
 
 			using var mwvm = new MainWindowViewModel(updater);
-			AppBuilder app;
-			if (args.FirstOrDefault()?.ToUpperInvariant() == "--WIN32-HACK")
-				app = AppBuilder.Configure<App>()
-				.UseWin32()
-				.UseDirect2D1()
-				.UseReactiveUI()
-				.LogToDebug();
-			else
-				app = BuildAvaloniaApp();
 
 			mwvm.AsyncStart();
 			app.Start<MainWindow>(() => mwvm);
 		}
-
-		public static AppBuilder BuildAvaloniaApp()
-			=> AppBuilder.Configure<App>()
-				.UsePlatformDetect()
-				.UseReactiveUI()
-				.LogToDebug();
 
 		public static void OpenFolder(string folder) => Process.Start(folder);
 		public static void LaunchUrl(string url)
