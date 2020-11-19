@@ -7,6 +7,6 @@ namespace Tgstation.Server.ControlPanel.Views
 {
     public class ServerBrowser : UserControl
     {
-		public ServerBrowser() => AvaloniaXamlLoader.Load(this);
-    }
+        public ServerBrowser() => AvaloniaXamlLoader.Load(this);
+	}
 }
