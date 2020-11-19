@@ -564,6 +564,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newDreamDaemonRights &= ~right;
 			}
 		}
+		public bool DDAdditionalParams
+		{
+			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.SetAdditionalParameters);
+			set
+			{
+				var right = DreamDaemonRights.SetAdditionalParameters;
+				if (value)
+					newDreamDaemonRights |= right;
+				else
+					newDreamDaemonRights &= ~right;
+			}
+		}
 
 		public bool DDTopicTimeout
 		{

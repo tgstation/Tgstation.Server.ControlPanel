@@ -285,6 +285,10 @@
             <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDTopicTimeout, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Timeout For Sending BYOND Topics" Margin="5,4,0,0" />
           </DockPanel>
+          <DockPanel Grid.Column="1" Grid.Row="7" Margin="2">
+            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDAdditionalParams, Mode=TwoWay}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Set Additional DreamDaemon Params" Margin="5,4,0,0" />
+          </DockPanel>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

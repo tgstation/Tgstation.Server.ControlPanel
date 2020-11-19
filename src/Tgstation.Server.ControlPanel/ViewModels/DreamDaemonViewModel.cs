@@ -52,6 +52,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(Graceful));
 				this.RaisePropertyChanged(nameof(HasRevision));
 				this.RaisePropertyChanged(nameof(HasStagedRevision));
+				this.RaisePropertyChanged(nameof(NewAdditionalParams));
 				onRunningChanged(model?.Status != WatchdogStatus.Offline);
 			}
 		}
@@ -181,6 +182,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => newHeartbeatSeconds;
 			set => this.RaiseAndSetIfChanged(ref newHeartbeatSeconds, value);
 		}
+
+		public string NewAdditionalParams
+		{
+			get => newAdditionalParams;
+			set => this.RaiseAndSetIfChanged(ref newAdditionalParams, value);
+		}
 		public uint NewTopicTimeout
 		{
 			get => newTopicTimeout;
@@ -225,6 +232,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanRevision => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.ReadRevision);
 		public bool CanHeartbeat => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetHeartbeatInterval);
 		public bool CanDump => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.CreateDump);
+		public bool CanAdditionalParams => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetAdditionalParameters);
 
 		public EnumCommand<DreamDaemonCommand> Close { get; }
 		public EnumCommand<DreamDaemonCommand> Refresh { get; }
@@ -249,6 +257,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		uint newStartupTimeout;
 		uint newHeartbeatSeconds;
+		string newAdditionalParams;
 		uint newTopicTimeout;
 		ushort newPrimaryPort;
 		bool newAutoStart;
@@ -300,6 +309,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(CanSoftStop));
 					this.RaisePropertyChanged(nameof(CanMetadata));
 					this.RaisePropertyChanged(nameof(CanRevision));
+					this.RaisePropertyChanged(nameof(CanAdditionalParams));
+					this.RaisePropertyChanged(nameof(CanDump));
+					this.RaisePropertyChanged(nameof(CanHeartbeat));
 				}
 			};
 
@@ -328,6 +340,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				NewPrimaryPort = Model.Port ?? 0;
 				NewAutoStart = Model.AutoStart ?? false;
 				NewAllowWebClient = Model.AllowWebClient ?? false;
+				NewAdditionalParams = Model.AdditionalParameters ?? String.Empty;
 				initalSecurityLevel = Model.SecurityLevel;
 
 				ClearSoft = true;
@@ -375,7 +388,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				DreamDaemonCommand.Start => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Start) && Model?.Status.Value == WatchdogStatus.Offline,
 				DreamDaemonCommand.Stop => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Shutdown) && Model?.Status.Value != WatchdogStatus.Offline,
 				DreamDaemonCommand.Restart => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Restart) && Model?.Status.Value != WatchdogStatus.Offline,
-				DreamDaemonCommand.Update => !Refreshing && (CanAutoStart || CanPort || CanWebClient || CanSecurity || CanSoftRestart || CanSoftStop || CanTimeout || CanTopic) && NewPrimaryPort != 0,
+				DreamDaemonCommand.Update => !Refreshing && (CanAutoStart || CanPort || CanWebClient || CanSecurity || CanSoftRestart || CanSoftStop || CanTimeout || CanTopic || CanAdditionalParams) && NewPrimaryPort != 0,
 				DreamDaemonCommand.Dump => !Refreshing && Model?.Status.Value != WatchdogStatus.Offline && CanDump,
 				DreamDaemonCommand.Join => !Refreshing && Model?.Status.Value == WatchdogStatus.Online,
 				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
@@ -436,6 +449,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							StartupTimeout = CanTimeout && Model.StartupTimeout != NewStartupTimeout ? (uint?)NewStartupTimeout : null,
 							TopicRequestTimeout = CanTopic && Model.TopicRequestTimeout != NewTopicTimeout ? (uint?)NewTopicTimeout : null,
 							HeartbeatSeconds = CanHeartbeat && Model.HeartbeatSeconds != NewHeartbeatSeconds ? (uint?)NewHeartbeatSeconds : null,
+							AdditionalParameters = CanAdditionalParams && Model.AdditionalParameters != NewAdditionalParams ? NewAdditionalParams : null,
 						};
 
 						if (CanSoftRestart)
