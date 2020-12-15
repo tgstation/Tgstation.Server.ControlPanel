@@ -385,7 +385,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => newDreamMakerRights.HasFlag(DreamMakerRights.SetApiValidationRequirement);
 			set
 			{
-				var right = DreamMakerRights.SetSecurityLevel;
+				var right = DreamMakerRights.SetApiValidationRequirement;
 				if (value)
 					newDreamMakerRights |= right;
 				else
@@ -869,6 +869,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(CompVali));
 				this.RaisePropertyChanged(nameof(CompList));
 				this.RaisePropertyChanged(nameof(CompSec));
+				this.RaisePropertyChanged(nameof(CompReq));
 
 				this.RaisePropertyChanged(nameof(DDRead));
 				this.RaisePropertyChanged(nameof(DDPort));
