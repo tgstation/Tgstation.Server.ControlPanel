@@ -710,6 +710,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newChatBotRights &= ~right;
 			}
 		}
+		public bool ChatReconnectionInterval
+		{
+			get => newChatBotRights.HasFlag(ChatBotRights.WriteReconnectionInterval);
+			set
+			{
+				var right = ChatBotRights.WriteReconnectionInterval;
+				if (value)
+					newChatBotRights |= right;
+				else
+					newChatBotRights &= ~right;
+			}
+		}
 
 		public bool StaticRead
 		{
@@ -881,6 +893,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(ChatCreate));
 				this.RaisePropertyChanged(nameof(ChatDelete));
 				this.RaisePropertyChanged(nameof(ChatChannelLimit));
+				this.RaisePropertyChanged(nameof(ChatReconnectionInterval));
 
 				this.RaisePropertyChanged(nameof(StaticRead));
 				this.RaisePropertyChanged(nameof(StaticWrite));
