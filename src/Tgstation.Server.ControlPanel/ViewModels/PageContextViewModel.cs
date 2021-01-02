@@ -29,6 +29,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(IsStaticFolder));
 					this.RaisePropertyChanged(nameof(IsStaticAdd));
 					this.RaisePropertyChanged(nameof(IsStaticFile));
+					this.RaisePropertyChanged(nameof(IsAddGroup));
+					this.RaisePropertyChanged(nameof(IsGroup));
 				}
 			}
 		}
@@ -52,5 +54,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool IsStaticFolder => activeObject is StaticFolderViewModel;
 		public bool IsStaticAdd => activeObject is AddStaticItemViewModel;
 		public bool IsStaticFile => activeObject is StaticFileViewModel;
+		public bool IsAddGroup => activeObject is AddGroupViewModel;
+		public bool IsGroup => activeObject is UserGroupViewModel;
 	}
 }

@@ -265,7 +265,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				var readTask = AssignModel();
 
-				var jobsTask = CanGetJobs ? dreamMakerClient.GetJobIds(cancellationToken) : Task.FromResult<IReadOnlyList<EntityId>>(null);
+				var jobsTask = CanGetJobs ? dreamMakerClient.ListCompileJobs(new Client.PaginationSettings
+				{
+					PageSize = 1
+				}, cancellationToken) : Task.FromResult<IReadOnlyList<EntityId>>(null);
 				
 				jobIds = await jobsTask.ConfigureAwait(true);
 				numPages = (jobIds.Count / JobsPerPage) + (jobIds.Count > JobsPerPage && ((jobIds.Count % JobsPerPage) > 0) ? 1 : 0);

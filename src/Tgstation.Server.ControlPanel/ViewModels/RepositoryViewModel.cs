@@ -457,7 +457,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		async Task RefreshPRList()
 		{
-			if (!rightsProvider.RepositoryRights.HasFlag(RepositoryRights.MergePullRequest) || Repository?.GitHubOwner == null)
+			if (!rightsProvider.RepositoryRights.HasFlag(RepositoryRights.MergePullRequest) || Repository?.RemoteGitProvider != RemoteGitProvider.GitHub)
 				return;
 
 			loadingPRs = true;
@@ -467,7 +467,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				var prs = await gitHubClient.Search.SearchIssues(new Octokit.SearchIssuesRequest
 				{
-					Repos = new Octokit.RepositoryCollection { { Repository.GitHubOwner, Repository.GitHubName } },
+					Repos = new Octokit.RepositoryCollection { { Repository.RemoteRepositoryOwner, Repository.RemoteRepositoryName } },
 					State = Octokit.ItemState.Open,
 					Type = Octokit.IssueTypeQualifier.PullRequest
 				}).ConfigureAwait(true);
@@ -506,6 +506,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		void RebuildTestMergeList()
 		{
+			if (!rightsProvider.RepositoryRights.HasFlag(RepositoryRights.MergePullRequest) || Repository?.RemoteGitProvider != RemoteGitProvider.GitHub)
+				return;
+
 			var tmp = Repository?.RevisionInformation?.ActiveTestMerges == null ? new List<TestMergeViewModel>() : new List<TestMergeViewModel>(Repository.RevisionInformation.ActiveTestMerges.Select(x =>
 			{
 				if (!(updateHard && pullRequests?.ContainsKey(x.Number) == true))
@@ -513,7 +516,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				TestMergeViewModel result = null;
 				async Task LoadCommits(CancellationToken cancellationToken)
 				{
-					result.LoadCommitsAction(await gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, x.Number).ConfigureAwait(false));
+					result.LoadCommitsAction(await gitHubClient.PullRequest.Commits(Repository.RemoteRepositoryOwner, Repository.RemoteRepositoryName, x.Number).ConfigureAwait(false));
 				}
 				result = new TestMergeViewModel(pullRequests[x.Number], pullRequestCommits[x.Number], y => { }, LoadCommits)
 				{
@@ -521,7 +524,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Comment = x.Comment
 				};
 				if (result.CommitsLoaded)
-					result.SelectedIndex = result.Commits.ToList().IndexOf(result.Commits.First(y => y.Substring(0, 7).ToUpperInvariant() == x.PullRequestRevision.Substring(0, 7).ToUpperInvariant()));
+					result.SelectedIndex = result.Commits.ToList().IndexOf(result.Commits.First(y => y.Substring(0, 7).ToUpperInvariant() == x.TargetCommitSha.Substring(0, 7).ToUpperInvariant()));
 				return result;
 			}));
 			if (!RateLimited && pullRequests != null)
@@ -534,7 +537,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					TestMergeViewModel testMergeViewModel = null;
 					async Task LoadCommits(CancellationToken cancellationToken)
 					{
-						testMergeViewModel.LoadCommitsAction(await gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, a.Key).ConfigureAwait(false));
+						testMergeViewModel.LoadCommitsAction(await gitHubClient.PullRequest.Commits(Repository.RemoteRepositoryOwner, Repository.RemoteRepositoryName, a.Key).ConfigureAwait(false));
 					}
 
 					testMergeViewModel = new TestMergeViewModel(a.Value, b.Value, x => modifiedPRList = true, LoadCommits);
@@ -548,6 +551,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		async Task DirectAdd(int number, bool forceRebuild)
 		{
+			if (!rightsProvider.RepositoryRights.HasFlag(RepositoryRights.MergePullRequest) || Repository?.RemoteGitProvider != RemoteGitProvider.GitHub)
+				return;
+
 			loadingPRs = true;
 			DirectAddPR.Recheck();
 			RefreshPRs.Recheck();
@@ -557,8 +563,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (run)
 					try
 					{
-						var prTask = gitHubClient.Issue.Get(Repository.GitHubOwner, Repository.GitHubName, number);
-						var commits = await gitHubClient.PullRequest.Commits(Repository.GitHubOwner, Repository.GitHubName, ManualPR).ConfigureAwait(true);
+						var prTask = gitHubClient.Issue.Get(Repository.RemoteRepositoryOwner, Repository.RemoteRepositoryName, number);
+						var commits = await gitHubClient.PullRequest.Commits(Repository.RemoteRepositoryOwner, Repository.RemoteRepositoryName, ManualPR).ConfigureAwait(true);
 						var pr = await prTask.ConfigureAwait(true);
 						DigestPR(pr, commits);
 					}
@@ -576,7 +582,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				// manual addition
 				var manualPr = new Octokit.Issue(
 					String.Empty,
-					$"https://github.com/{Repository.GitHubOwner}/{Repository.GitHubName}/pull/{number}",
+					$"https://github.com/{Repository.RemoteRepositoryOwner}/{Repository.RemoteRepositoryName}/pull/{number}",
 					String.Empty,
 					String.Empty,
 					number,
@@ -650,7 +656,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case RepositoryCommand.Delete:
 					return !Refreshing && CanDelete;
 				case RepositoryCommand.Clone:
-					return !Refreshing && CanClone && !String.IsNullOrEmpty(NewOrigin) && !(!String.IsNullOrEmpty(NewAccessUser) ^ !String.IsNullOrEmpty(NewAccessToken));
+					return !Refreshing && CanClone && !String.IsNullOrEmpty(NewOrigin) && Uri.TryCreate(NewOrigin, UriKind.Absolute, out var _) && !(!String.IsNullOrEmpty(NewAccessUser) ^ !String.IsNullOrEmpty(NewAccessToken));
 				case RepositoryCommand.RemoveCredentials:
 					return !Refreshing && CanAccess;
 				case RepositoryCommand.DirectAddPR:
@@ -697,7 +703,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						{
 							Comment = x.TestMerge.Comment,
 							Number = x.TestMerge.Number,
-							PullRequestRevision = x.TestMerge.PullRequestRevision
+							TargetCommitSha = x.TestMerge.TargetCommitSha
 						}).ToList();
 
 					var job = await Refresh(update, null, cancellationToken).ConfigureAwait(true);
@@ -736,7 +742,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case RepositoryCommand.Clone:
 					var clone = new Repository
 					{
-						Origin = NewOrigin,
+						Origin = new Uri(NewOrigin),
 						Reference = String.IsNullOrEmpty(NewReference) ? null : NewReference,
 						AccessToken = String.IsNullOrEmpty(NewAccessToken) || !CanAccess ? null : NewAccessToken,
 						AccessUser = String.IsNullOrEmpty(NewAccessUser) || !CanAccess ? null : NewAccessUser,

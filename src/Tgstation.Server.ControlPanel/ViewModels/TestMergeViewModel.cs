@@ -57,14 +57,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref selectedIndex, value);
 				if (CommitsLoaded)
-					TestMerge.PullRequestRevision = Commits[SelectedIndex].Substring(0, 7);
+					TestMerge.TargetCommitSha = Commits[SelectedIndex].Substring(0, 7);
 			}
 		}
 
 		public bool CommitsLoaded => Commits != null;
 		public IReadOnlyList<string> Commits { get; private set; }
 
-		public string ActiveCommit => TestMerge.PullRequestRevision.Substring(0, 7);
+		public string ActiveCommit => TestMerge.TargetCommitSha.Substring(0, 7);
 
 		public EnumCommand<TestMergeCommand> Link { get; }
 		public EnumCommand<TestMergeCommand> LoadCommits { get; }
@@ -109,7 +109,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			TestMerge = testMerge ?? throw new ArgumentNullException(nameof(testMerge));
 
-			Commits = new List<string> { TestMerge.PullRequestRevision.Substring(0, 7) };
+			Commits = new List<string> { TestMerge.TargetCommitSha.Substring(0, 7) };
 
 			FontWeight = FontWeight.Normal;
 			selected = true;    //do not use the property here or you'll cause a StackOverflow

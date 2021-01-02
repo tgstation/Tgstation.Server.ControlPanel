@@ -19,9 +19,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Delete
 		}
 
-		public string Title => rightsProvider == this ? "Current User" : displayName;
+		public string Title => rightsProvider == this ? "Current " + (isForGroup ? "Group" : "User") : displayName;
 
-		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.user.png";
+		public string Icon => isForGroup ? "resm:Tgstation.Server.ControlPanel.Assets.user.png" : "resm:Tgstation.Server.ControlPanel.Assets.group.png";
 
 		public string DeleteText => confirmingDelete ? "Confirm?" : "Delete";
 
@@ -29,9 +29,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public IReadOnlyList<ITreeNode> Children => null;
 
-		public long Id => instanceUser.UserId;
+		public long Id => instanceUser.PermissionSetId;
 
-		public InstanceUserRights InstanceUserRights => instanceUser.InstanceUserRights.Value;
+		public InstancePermissionSetRights InstanceUserRights => instanceUser.InstancePermissionSetRights.Value;
 		public RepositoryRights RepositoryRights => instanceUser.RepositoryRights.Value;
 		public ByondRights ByondRights => instanceUser.ByondRights.Value;
 		public DreamMakerRights DreamMakerRights => instanceUser.DreamMakerRights.Value;
@@ -43,10 +43,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool UserRead
 		{
-			get => newInstanceUserRights.HasFlag(InstanceUserRights.ReadUsers);
+			get => newInstanceUserRights.HasFlag(InstancePermissionSetRights.Read);
 			set
 			{
-				var right = InstanceUserRights.ReadUsers;
+				var right = InstancePermissionSetRights.Read;
 				if (value)
 					newInstanceUserRights |= right;
 				else
@@ -55,10 +55,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 		public bool UserWrite
 		{
-			get => newInstanceUserRights.HasFlag(InstanceUserRights.WriteUsers);
+			get => newInstanceUserRights.HasFlag(InstancePermissionSetRights.Write);
 			set
 			{
-				var right = InstanceUserRights.WriteUsers;
+				var right = InstancePermissionSetRights.Write;
 				if (value)
 					newInstanceUserRights |= right;
 				else
@@ -67,10 +67,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 		public bool UserCreate
 		{
-			get => newInstanceUserRights.HasFlag(InstanceUserRights.CreateUsers);
+			get => newInstanceUserRights.HasFlag(InstancePermissionSetRights.Create);
 			set
 			{
-				var right = InstanceUserRights.CreateUsers;
+				var right = InstancePermissionSetRights.Create;
 				if (value)
 					newInstanceUserRights |= right;
 				else
@@ -780,14 +780,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly PageContextViewModel pageContext;
 		readonly InstanceViewModel instanceViewModel;
 		readonly IUserRightsProvider userRightsProvider;
-		readonly IInstanceUserClient instanceUserClient;
+		readonly IInstancePermissionSetClient instanceUserClient;
 		readonly IInstanceUserRightsProvider rightsProvider;
 		readonly InstanceUserRootViewModel instanceUserRootViewModel;
 		readonly string displayName;
+		readonly bool isForGroup;
 
-		InstanceUser instanceUser;
+		InstancePermissionSet instanceUser;
 
-		InstanceUserRights newInstanceUserRights;
+		InstancePermissionSetRights newInstanceUserRights;
 		RepositoryRights newRepositoryRights;
 		ByondRights newByondRights;
 		DreamMakerRights newDreamMakerRights;
@@ -800,7 +801,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public event EventHandler OnUpdated;
 
-		public InstanceUserViewModel(PageContextViewModel pageContext, InstanceViewModel instanceViewModel, IUserRightsProvider userRightsProvider, IInstanceUserClient instanceUserClient, InstanceUser instanceUser, string displayName, IInstanceUserRightsProvider rightsProvider, InstanceUserRootViewModel instanceUserRootViewModel)
+		public InstanceUserViewModel(PageContextViewModel pageContext, InstanceViewModel instanceViewModel, IUserRightsProvider userRightsProvider, IInstancePermissionSetClient instanceUserClient, InstancePermissionSet instanceUser, string displayName, IInstanceUserRightsProvider rightsProvider, InstanceUserRootViewModel instanceUserRootViewModel, bool isForGroup)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.instanceViewModel = instanceViewModel ?? throw new ArgumentNullException(nameof(instanceViewModel));
@@ -810,6 +811,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.instanceUserRootViewModel = instanceUserRootViewModel;
 			this.displayName = displayName ?? throw new ArgumentNullException(nameof(displayName));
 			this.rightsProvider = rightsProvider ?? this;
+			this.isForGroup = isForGroup;
 
 			userRightsProvider.OnUpdated += (a, b) => OnUpdated?.Invoke(this, new EventArgs());
 
@@ -829,7 +831,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		void PostLoad()
 		{
-			newInstanceUserRights = instanceUser.InstanceUserRights.Value;
+			newInstanceUserRights = instanceUser.InstancePermissionSetRights.Value;
 			newByondRights = instanceUser.ByondRights.Value;
 			newChatBotRights = instanceUser.ChatBotRights.Value;
 			newRepositoryRights = instanceUser.RepositoryRights.Value;
@@ -945,7 +947,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					return !loading;
 				case InstanceUserCommand.Save:
 				case InstanceUserCommand.Delete:
-					return rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.WriteUsers) && !loading;
+					return rightsProvider.InstanceUserRights.HasFlag(InstancePermissionSetRights.Write) && !loading;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
@@ -964,15 +966,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(IsExpanded));
 					break;
 				case InstanceUserCommand.Save:
-					var update = new InstanceUser
+					var update = new InstancePermissionSet
 					{
-						UserId = instanceUser.UserId,
+						PermissionSetId = instanceUser.PermissionSetId,
 						ByondRights = newByondRights,
 						ChatBotRights = newChatBotRights,
 						ConfigurationRights = newConfigurationRights,
 						DreamDaemonRights = newDreamDaemonRights,
 						DreamMakerRights = newDreamMakerRights,
-						InstanceUserRights = newInstanceUserRights,
+						InstancePermissionSetRights = newInstanceUserRights,
 						RepositoryRights = newRepositoryRights
 					};
 					loading = true;

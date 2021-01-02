@@ -51,7 +51,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		ICommand Close { get; }
+		public ICommand Close { get; }
 		EnumCommand<AddInstanceCommand> Add { get; }
 
 		public IReadOnlyList<ITreeNode> Children => null;

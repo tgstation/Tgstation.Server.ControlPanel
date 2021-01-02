@@ -1,0 +1,108 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Tgstation.Server.ControlPanel.Views.Pages.PermissionSet">
+  <StackPanel Orientation="Vertical">
+    <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+    <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+    <TextBlock Text="Administration Rights:" FontSize="16"/>
+    <Grid IsEnabled="{Binding PageContext.ActiveObject.PermissionSetViewModel.CanEditRights}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="1*"/>
+        <ColumnDefinition Width="1*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+      </Grid.RowDefinitions>
+      <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.AdminWriteUsers, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Edit Users" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.AdminEditPassword, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Edit Own Password" Margin="5,4,0,0"/>
+      </DockPanel>
+      <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.AdminRestartServer, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Restart Server" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.AdminChangeVersion, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Change Server Version" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="0" Grid.Row="2" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.AdminReadUsers, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Read Users" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="1" Grid.Row="2" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.AdminLogs, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Download Server Logs" Margin="5,4,0,0" />
+      </DockPanel>
+    </Grid>
+    <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+    <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+    <TextBlock Text="Instance Manager Rights:" FontSize="16"/>
+    <Grid IsEnabled="{Binding PageContext.ActiveObject.PermissionSetViewModel.CanEditRights}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="1*"/>
+        <ColumnDefinition Width="1*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
+      </Grid.RowDefinitions>
+      <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.InstanceRead, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Read Info of Accessible Instances" ToolTip.Tip="Accessible means instances they have an instance user for" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.InstanceList, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="View All Instances" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.InstanceDelete, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Detach Instances" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.InstanceCreate, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Create new Instances" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="0" Grid.Row="2" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.InstanceRename, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Rename Instances" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="1" Grid.Row="2" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.InstanceRelocate, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Relocate Instances" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="0" Grid.Row="3" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.InstanceOnline, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Online and Offline Instances" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="1" Grid.Row="3" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.InstanceConfig, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Change Instance Configuration Modes" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="0" Grid.Row="4" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.InstanceUpdate, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Manage Instance Auto Updating" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="1" Grid.Row="4" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.InstanceChatLimit, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Set Chat Bot Limits" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="0" Grid.Row="5" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.PermissionSetViewModel.InstanceGrant, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Grant Themselves Full Permissions on Instances" Margin="5,4,0,0" />
+      </DockPanel>
+    </Grid>
+    <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+    <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+    <Button Content="Save Permissions" Command="{Binding PageContext.ActiveObject.PermissionSetViewModel.Save}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+  </StackPanel>
+</UserControl>

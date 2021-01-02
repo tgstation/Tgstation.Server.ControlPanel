@@ -69,8 +69,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var savePath = await sfd.ShowAsync(lifetime.MainWindow).ConfigureAwait(true);
 					if (Directory.Exists(System.IO.Path.GetDirectoryName(savePath)))
 					{
-						var fullLog = await administrationClient.GetLog(logFile, cancellationToken);
-						await File.WriteAllBytesAsync(savePath, fullLog.Content, cancellationToken);
+						var fullLogTuple = await administrationClient.GetLog(logFile, cancellationToken);
+						using var fileStream = new FileStream(savePath, FileMode.Create);
+						await fullLogTuple.Item2.CopyToAsync(fileStream);
 					}
 				}
 			}

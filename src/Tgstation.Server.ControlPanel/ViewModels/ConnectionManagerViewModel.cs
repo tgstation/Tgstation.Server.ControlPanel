@@ -315,24 +315,32 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Icon = LoadingGif
 			};
 
+			var fakeSwarmNode = new BasicNode
+			{
+				Title = "Swarm",
+				Icon = LoadingGif
+			};
+
 			async Task GetServerVersionAndUserPerms()
 			{
 				ServerInformation serverInfo;
 				var userInfoTask = serverClient.Users.Read(cancellationToken);
 				try
 				{
-					serverInfo = await serverClient.Version(cancellationToken).ConfigureAwait(false);
+					serverInfo = await serverClient.ServerInformation(cancellationToken).ConfigureAwait(false);
 					
 					versionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", versionNode.Title, serverInfo.Version);
 					apiVersionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", apiVersionNode.Title, serverInfo.ApiVersion);
 					dmapiVersionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", dmapiVersionNode.Title, serverInfo.DMApiVersion);
 					instanceLimitNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", instanceLimitNode.Title, serverInfo.InstanceLimit);
 					userLimitNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", userLimitNode.Title, serverInfo.UserLimit);
+					fakeSwarmNode.Title = $"Swarm: {(serverInfo.SwarmServers == null ? "Disabled" : $"{serverInfo.SwarmServers.Count} Servers")}";
 					versionNode.Icon = InfoIcon;
 					apiVersionNode.Icon = InfoIcon;
 					dmapiVersionNode.Icon = InfoIcon;
 					instanceLimitNode.Icon = InfoIcon;
 					userLimitNode.Icon = InfoIcon;
+					fakeSwarmNode.Icon = InfoIcon;
 				}
 				catch (UnauthorizedException)
 				{
@@ -347,24 +355,27 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					dmapiVersionNode.Icon = ErrorIcon;
 					instanceLimitNode.Icon = ErrorIcon;
 					userLimitNode.Icon = ErrorIcon;
+					fakeSwarmNode.Icon = ErrorIcon;
 					return;
 				}
 				versionNode.RaisePropertyChanged(nameof(Icon));
+				fakeSwarmNode.RaisePropertyChanged(nameof(Icon));
 				apiVersionNode.RaisePropertyChanged(nameof(Icon));
 				dmapiVersionNode.RaisePropertyChanged(nameof(Icon));
 				instanceLimitNode.RaisePropertyChanged(nameof(Icon));
 				userLimitNode.RaisePropertyChanged(nameof(Icon));
 
 				List<ITreeNode> newChildren;
+				User user;
 				try
 				{
-					var user = await userInfoTask.ConfigureAwait(false);
+					user = await userInfoTask.ConfigureAwait(false);
 					newChildren = new List<ITreeNode>(Children.Where(x => x != fakeUserNode));
 					userVM = new UserViewModel(serverClient.Users, serverInfo, user, pageContext, null);
 					this.RaisePropertyChanged(nameof(Title));
 					newChildren.Add(userVM);
 					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM, this, serverInfo.Version));
-					var urVM = new UsersRootViewModel(serverClient.Users, serverInfo, pageContext, userVM);
+					var urVM = new UsersRootViewModel(serverClient.Users, serverClient.Groups, serverInfo, pageContext, userVM);
 					newChildren.Add(urVM);
 					newChildren.Add(new InstanceRootViewModel(pageContext, serverInfo, serverClient.Instances, userVM, urVM, jobSink, gitHubClient, connection.Url.Host));
 				}
@@ -385,7 +396,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				dmapiVersionNode,
 				instanceLimitNode,
 				userLimitNode,
-				fakeUserNode
+				fakeSwarmNode,
+				fakeUserNode,
 			};
 			Children = childNodes;
 			await GetServerVersionAndUserPerms().ConfigureAwait(true);

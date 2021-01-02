@@ -133,7 +133,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Children = null;
 			try
 			{
-				var dirs = await configurationClient.List(Path, cancellationToken).ConfigureAwait(false);
+				var dirs = await configurationClient.List(null, Path, cancellationToken).ConfigureAwait(false);
 
 				var newChildren = new List<ITreeNode>();
 				if (rightsProvider.ConfigurationRights.HasFlag(ConfigurationRights.Write))

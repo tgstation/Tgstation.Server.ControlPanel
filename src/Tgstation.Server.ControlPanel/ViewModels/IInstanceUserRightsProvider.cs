@@ -5,7 +5,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 {
 	interface IInstanceUserRightsProvider : IUserRightsProvider
 	{
-		InstanceUserRights InstanceUserRights { get; }
+		InstancePermissionSetRights InstanceUserRights { get; }
 
 		RepositoryRights RepositoryRights { get; }
 

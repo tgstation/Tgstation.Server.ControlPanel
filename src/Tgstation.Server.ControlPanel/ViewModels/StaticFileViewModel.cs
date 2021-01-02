@@ -117,7 +117,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public bool IsText => TextBlob != null;
+		public bool IsText { get; set; } = true;
 
 		public ConfigurationFile ConfigurationFile
 		{
@@ -125,11 +125,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set
 			{
 				this.RaiseAndSetIfChanged(ref configurationFile, value);
-				try
-				{
-					TextBlob = Encoding.UTF8.GetString(configurationFile.Content);
-				}
-				catch { }
 				textChanged = false;
 				Write.Recheck();
 				Delete.Recheck();
@@ -223,10 +218,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			firstLoad = true;
 			try
 			{
-				DirectLoad(await configurationClient.Read(new ConfigurationFile
+				var fileTuple = await configurationClient.Read(new ConfigurationFile
 				{
 					Path = Path
-				}, cancellationToken).ConfigureAwait(true));
+				}, cancellationToken).ConfigureAwait(true);
+				await fileTuple.Item2.DisposeAsync();
+				DirectLoad(fileTuple.Item1);
 			}
 			catch(ClientException e)
 			{
@@ -280,33 +277,34 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public async Task RunCommand(StaticFileCommand command, CancellationToken cancellationToken)
 		{
-			async Task WriteGeneric(byte[] data)
+			async Task WriteGeneric(Stream data)
 			{
-				var update = new ConfigurationFile
+				using (data)
 				{
-					Path = Path,
-					Content = data,
-					LastReadHash = ConfigurationFile.LastReadHash
-				};
+					var update = new ConfigurationFile
+					{
+						Path = Path,
+						LastReadHash = ConfigurationFile.LastReadHash
+					};
 
-				Refreshing = true;
-				try
-				{
-					var newConfig = await configurationClient.Write(update, cancellationToken).ConfigureAwait(true);
-					newConfig.Content = update.Content;
-					ConfigurationFile = newConfig;
-					Denied = newConfig.AccessDenied ?? false;
-					if (!Denied && data == null)
-						parent.RemoveChild(this);
-				}
-				catch (ClientException e)
-				{
-					ErrorMessage = e.Message;
-					Denied = e is InsufficientPermissionsException;
-				}
-				finally
-				{
-					Refreshing = false;
+					Refreshing = true;
+					try
+					{
+						var newConfig = await configurationClient.Write(update, data, cancellationToken).ConfigureAwait(true);
+						ConfigurationFile = newConfig;
+						Denied = newConfig.AccessDenied ?? false;
+						if (!Denied && data == null)
+							parent.RemoveChild(this);
+					}
+					catch (ClientException e)
+					{
+						ErrorMessage = e.Message;
+						Denied = e is InsufficientPermissionsException;
+					}
+					finally
+					{
+						Refreshing = false;
+					}
 				}
 			}
 
@@ -319,15 +317,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					await RefreshContents(cancellationToken).ConfigureAwait(true);
 					break;
 				case StaticFileCommand.Download:
-					File.WriteAllBytes(DownloadPath, ConfigurationFile.Content);
+					var fileTuple = await configurationClient.Read(ConfigurationFile, cancellationToken);
+					using (fileTuple.Item2)
+					using (var fileStream = new FileStream(DownloadPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, 8192, true))
+						await fileTuple.Item2.CopyToAsync(fileStream).ConfigureAwait(false);
 					ControlPanel.OpenFolder(System.IO.Path.GetDirectoryName(DownloadPath));
 					break;
 				case StaticFileCommand.Upload:
-					await WriteGeneric(File.ReadAllBytes(UploadPath)).ConfigureAwait(true);
+					await WriteGeneric(new FileStream(UploadPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 8192, true)).ConfigureAwait(true);
 					await RefreshContents(cancellationToken).ConfigureAwait(true);
 					break;
 				case StaticFileCommand.Write:
-					await WriteGeneric(Encoding.UTF8.GetBytes(TextBlob)).ConfigureAwait(true);
+					await WriteGeneric(new MemoryStream(Encoding.UTF8.GetBytes(TextBlob))).ConfigureAwait(true);
 					break;
 				case StaticFileCommand.Delete:
 					if(confirmingDelete)
@@ -369,7 +370,35 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						UploadPath = (await ofd.ShowAsync(lifetime2.MainWindow).ConfigureAwait(true))[0] ?? UploadPath;
 					break;
 				case StaticFileCommand.EnableEditor:
-					EditorEnabled = true;
+					lock (this)
+					{
+						if (EditorEnabled)
+							return;
+						EditorEnabled = true;
+					}
+
+					try
+					{
+						using var memoryStream = new MemoryStream();
+						var fileTuple2 = await configurationClient.Read(ConfigurationFile, cancellationToken);
+						using (fileTuple2.Item2)
+							await fileTuple2.Item2.CopyToAsync(memoryStream).ConfigureAwait(false);
+						try
+						{
+							TextBlob = Encoding.UTF8.GetString(memoryStream.ToArray());
+						}
+						catch
+						{
+							MainWindowViewModel.Singleton.AddToConsole($"Unable to turn remote file \"{ConfigurationFile.Path}\" into text!");
+							IsText = false;
+						}
+					}
+					catch
+					{
+						EditorEnabled = false;
+						throw;
+					}
+
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");

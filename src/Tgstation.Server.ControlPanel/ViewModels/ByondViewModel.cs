@@ -203,7 +203,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			try
 			{
 				var dataTask = byondClient.ActiveVersion(cancellationToken);
-				var installTask = byondClient.InstalledVersions(cancellationToken);
+				var installTask = byondClient.InstalledVersions(null, cancellationToken);
 				data = await dataTask.ConfigureAwait(true);
 				this.RaisePropertyChanged(nameof(CurrentVersion));
 				InstalledVersions = (await installTask.ConfigureAwait(true)).Select(x => FormatByondVersion(x)).ToList();
@@ -265,15 +265,21 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Update.Recheck();
 					try
 					{
-						byte[] zipBytes = null;
+						Stream zipStream = null;
 						if (!String.IsNullOrWhiteSpace(ByondZipPath))
-							zipBytes = await File.ReadAllBytesAsync(ByondZipPath, cancellationToken);
-
-						data = await byondClient.SetActiveVersion(new Byond
+							zipStream = new FileStream(ByondZipPath, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete, 8192, true);
+						using (zipStream)
 						{
-							Version = Prebuild == 0 ? new Version(NewMajor, NewMinor) : new Version(NewMajor, NewMinor, Prebuild),
-							Content = zipBytes
-						}, cancellationToken).ConfigureAwait(true);
+							data = await byondClient.SetActiveVersion(
+								new Byond
+								{
+									Version = Prebuild == 0 ? new Version(NewMajor, NewMinor) : new Version(NewMajor, NewMinor, Prebuild),
+									UploadCustomZip = zipStream != null,
+								},
+								zipStream,
+								cancellationToken)
+								.ConfigureAwait(true);
+						}
 						if (data.InstallJob != null)
 							jobSink.RegisterJob(data.InstallJob, Load);
 						this.RaisePropertyChanged(CurrentVersion);

@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>1.13.0</Version>
+    <Version>1.14.0</Version>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -23,6 +23,8 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Remove="App.xaml" />
+    <EmbeddedResource Remove="Views\Pages\AddUserGroup.xaml" />
+    <EmbeddedResource Remove="Views\Pages\GroupManager.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\CompileJobList.xaml" />
@@ -34,12 +36,15 @@
     <None Remove="Views\Pages\AddInstanceUser.xaml" />
     <None Remove="Views\Pages\AddServer.xaml" />
     <None Remove="Views\Pages\AddUser.xaml" />
+    <None Remove="Views\Pages\AddUserGroup.xaml" />
     <None Remove="Views\Pages\Administration.xaml" />
     <None Remove="Views\Pages\Byond.xaml" />
     <None Remove="Views\Pages\ChatBot.xaml" />
     <None Remove="Views\Pages\DreamMaker.xaml" />
+    <None Remove="Views\Pages\GroupManager.xaml" />
     <None Remove="Views\Pages\InstanceManager.xaml" />
     <None Remove="Views\Pages\InstanceUser.xaml" />
+    <None Remove="Views\Pages\PermissionSet.xaml" />
     <None Remove="Views\Pages\Repository.xaml" />
     <None Remove="Views\Pages\StaticAdd.xaml" />
     <None Remove="Views\Pages\StaticFile.xaml" />
@@ -53,16 +58,30 @@
     <AvaloniaResource Include="App.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaXaml Include="Views\Pages\AddUserGroup.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="Views\Pages\GroupManager.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaXaml>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.9.12" />
     <PackageReference Include="Avalonia.Desktop" Version="0.9.12" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.12" />
     <PackageReference Include="Octokit" Version="0.48.0" />
-    <PackageReference Include="System.Reactive" Version="4.4.1" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.7.0" />
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="5.0.0" />
     <PackageReference Include="TextCopy" Version="3.3.0" />
-    <PackageReference Include="Tgstation.Server.Client" Version="8.4.0" />
+    <PackageReference Include="Tgstation.Server.Client" Version="9.1.1" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Views\Pages\AddUserGroup.xaml.cs">
+      <DependentUpon>AddUserGroup.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Pages\GroupManager.xaml.cs">
+      <DependentUpon>GroupManager.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\Pages\StaticFolder.xaml.cs">
       <DependentUpon>StaticFolder.xaml</DependentUpon>
     </Compile>
@@ -114,6 +133,9 @@
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\Pages\InstanceUser.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\Pages\PermissionSet.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\Pages\Repository.xaml">

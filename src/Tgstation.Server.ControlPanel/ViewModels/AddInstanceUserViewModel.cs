@@ -19,14 +19,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Add
 		}
 
-		public string Title => "Add User";
+		public string Title => "Add User/Group";
 
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.plus.jpg";
 
 		public bool IsExpanded { get; set; }
 
 		public IReadOnlyList<ITreeNode> Children => null;
-		public bool IdMode => users == null || users.Count == 0;
+		public bool IdMode => (users == null || users.Count == 0) && (groups == null || groups.Count == 0);
 
 		public IReadOnlyList<string> UserStrings { get; }
 
@@ -40,13 +40,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly PageContextViewModel pageContext;
 		readonly InstanceUserRootViewModel instanceUserRootViewModel;
-		readonly IInstanceUserClient instanceUserClient;
+		readonly IInstancePermissionSetClient instanceUserClient;
 		readonly IInstanceUserRightsProvider rightsProvider;
 		readonly IReadOnlyList<User> users;
+		readonly IReadOnlyList<UserGroup> groups;
 
 		bool loading;
 
-		public AddInstanceUserViewModel(PageContextViewModel pageContext, InstanceUserRootViewModel instanceUserRootViewModel, IInstanceUserClient instanceUserClient, IInstanceUserRightsProvider rightsProvider, IUserProvider userProvider)
+		public AddInstanceUserViewModel(PageContextViewModel pageContext, InstanceUserRootViewModel instanceUserRootViewModel, IInstancePermissionSetClient instanceUserClient, IInstanceUserRightsProvider rightsProvider, IUserProvider userProvider)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.instanceUserRootViewModel = instanceUserRootViewModel ?? throw new ArgumentNullException(nameof(instanceUserRootViewModel));
@@ -54,7 +55,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.rightsProvider = rightsProvider ?? throw new ArgumentNullException(nameof(rightsProvider));
 
 			users = userProvider.GetUsers()?.Where(x => x.Id != userProvider.CurrentUser.Id).ToList();
-			UserStrings = users?.Select(x => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", x.Name, x.Id)).ToList();
+			groups = userProvider.GetGroups()?.Where(x => x.Id != userProvider.CurrentUser.Group?.Id).ToList();
+			var userStrings = users?.Select(x => String.Format(CultureInfo.InvariantCulture, "User {0} ({1})", x.Name, x.Id)).ToList() ?? new List<string>();
+			userStrings.AddRange(groups?.Select(x => $"Group {x.Name} ({x.Id})") ?? Enumerable.Empty<string>());
+			if (userStrings.Count > 0)
+				UserStrings = userStrings;
+				
 			rightsProvider.OnUpdated += (a, b) => Add.Recheck();
 
 			Close = new EnumCommand<AddInstanceUserCommand>(AddInstanceUserCommand.Close, this);
@@ -72,7 +78,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return command switch
 			{
 				AddInstanceUserCommand.Close => true,
-				AddInstanceUserCommand.Add => !loading && rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.WriteUsers),
+				AddInstanceUserCommand.Add => !loading && rightsProvider.InstanceUserRights.HasFlag(InstancePermissionSetRights.Create),
 				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
 			};
 		}
@@ -89,9 +95,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Add.Recheck();
 					try
 					{
-						var user = new InstanceUser
+						var user = new InstancePermissionSet
 						{
-							UserId = IdMode ? UserId : users[SelectedIndex].Id.Value,
+							PermissionSetId = IdMode
+								? UserId
+								: (SelectedIndex >= users.Count
+									? groups[SelectedIndex - users.Count].PermissionSet.Id.Value
+									: users[SelectedIndex].GetPermissionSet().Id.Value),
 						};
 						var newUser = await instanceUserClient.Create(user, cancellationToken).ConfigureAwait(true);
 						instanceUserRootViewModel.DirectAdd(newUser);

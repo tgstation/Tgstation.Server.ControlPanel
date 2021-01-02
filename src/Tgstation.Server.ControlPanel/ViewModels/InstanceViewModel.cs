@@ -121,7 +121,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool deleteConfirming;
 		bool loading;
 
-		InstanceUser instanceUser;
+		InstancePermissionSet instanceUser;
 
 		public InstanceViewModel(IInstanceManagerClient instanceManagerClient, PageContextViewModel pageContext, Instance instance, IUserRightsProvider userRightsProvider, InstanceRootViewModel instanceRootViewModel, IUserProvider userProvider, IServerJobSink serverJobSink, Octokit.IGitHubClient gitHubClient, string serverAddress)
 		{
@@ -203,7 +203,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			try
 			{
-				instanceUser = await instanceClient.Users.Read(cancellationToken).ConfigureAwait(false);
+				instanceUser = await instanceClient.PermissionSets.Read(cancellationToken).ConfigureAwait(false);
 			}
 			catch (InsufficientPermissionsException)
 			{
@@ -212,14 +212,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				return;
 			}
 
-			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, this, userRightsProvider, instanceClient.Users, instanceUser, InstanceUserRootViewModel.GetDisplayNameForInstanceUser(userProvider, instanceUser), null, null);
+			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, this, userRightsProvider, instanceClient.PermissionSets, instanceUser, InstanceUserRootViewModel.GetDisplayNameForInstanceUser(userProvider, instanceUser), null, null, userProvider.CurrentUser.Group != null);
 
 			instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad(null);
 			
 			var newChildren = new List<ITreeNode>
 			{
 				instanceUserTreeNode,
-				new InstanceUserRootViewModel(pageContext, instanceClient.Users, instanceUserTreeNode, userProvider, this),
+				new InstanceUserRootViewModel(pageContext, instanceClient.PermissionSets, instanceUserTreeNode, userProvider, this),
 				new RepositoryViewModel(pageContext, instanceClient.Repository, instanceClient.DreamMaker, instanceClient.Jobs, instanceJobSink, instanceUserTreeNode, gitHubClient),
 				new ByondViewModel(pageContext, instanceClient.Byond, instanceJobSink, instanceUserTreeNode),
 				new CompilerViewModel(pageContext, instanceClient.DreamMaker, instanceJobSink, instanceUserTreeNode),

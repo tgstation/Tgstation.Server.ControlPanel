@@ -82,9 +82,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				var hasReadRight = rightsProvider.ChatBotRights.HasFlag(ChatBotRights.Read);
 
 				if (hasReadRight)
-					chatBots = await chatBotsClient.List(cancellationToken).ConfigureAwait(true);
+					chatBots = await chatBotsClient.List(null, cancellationToken).ConfigureAwait(true);
 
-				if (rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.WriteUsers))
+				if (rightsProvider.ChatBotRights.HasFlag(ChatBotRights.Create))
 					if (chatBots.Count < this.chatBotLimit)
 						newChildren.Add(new AddChatBotViewModel(pageContext, chatBotsClient, rightsProvider, this));
 					else
@@ -147,7 +147,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			if (newChildren[0] is AddInstanceUserViewModel)
 				newChildren[0] = new AddChatBotViewModel(pageContext, chatBotsClient, rightsProvider, this);
 			Children = newChildren;
-			pageContext.ActiveObject = rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.ReadUsers) ? newModel : null;
+			pageContext.ActiveObject = rightsProvider.ChatBotRights.HasFlag(ChatBotRights.Read) ? newModel : null;
 		}
 
 		public Task HandleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);

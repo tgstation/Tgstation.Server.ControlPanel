@@ -11,9 +11,9 @@ using Tgstation.Server.Client.Components;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	sealed class InstanceUserRootViewModel : ViewModelBase, ITreeNode, IUserProvider
+	sealed class InstanceUserRootViewModel : ViewModelBase, ITreeNode
 	{
-		public string Title => "Users";
+		public string Title => "Users/Groups";
 
 		public string Icon
 		{
@@ -32,19 +32,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public User CurrentUser => userProvider.CurrentUser;
 
 		readonly PageContextViewModel pageContext;
-		readonly IInstanceUserClient instanceUserClient;
+		readonly IInstancePermissionSetClient instanceUserClient;
 		readonly IInstanceUserRightsProvider rightsProvider;
 		readonly IUserProvider userProvider;
 		readonly InstanceViewModel instanceViewModel;
 
 		IReadOnlyList<ITreeNode> children;
-		IReadOnlyList<InstanceUser> activeUsers;
+		IReadOnlyList<InstancePermissionSet> activeUsers;
 
 		bool loading;
 		string icon;
 
 
-		public InstanceUserRootViewModel(PageContextViewModel pageContext, IInstanceUserClient instanceUserClient, IInstanceUserRightsProvider rightsProvider, IUserProvider userProvider, InstanceViewModel instanceViewModel)
+		public InstanceUserRootViewModel(PageContextViewModel pageContext, IInstancePermissionSetClient instanceUserClient, IInstanceUserRightsProvider rightsProvider, IUserProvider userProvider, InstanceViewModel instanceViewModel)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.instanceUserClient = instanceUserClient ?? throw new ArgumentNullException(nameof(instanceUserClient));
@@ -60,9 +60,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			rightsProvider.OnUpdated += (a, b) => InitialLoad();
 		}
 
-		public static string GetDisplayNameForInstanceUser(IUserProvider userProvider, InstanceUser user) => userProvider.GetUsers()?
-						.Where(x => x.Id == user.UserId).Select(x => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", x.Name, x.Id)).FirstOrDefault()
-						?? String.Format(CultureInfo.InvariantCulture, "User ID: {0}", user.UserId);
+		public static string GetDisplayNameForInstanceUser(IUserProvider userProvider, InstancePermissionSet user) {
+			var actualUser = userProvider
+				.GetUsers()
+				?.Where(x => x.GetPermissionSet().Id == user.PermissionSetId)
+				.FirstOrDefault();
+
+			var actualGroup = userProvider
+				.GetGroups()
+				?.Where(x => x.PermissionSet.Id == user.PermissionSetId)
+				.FirstOrDefault();
+
+			return actualUser == null
+				? actualGroup == null
+					? $"Permission Set ID {user.PermissionSetId}"
+					: $"Group {actualGroup.Name} ({actualGroup.Id})"
+				: $"User {actualUser.Name} ({actualUser.Id})";
+		}
 
 		public async Task Refresh(CancellationToken cancellationToken)
 		{
@@ -75,7 +89,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var nullPage = true;
 			try
 			{
-				if(rightsProvider.InstanceUserRights == InstanceUserRights.None)
+				if(rightsProvider.InstanceUserRights == InstancePermissionSetRights.None)
 				{
 					Children = null;
 					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg";
@@ -88,19 +102,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				var newChildren = new List<ITreeNode>();
 
-				var hasReadRight = rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.ReadUsers);
+				var hasReadRight = rightsProvider.InstanceUserRights.HasFlag(InstancePermissionSetRights.Read);
 
 				if (hasReadRight)
-					activeUsers = (await instanceUserClient.List(cancellationToken).ConfigureAwait(true)).Where(x => x.UserId != userProvider.CurrentUser.Id).ToList();
+					activeUsers = (await instanceUserClient.List(null, cancellationToken).ConfigureAwait(true)).Where(x => x.PermissionSetId != userProvider.CurrentUser.GetPermissionSet().Id).ToList();
 
-				if (rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.WriteUsers))
-					newChildren.Add(new AddInstanceUserViewModel(pageContext, this, instanceUserClient, rightsProvider, this));
+				if (rightsProvider.InstanceUserRights.HasFlag(InstancePermissionSetRights.Create))
+					newChildren.Add(new AddInstanceUserViewModel(pageContext, this, instanceUserClient, rightsProvider, userProvider));
 
 				if(hasReadRight)
 					newChildren.AddRange(activeUsers
 						.Select(x => new InstanceUserViewModel(pageContext, instanceViewModel, rightsProvider, instanceUserClient, x,
 						GetDisplayNameForInstanceUser(userProvider, x),
-						rightsProvider, this)));
+						rightsProvider, this, userProvider.GetGroups()?.Any(y => y.PermissionSet.Id == x.PermissionSetId) == true)));
 
 				Children = newChildren;
 				Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
@@ -137,25 +151,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public void DirectAdd(InstanceUser user)
+		public void DirectAdd(InstancePermissionSet user)
 		{
-			var newModel = new InstanceUserViewModel(pageContext, instanceViewModel, rightsProvider, instanceUserClient, user, GetDisplayNameForInstanceUser(userProvider, user), rightsProvider, this);
+			var newModel = new InstanceUserViewModel(pageContext, instanceViewModel, rightsProvider, instanceUserClient, user, GetDisplayNameForInstanceUser(userProvider, user), rightsProvider, this, (userProvider.GetGroups()?.Any(y => y.PermissionSet.Id == user.PermissionSetId) == true));
 			var newChildren = new List<ITreeNode>(Children)
 			{
 				newModel
 			};
-			activeUsers = new List<InstanceUser>(activeUsers)
+			activeUsers = new List<InstancePermissionSet>(activeUsers)
 			{
 				user
 			};
 			if (newChildren[0] is AddInstanceUserViewModel)
-				newChildren[0] = new AddInstanceUserViewModel(pageContext, this, instanceUserClient, rightsProvider, this);
+				newChildren[0] = new AddInstanceUserViewModel(pageContext, this, instanceUserClient, rightsProvider, userProvider);
 			Children = newChildren;
-			pageContext.ActiveObject = rightsProvider.InstanceUserRights.HasFlag(InstanceUserRights.ReadUsers) ? newModel : null;
+			pageContext.ActiveObject = rightsProvider.InstanceUserRights.HasFlag(InstancePermissionSetRights.Read) ? newModel : null;
 		}
 
 		public Task HandleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
-
-		public IReadOnlyList<User> GetUsers() => userProvider.GetUsers()?.Where(x => x.Id != userProvider.CurrentUser.Id && activeUsers?.Any(y => y.UserId == x.Id) != true).ToList();
 	}
 }

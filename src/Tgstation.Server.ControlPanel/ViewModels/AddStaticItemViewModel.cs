@@ -208,19 +208,20 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						}
 						else
 						{
-							byte[] data;
+							MemoryStream stream;
 							if (ItemPath != null)
-								data = File.ReadAllBytes(ItemPath);
+								stream = new MemoryStream(File.ReadAllBytes(ItemPath));
 							else
-								data = Encoding.UTF8.GetBytes(ItemText);
-							file = new ConfigurationFile
+								stream = new MemoryStream(Encoding.UTF8.GetBytes(ItemText));
+							using (stream)
 							{
-								Content = data,
-								Path = newPath
-							};
+								file = new ConfigurationFile
+								{
+									Path = newPath
+								};
 
-							file = await configurationClient.Write(file, cancellationToken).ConfigureAwait(true);
-							file.Content = data;
+								file = await configurationClient.Write(file, stream, cancellationToken).ConfigureAwait(true);
+							}
 						}
 						parent.DirectAdd(file);
 

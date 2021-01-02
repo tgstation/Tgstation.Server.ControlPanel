@@ -43,7 +43,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string UpdateText { get; set; }
 
 		public string LatestVersionString => model?.LatestVersion?.ToString() ?? "Unknown";
-		public string WindowsHostMachine => model == null ? "Unknown" : model.WindowsHost ? "Yes" : "No";
 		public string GitHubUrl => model?.TrackedRepositoryUrl.ToString() ?? "Unknown";
 
 		public string NewVersion
@@ -151,7 +150,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				var modelTask = administrationClient.Read(cancellationToken);
 				if (CanGetLogs)
 				{
-					LogFiles = (await administrationClient.ListLogs(cancellationToken)).Select(x => new LogFileViewModel(x, administrationClient, userRightsProvider)).ToList();
+					LogFiles = (await administrationClient.ListLogs(null, cancellationToken)).Select(x => new LogFileViewModel(x, administrationClient, userRightsProvider)).ToList();
 				}
 
 				model = await modelTask.ConfigureAwait(true);
@@ -169,7 +168,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					if (NewVersion == null)
 						NewVersion = model?.LatestVersion?.ToString();
 					this.RaisePropertyChanged(nameof(GitHubUrl));
-					this.RaisePropertyChanged(nameof(WindowsHostMachine));
 					this.RaisePropertyChanged(nameof(LatestVersionString));
 					this.RaisePropertyChanged(nameof(Title));
 					OpenGitHub.Recheck();

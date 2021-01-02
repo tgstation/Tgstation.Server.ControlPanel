@@ -25,13 +25,7 @@
           <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Name}" FontSize="26"/>
           <Button Grid.Column="2" Content="Refresh" Command="{Binding PageContext.ActiveObject.RefreshCommand}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
-        <StackPanel Orientation="Horizontal">
-          <TextBlock Text="User ID:"/>
-          <TextBlock Text="{Binding PageContext.ActiveObject.Id}" Margin="5,0,0,0"/>
-        </StackPanel>
-        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
-        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-        <TextBlock Text="Instance User Rights:" FontSize="16"/>
+        <TextBlock Text="Instance Permission Set Rights:" FontSize="16"/>
         <StackPanel Orientation="Vertical" IsEnabled="{Binding PageContext.ActiveObject.CanEditRights}>">
           <Grid>
             <Grid.ColumnDefinitions>
@@ -44,15 +38,15 @@
             </Grid.RowDefinitions>
             <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UserRead, Mode=TwoWay}"/>
-              <TextBlock DockPanel.Dock="Right" Text="Read Instance Users" Margin="5,4,0,0" />
+              <TextBlock DockPanel.Dock="Right" Text="Read Instance Permission Sets" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UserWrite, Mode=TwoWay}"/>
-              <TextBlock DockPanel.Dock="Right" Text="Edit Instance Users" Margin="5,4,0,0" />
+              <TextBlock DockPanel.Dock="Right" Text="Edit Instance Permission Sets" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
               <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UserCreate, Mode=TwoWay}"/>
-              <TextBlock DockPanel.Dock="Right" Text="Create Instance Users" Margin="5,4,0,0" />
+              <TextBlock DockPanel.Dock="Right" Text="Create Instance Permission Sets" Margin="5,4,0,0" />
             </DockPanel>
           </Grid>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>

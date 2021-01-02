@@ -7,7 +7,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 {
 	sealed class BasicNode : ViewModelBase, ITreeNode
 	{
-		public string Title { get; set; }
+		public string Title
+		{
+			get => title;
+			set => this.RaiseAndSetIfChanged(ref title, value);
+		}
+
 		public bool IsExpanded { get; set; }
 
 		public string Icon
@@ -17,6 +22,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		string icon;
+		string title;
 
 		public IReadOnlyList<ITreeNode> Children => null;
 

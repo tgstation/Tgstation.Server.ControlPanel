@@ -1,5 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views.Pages"
         x:Class="Tgstation.Server.ControlPanel.Views.Pages.UserManager">
   <Grid Background="#CFD6E5">
     <Grid.RowDefinitions>
@@ -43,6 +44,10 @@
           <TextBlock Text="System Identifier:"/>
           <TextBlock Text="{Binding PageContext.ActiveObject.User.SystemIdentifier}" Margin="5,0,0,0"/>
         </StackPanel>
+        <StackPanel Orientation="Horizontal" IsVisible="{Binding PageContext.ActiveObject.IsGroupedUser}">
+          <TextBlock Text="Group:"/>
+          <TextBlock Text="{Binding PageContext.ActiveObject.User.Group.Name}" Margin="5,0,0,0"/>
+        </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
         <StackPanel Orientation="Horizontal">
@@ -66,110 +71,15 @@
             <TextBlock Text="Confirm Password:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
             <TextBox PasswordChar="*" Watermark="{Binding PageContext.ActiveObject.PasswordLength}" Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" IsEnabled="{Binding PageContext.ActiveObject.CanEditPassword}" Text="{Binding PageContext.ActiveObject.PasswordConfirm, Mode=TwoWay}"/>
           </Grid>
+          <Button Content="Save User Settings" Command="{Binding PageContext.ActiveObject.Save}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+
+          <StackPanel Orientation="Vertical" IsVisible="{Binding PageContext.ActiveObject.IsGroupedUser}">
+            <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+            <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+            <Button Content="Remove User From Group" Command="{Binding PageContext.ActiveObject.RemoveFromGroup}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          </StackPanel>
         </StackPanel>
-        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
-        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-        <TextBlock Text="Administration Rights:" FontSize="16"/>
-        <Grid IsEnabled="{Binding PageContext.ActiveObject.CanEditRights}">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="1*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
-          </Grid.RowDefinitions>
-          <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminWriteUsers, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Edit Users" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminEditPassword, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Edit Own Password (Not Applicable For System Users)" Margin="5,4,0,0" IsVisible="{Binding PageContext.ActiveObject.IsSystemUser}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Edit Own Password" Margin="5,4,0,0" IsVisible="{Binding !PageContext.ActiveObject.IsSystemUser}"/>
-          </DockPanel>
-          <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminRestartServer, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Restart Server" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminChangeVersion, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Change Server Version" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="0" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminReadUsers, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Read Users" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="1" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AdminLogs, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Download Server Logs" Margin="5,4,0,0" />
-          </DockPanel>
-        </Grid>
-        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
-        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-        <TextBlock Text="Instance Manager Rights:" FontSize="16"/>
-        <Grid IsEnabled="{Binding PageContext.ActiveObject.CanEditRights}">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="1*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
-          </Grid.RowDefinitions>
-          <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceRead, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Read Info of Accessible Instances" ToolTip.Tip="Accessible means instances they have an instance user for" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceList, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="View All Instances" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceDelete, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Detach Instances" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceCreate, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Create new Instances" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="0" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceRename, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Rename Instances" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="1" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceRelocate, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Relocate Instances" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="0" Grid.Row="3" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceOnline, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Online and Offline Instances" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="1" Grid.Row="3" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceConfig, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Change Instance Configuration Modes" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="0" Grid.Row="4" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceUpdate, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Manage Instance Auto Updating" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="1" Grid.Row="4" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceChatLimit, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Set Chat Bot Limits" Margin="5,4,0,0" />
-          </DockPanel>
-          <DockPanel Grid.Column="0" Grid.Row="5" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.InstanceGrant, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Grant Themselves Full Permissions on Instances" Margin="5,4,0,0" />
-          </DockPanel>
-        </Grid>
-        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
-        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-        <Button Content="Save" Command="{Binding PageContext.ActiveObject.Save}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+        <local:PermissionSet IsVisible="{Binding !PageContext.ActiveObject.IsGroupedUser}" Grid.Row="5"/>
       </StackPanel>
     </ScrollViewer>
   </Grid>

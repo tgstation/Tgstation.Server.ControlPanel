@@ -18,11 +18,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			Close,
 			Refresh,
+			RemoveFromGroup,
 			Save
 		}
 
-		public AdministrationRights AdministrationRights => user.AdministrationRights.Value;
-		public InstanceManagerRights InstanceManagerRights => user.InstanceManagerRights.Value;
+		public AdministrationRights AdministrationRights => user.GetPermissionSet().AdministrationRights.Value;
+		public InstanceManagerRights InstanceManagerRights => user.GetPermissionSet().InstanceManagerRights.Value;
 		public bool IsExpanded { get; set; }
 
 		public User User
@@ -33,29 +34,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				using (DelayChangeNotifications())
 				{
 					this.RaiseAndSetIfChanged(ref user, value);
-					newInstanceManagerRights = user.InstanceManagerRights.Value;
-					newAdministrationRights = user.AdministrationRights.Value;
-
-					this.RaisePropertyChanged(nameof(AdminWriteUsers));
-					this.RaisePropertyChanged(nameof(AdminReadUsers));
-					this.RaisePropertyChanged(nameof(AdminEditPassword));
-					this.RaisePropertyChanged(nameof(AdminChangeVersion));
-					this.RaisePropertyChanged(nameof(AdminRestartServer));
-					this.RaisePropertyChanged(nameof(AdminLogs));
-
-					this.RaisePropertyChanged(nameof(InstanceConfig));
-					this.RaisePropertyChanged(nameof(InstanceCreate));
-					this.RaisePropertyChanged(nameof(InstanceDelete));
-					this.RaisePropertyChanged(nameof(InstanceOnline));
-					this.RaisePropertyChanged(nameof(InstanceList));
-					this.RaisePropertyChanged(nameof(InstanceRead));
-					this.RaisePropertyChanged(nameof(InstanceRelocate));
-					this.RaisePropertyChanged(nameof(InstanceRename));
-					this.RaisePropertyChanged(nameof(InstanceUpdate));
-					this.RaisePropertyChanged(nameof(InstanceChatLimit));
-					this.RaisePropertyChanged(nameof(InstanceGrant));
-
 					this.RaisePropertyChanged(nameof(IsSystemUser));
+					UpdatePermissionSet();
 				}
 			}
 		}
@@ -102,6 +82,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public EnumCommand<UserCommand> Refresh { get; }
 
+		public EnumCommand<UserCommand> RemoveFromGroup { get; }
+
 		public EnumCommand<UserCommand> Save { get; }
 
 		public IReadOnlyList<ITreeNode> Children => null;
@@ -112,225 +94,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref enabled, value);
 		}
 
-		public bool AdminWriteUsers
-		{
-			get => newAdministrationRights.HasFlag(AdministrationRights.WriteUsers);
-			set
-			{
-				var right = AdministrationRights.WriteUsers;
-				if (value)
-					newAdministrationRights |= right;
-				else
-					newAdministrationRights &= ~right;
-			}
-		}
-		public bool AdminReadUsers
-		{
-			get => newAdministrationRights.HasFlag(AdministrationRights.ReadUsers);
-			set
-			{
-				var right = AdministrationRights.ReadUsers;
-				if (value)
-					newAdministrationRights |= right;
-				else
-					newAdministrationRights &= ~right;
-			}
-		}
-		public bool AdminEditPassword
-		{
-			get => newAdministrationRights.HasFlag(AdministrationRights.EditOwnPassword);
-			set
-			{
-				var right = AdministrationRights.EditOwnPassword;
-				if (value)
-					newAdministrationRights |= right;
-				else
-					newAdministrationRights &= ~right;
-			}
-		}
-
-		public bool AdminRestartServer
-		{
-			get => newAdministrationRights.HasFlag(AdministrationRights.RestartHost);
-			set
-			{
-				var right = AdministrationRights.RestartHost;
-				if (value)
-					newAdministrationRights |= right;
-				else
-					newAdministrationRights &= ~right;
-			}
-		}
-
-		public bool AdminChangeVersion
-		{
-			get => newAdministrationRights.HasFlag(AdministrationRights.ChangeVersion);
-			set
-			{
-				var right = AdministrationRights.ChangeVersion;
-				if (value)
-					newAdministrationRights |= right;
-				else
-					newAdministrationRights &= ~right;
-			}
-		}
-		public bool AdminLogs
-		{
-			get => newAdministrationRights.HasFlag(AdministrationRights.DownloadLogs);
-			set
-			{
-				var right = AdministrationRights.DownloadLogs;
-				if (value)
-					newAdministrationRights |= right;
-				else
-					newAdministrationRights &= ~right;
-			}
-		}
-
 		public bool CanEditPassword
 		{
 			get => canEditPassword;
 			set => this.RaiseAndSetIfChanged(ref canEditPassword, value);
 		}
 
-		public bool CanEditRights
-		{
-			get => canEditRights;
-			set => this.RaiseAndSetIfChanged(ref canEditRights, value);
-		}
+		public bool IsGroupedUser => User.Group != null;
 
-		public bool InstanceCreate
-		{
-			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.Create);
-			set
-			{
-				var right = InstanceManagerRights.Create;
-				if (value)
-					newInstanceManagerRights |= right;
-				else
-					newInstanceManagerRights &= ~right;
-			}
-		}
-		public bool InstanceRead
-		{
-			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.Read);
-			set
-			{
-				var right = InstanceManagerRights.Read;
-				if (value)
-					newInstanceManagerRights |= right;
-				else
-					newInstanceManagerRights &= ~right;
-			}
-		}
-		public bool InstanceRename
-		{
-			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.Rename);
-			set
-			{
-				var right = InstanceManagerRights.Rename;
-				if (value)
-					newInstanceManagerRights |= right;
-				else
-					newInstanceManagerRights &= ~right;
-			}
-		}
-		public bool InstanceRelocate
-		{
-			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.Relocate);
-			set
-			{
-				var right = InstanceManagerRights.Relocate;
-				if (value)
-					newInstanceManagerRights |= right;
-				else
-					newInstanceManagerRights &= ~right;
-			}
-		}
-		public bool InstanceOnline
-		{
-			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.SetOnline);
-			set
-			{
-				var right = InstanceManagerRights.SetOnline;
-				if (value)
-					newInstanceManagerRights |= right;
-				else
-					newInstanceManagerRights &= ~right;
-			}
-		}
-		public bool InstanceDelete
-		{
-			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.Delete);
-			set
-			{
-				var right = InstanceManagerRights.Delete;
-				if (value)
-					newInstanceManagerRights |= right;
-				else
-					newInstanceManagerRights &= ~right;
-			}
-		}
-		public bool InstanceList
-		{
-			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.List);
-			set
-			{
-				var right = InstanceManagerRights.List;
-				if (value)
-					newInstanceManagerRights |= right;
-				else
-					newInstanceManagerRights &= ~right;
-			}
-		}
-		public bool InstanceConfig
-		{
-			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.SetConfiguration);
-			set
-			{
-				var right = InstanceManagerRights.SetConfiguration;
-				if (value)
-					newInstanceManagerRights |= right;
-				else
-					newInstanceManagerRights &= ~right;
-			}
-		}
-		public bool InstanceUpdate
-		{
-			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.SetAutoUpdate);
-			set
-			{
-				var right = InstanceManagerRights.SetAutoUpdate;
-				if (value)
-					newInstanceManagerRights |= right;
-				else
-					newInstanceManagerRights &= ~right;
-			}
-		}
-		public bool InstanceChatLimit
-		{
-			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.SetChatBotLimit);
-			set
-			{
-				var right = InstanceManagerRights.SetChatBotLimit;
-				if (value)
-					newInstanceManagerRights |= right;
-				else
-					newInstanceManagerRights &= ~right;
-			}
-		}
-		public bool InstanceGrant
-		{
-			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.GrantPermissions);
-			set
-			{
-				var right = InstanceManagerRights.GrantPermissions;
-				if (value)
-					newInstanceManagerRights |= right;
-				else
-					newInstanceManagerRights &= ~right;
-			}
-		}
+		public PermissionSetViewModel PermissionSetViewModel { get; private set; }
 
 		public string PasswordLength => $"Minimum Length: {serverInformation.MinimumPasswordLength}";
 
@@ -341,15 +113,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IUsersClient usersClient;
 		readonly PageContextViewModel pageContext;
 
-		InstanceManagerRights newInstanceManagerRights;
-		AdministrationRights newAdministrationRights;
-
 		User user;
 
 		bool refreshing;
 		bool error;
 		bool canEditPassword;
-		bool canEditRights;
 		bool enabled;
 
 		string newPassword;
@@ -359,12 +127,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			this.usersClient = usersClient ?? throw new ArgumentNullException(nameof(usersClient));
 			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
-			User = user ?? throw new ArgumentNullException(nameof(user));
+			if (user == null)
+				throw new ArgumentNullException(nameof(user));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.userRightsProvider = userRightsProvider ?? this;
 
+			User = user;
+
 			Close = new EnumCommand<UserCommand>(UserCommand.Close, this);
 			Refresh = new EnumCommand<UserCommand>(UserCommand.Refresh, this);
+			RemoveFromGroup = new EnumCommand<UserCommand>(UserCommand.RemoveFromGroup, this);
 			Save = new EnumCommand<UserCommand>(UserCommand.Save, this);
 
 			NewPassword = String.Empty;
@@ -373,16 +145,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Enabled = User.Enabled.Value;
 			void SetLocks()
 			{
-				CanEditRights = this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers);
-				CanEditPassword = CanEditRights || (this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.EditOwnPassword) && this.userRightsProvider == this);
+				CanEditPassword = this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers) || (this.userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.EditOwnPassword) && this.userRightsProvider == this);
 			};
-			SetLocks();
 
 			this.userRightsProvider.OnUpdated += (a, b) =>
 			{
 				using (DelayChangeNotifications())
 					SetLocks();
 			};
+
+			UpdatePermissionSet();
 		}
 
 		public Task HandleClick(CancellationToken cancellationToken)
@@ -397,6 +169,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				case UserCommand.Close:
 					return true;
+				case UserCommand.RemoveFromGroup:
+					return User.Group != null;
 				case UserCommand.Save:
 					var changedPassword = (NewPassword?.Length ?? 0 + PasswordConfirm?.Length ?? 0) > 0;
 					if (changedPassword)
@@ -448,18 +222,29 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					await RunRequest(async () => User = await usersClient.GetId(user, cancellationToken).ConfigureAwait(true)).ConfigureAwait(true);
 					OnUpdated?.Invoke(this, new EventArgs());
 					break;
-				case UserCommand.Save:
+				case UserCommand.RemoveFromGroup:
 					var update = new UserUpdate
 					{
 						Id = User.Id,
-						AdministrationRights = newAdministrationRights,
-						InstanceManagerRights = newInstanceManagerRights,
+						PermissionSet = new PermissionSet
+						{
+							AdministrationRights = User.Group.PermissionSet.AdministrationRights,
+							InstanceManagerRights = User.Group.PermissionSet.InstanceManagerRights,
+						}
+					};
+					await RunRequest(async () => User = await usersClient.Update(update, cancellationToken).ConfigureAwait(false)).ConfigureAwait(true);
+					UpdatePermissionSet();
+					break;
+				case UserCommand.Save:
+					var update2 = new UserUpdate
+					{
+						Id = User.Id,
 						Enabled = Enabled
 					};
 					if (NewPassword.Length > 0)
-						update.Password = NewPassword;
-					await RunRequest(async () => User = await usersClient.Update(update, cancellationToken).ConfigureAwait(false)).ConfigureAwait(true);
-					OnUpdated?.Invoke(this, new EventArgs());
+						update2.Password = NewPassword;
+					await RunRequest(async () => User = await usersClient.Update(update2, cancellationToken).ConfigureAwait(false)).ConfigureAwait(true);
+					UpdatePermissionSet();
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
@@ -472,6 +257,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Refresh.Recheck();
 				Save.Recheck();
 			}
+		}
+
+		void UpdatePermissionSet()
+		{
+			if (User.PermissionSet != null)
+				PermissionSetViewModel = new PermissionSetViewModel(userRightsProvider, usersClient, User);
+			else
+				PermissionSetViewModel = null;
+
+			this.RaisePropertyChanged(nameof(PermissionSetViewModel));
+			this.RaisePropertyChanged(nameof(IsGroupedUser));
+
+			OnUpdated?.Invoke(this, new EventArgs());
 		}
 	}
 }

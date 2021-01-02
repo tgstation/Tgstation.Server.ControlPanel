@@ -107,7 +107,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (hasReadRight)
 					try
 					{
-						var instances = await instanceManagerClient.List(cancellationToken).ConfigureAwait(false);
+						var instances = await instanceManagerClient.List(null, cancellationToken).ConfigureAwait(false);
 
 						newChildren = new List<ITreeNode>();
 						if (hasCreateRight)

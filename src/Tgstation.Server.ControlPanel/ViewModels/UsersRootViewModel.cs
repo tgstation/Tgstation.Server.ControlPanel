@@ -34,13 +34,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly UserViewModel currentUser;
 		readonly ServerInformation serverInformation;
 
+		readonly UserGroupRootViewModel groupsRootViewModel;
 		IReadOnlyList<ITreeNode> children;
 		IReadOnlyList<User> lastUsers;
 		bool loading;
 
 		string icon;
 
-		public UsersRootViewModel(IUsersClient usersClient, ServerInformation serverInformation, PageContextViewModel pageContext, UserViewModel currentUser)
+		public UsersRootViewModel(IUsersClient usersClient, IUserGroupsClient groupsClient, ServerInformation serverInformation, PageContextViewModel pageContext, UserViewModel currentUser)
 		{
 			this.usersClient = usersClient ?? throw new ArgumentNullException(nameof(usersClient));
 			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
@@ -48,6 +49,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
 
 
+			groupsRootViewModel = new UserGroupRootViewModel(usersClient, this, pageContext, serverInformation, currentUser, groupsClient);
 			async void FirstLoad() => await Refresh(default).ConfigureAwait(false);
 			FirstLoad();
 			currentUser.OnUpdated += (a, b) => FirstLoad();
@@ -62,7 +64,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				loading = true;
 			}
 
-			if (!currentUser.AdministrationRights.HasFlag(AdministrationRights.WriteUsers))
+			if (!currentUser.AdministrationRights.HasFlag(AdministrationRights.ReadUsers))
 			{
 				Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg";
 				Children = null;
@@ -78,23 +80,29 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			};
 			Children = new List<ITreeNode>
 			{
+				groupsRootViewModel,
 				basic
 			};
 
 			try
 			{
-				lastUsers = await usersClient.List(cancellationToken).ConfigureAwait(false);
+				Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
+				var groupsRefreshTask = groupsRootViewModel.Refresh(cancellationToken);
+				lastUsers = await usersClient.List(null, cancellationToken).ConfigureAwait(false);
+				await groupsRefreshTask.ConfigureAwait(false);
 				var newChildren = new List<ITreeNode>
 				{
-					lastUsers.Count < serverInformation.UserLimit ? (ITreeNode)auvm : new BasicNode
+					groupsRootViewModel
+				};
+
+				if (currentUser.AdministrationRights.HasFlag(AdministrationRights.WriteUsers))
+					newChildren.Add(lastUsers.Count < serverInformation.UserLimit ? (ITreeNode)auvm : new BasicNode
 					{
 						Title = "User Limit Reached",
 						Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg"
-					}
-				};
+					});
 				newChildren.AddRange(lastUsers.Where(x => x.Id != currentUser.User.Id).Select(x => new UserViewModel(usersClient, serverInformation, x, pageContext, currentUser)));
 				Children = newChildren;
-				Icon = "resm:Tgstation.Server.ControlPanel.Assets.folder.png";
 			}
 			catch (InsufficientPermissionsException)
 			{
@@ -130,5 +138,29 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public Task HandleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
 
 		public IReadOnlyList<User> GetUsers() => lastUsers;
+
+		public IReadOnlyList<UserGroup> GetGroups() => groupsRootViewModel?.GetGroups();
+
+		public void ForceUpdate(User updatedUser)
+		{
+			if (updatedUser.Id == currentUser.User.Id)
+			{
+				currentUser.User = updatedUser;
+				return;
+			}
+
+			var updatedLastUsers = new List<User>(lastUsers);
+			updatedLastUsers.RemoveAll(x => x.Id == updatedUser.Id);
+			updatedLastUsers.Add(updatedUser);
+
+			var newModel = new UserViewModel(usersClient, serverInformation, updatedUser, pageContext, currentUser);
+			var newChildren = new List<ITreeNode>(Children);
+
+			newChildren.RemoveAll(x => x is UserViewModel uvm && uvm.User.Id == updatedUser.Id);
+			newChildren.Add(newModel);
+
+			lastUsers = updatedLastUsers;
+			Children = newChildren;
+		}
 	}
 }

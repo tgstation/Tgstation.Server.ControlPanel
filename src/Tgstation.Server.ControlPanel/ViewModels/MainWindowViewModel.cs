@@ -12,6 +12,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -321,6 +322,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			if (requestMessage.Headers.TryGetValues("Instance", out var values))
 				instancePart = String.Format(CultureInfo.InvariantCulture, " I:{0}", values.First());
 			var bodyPart = String.Empty;
+
+			if (requestMessage.Content is StreamContent)
+			{
+				AddToConsole($"{requestMessage.Method} {requestMessage.RequestUri}{instancePart} => <STREAM>");
+				return;
+			}
+
 			var bodyString = await (requestMessage.Content?.ReadAsStringAsync() ?? Task.FromResult<string>(null)).ConfigureAwait(false);
 			if (!String.IsNullOrEmpty(bodyString))
 			{
@@ -328,7 +336,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				CensorBodyString<UserUpdate>(x => x.Password, ref bodyString);
 				CensorBodyString<Repository>(x => x.AccessToken, ref bodyString);
 				CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString);
-				CensorBodyString<ConfigurationFile>(x => x.Content, ref bodyString);
 
 				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			}
@@ -342,6 +349,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var instancePart = String.Empty;
 			if (requestMessage.Headers.TryGetValues("Instance", out var values))
 				instancePart = String.Format(CultureInfo.InvariantCulture, " I:{0}", values.First());
+
+			if (responseMessage.Content.Headers.ContentType?.MediaType == MediaTypeNames.Application.Octet)
+			{
+				AddToConsole($"HTTP {responseMessage.StatusCode}: {requestMessage.Method} {requestMessage.RequestUri}{instancePart} => <STREAM>");
+				return;
+			}
+
 			var bodyString = await (responseMessage.Content?.ReadAsStringAsync() ?? Task.FromResult<string>(null)).ConfigureAwait(false);
 			if (responseMessage.StatusCode == HttpStatusCode.InternalServerError)
 			{
@@ -356,8 +370,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				CensorBodyString<Repository>(x => x.AccessToken, ref bodyString);
 				CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString);
 				CensorBodyString<Token>(x => x.Bearer, ref bodyString);
-				CensorBodyString<LogFile>(x => x.Content, ref bodyString);
-				CensorBodyString<ConfigurationFile>(x => x.Content, ref bodyString);
 
 				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			}

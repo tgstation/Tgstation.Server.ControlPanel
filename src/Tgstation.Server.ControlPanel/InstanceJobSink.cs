@@ -102,7 +102,7 @@ namespace Tgstation.Server.ControlPanel
 
 		public async Task InitialQuery(IJobsClient jobsClient, CancellationToken cancellationToken)
 		{
-			var jobs = await jobsClient.ListActive(cancellationToken).ConfigureAwait(false);
+			var jobs = await jobsClient.ListActive(null, cancellationToken).ConfigureAwait(false);
 			lock (trackedJobs)
 				foreach (var I in jobs)
 					RegisterJob(I);
