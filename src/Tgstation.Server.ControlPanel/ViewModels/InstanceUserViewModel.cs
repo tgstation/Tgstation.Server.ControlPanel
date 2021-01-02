@@ -21,7 +21,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Title => rightsProvider == this ? "Current " + (isForGroup ? "Group" : "User") : displayName;
 
-		public string Icon => isForGroup ? "resm:Tgstation.Server.ControlPanel.Assets.user.png" : "resm:Tgstation.Server.ControlPanel.Assets.group.png";
+		public string Icon => !isForGroup ? "resm:Tgstation.Server.ControlPanel.Assets.user.png" : "resm:Tgstation.Server.ControlPanel.Assets.group.png";
 
 		public string DeleteText => confirmingDelete ? "Confirm?" : "Delete";
 
