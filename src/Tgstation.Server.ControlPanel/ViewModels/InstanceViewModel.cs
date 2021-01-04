@@ -286,7 +286,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public async Task RunCommand(InstanceCommand command, CancellationToken cancellationToken)
 		{
-			async Task Update(Instance newInstance)
+			async Task Update(Instance newInstance, bool grant)
 			{
 				loading = true;
 				try
@@ -294,7 +294,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Save.Recheck();
 					Delete.Recheck();
 					FixPerms.Recheck();
-					Instance = await instanceManagerClient.Update(newInstance, cancellationToken).ConfigureAwait(true);
+					if (!grant)
+						Instance = await instanceManagerClient.Update(newInstance, cancellationToken).ConfigureAwait(true);
+					else
+						await instanceManagerClient.GrantPermissions(newInstance, cancellationToken).ConfigureAwait(true);
 					await PostRefresh(cancellationToken).ConfigureAwait(true);
 				}
 				finally
@@ -331,7 +334,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						if (CanChatBot)
 							newInstance.ChatBotLimit = NewChatBotLimit;
 
-						await Update(newInstance).ConfigureAwait(true);
+						await Update(newInstance, false).ConfigureAwait(true);
 						break;
 					case InstanceCommand.Delete:
 						if (!deleteConfirming)
@@ -355,7 +358,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						await Update(new Instance
 						{
 							Id = Instance.Id
-						}).ConfigureAwait(true);
+						}, true).ConfigureAwait(true);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
