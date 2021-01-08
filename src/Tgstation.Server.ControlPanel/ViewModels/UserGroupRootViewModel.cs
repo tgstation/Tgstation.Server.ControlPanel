@@ -111,7 +111,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 		public Task HandleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
 
-		public IReadOnlyList<UserGroup> GetGroups() => lastGroups.ToList();
+		public IReadOnlyList<UserGroup> GetGroups() => lastGroups?.ToList();
 
 		public void DirectAdd(UserGroup group)
 		{

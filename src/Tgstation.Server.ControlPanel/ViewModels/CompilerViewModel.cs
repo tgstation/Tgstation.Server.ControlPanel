@@ -264,10 +264,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				async Task AssignModel() => Model = await (CanRead ? dreamMakerClient.Read(cancellationToken) : Task.FromResult<DreamMaker>(null)).ConfigureAwait(true);
 
 				var readTask = AssignModel();
-
+				
 				var jobsTask = CanGetJobs ? dreamMakerClient.ListCompileJobs(new Client.PaginationSettings
 				{
-					PageSize = 1
+					PageSize = 100,
+					RetrieveCount = 500
 				}, cancellationToken) : Task.FromResult<IReadOnlyList<EntityId>>(null);
 				
 				jobIds = await jobsTask.ConfigureAwait(true);
