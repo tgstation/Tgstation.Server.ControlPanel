@@ -169,7 +169,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		
 		readonly Dictionary<int, IReadOnlyList<CompileJobViewModel>> jobPages;
 
-		IReadOnlyList<EntityId> jobIds;
+		IReadOnlyList<CompileJob> jobIds;
 		int selectedPage;
 		int numPages;
 
@@ -271,7 +271,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					RetrieveCount = 500
 				}, cancellationToken) : Task.FromResult<IReadOnlyList<EntityId>>(null);
 				
-				jobIds = await jobsTask.ConfigureAwait(true);
+				jobIds = (await jobsTask.ConfigureAwait(true)).OfType<CompileJob>().ToList();
 				numPages = (jobIds.Count / JobsPerPage) + (jobIds.Count > JobsPerPage && ((jobIds.Count % JobsPerPage) > 0) ? 1 : 0);
 				this.RaisePropertyChanged(nameof(ViewNumPages));
 				jobPages.Clear();
@@ -300,7 +300,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				var baseIndex = JobsPerPage * selectedPage;
 				var limitIndex = Math.Min(baseIndex + JobsPerPage, jobIds.Count);
 				for (var I = baseIndex; I < limitIndex; ++I)
-					tasks.Add(dreamMakerClient.GetCompileJob(jobIds[I], cancellationToken));
+					tasks.Add(Task.FromResult(jobIds[I]));
 
 				await Task.WhenAll(tasks).ConfigureAwait(true);
 				jobPages.Add(selectedPage, tasks.Select(x => new CompileJobViewModel(x.Result)).ToList());
