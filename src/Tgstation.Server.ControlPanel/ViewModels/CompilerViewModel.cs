@@ -269,7 +269,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					PageSize = 100,
 					RetrieveCount = 500
-				}, cancellationToken) : Task.FromResult<IReadOnlyList<EntityId>>(null);
+				}, cancellationToken) : Task.FromResult<IReadOnlyList<CompileJob>>(null);
 				
 				jobIds = (await jobsTask.ConfigureAwait(true)).OfType<CompileJob>().ToList();
 				numPages = (jobIds.Count / JobsPerPage) + (jobIds.Count > JobsPerPage && ((jobIds.Count % JobsPerPage) > 0) ? 1 : 0);
