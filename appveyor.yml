@@ -5,7 +5,7 @@ branches:
   only:
     - master
 skip_tags: true
-image: Visual Studio 2017
+image: Visual Studio 2019
 configuration:
   - Debug
   - Release
@@ -29,7 +29,7 @@ build:
   parallel: false
   verbosity: minimal
 after_test:
-  - ps: $env:TGCPVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$env:APPVEYOR_BUILD_FOLDER/src/Tgstation.Server.ControlPanel/bin/$env:CONFIGURATION/netcoreapp2.1/Tgstation.Server.ControlPanel.dll").FileVersion
+  - ps: $env:TGCPVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$env:APPVEYOR_BUILD_FOLDER/src/Tgstation.Server.ControlPanel/bin/$env:CONFIGURATION/netcoreapp3.1/Tgstation.Server.ControlPanel.dll").FileVersion
   - ps: if($env:APPVEYOR_REPO_COMMIT_MESSAGE -match "\[TGSDeploy\]"){ if($env:APPVEYOR_REPO_BRANCH -match "master"){ if($env:CONFIGURATION -match "Release"){ $env:TGSDeploy = "Do it." }}}
 deploy:
   - provider: GitHub
