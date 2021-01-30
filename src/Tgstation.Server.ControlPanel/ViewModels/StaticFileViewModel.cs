@@ -320,7 +320,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var fileTuple = await configurationClient.Read(ConfigurationFile, cancellationToken);
 					using (fileTuple.Item2)
 					using (var fileStream = new FileStream(DownloadPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, 8192, true))
-						await fileTuple.Item2.CopyToAsync(fileStream).ConfigureAwait(false);
+						await fileTuple.Item2.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
 					ControlPanel.OpenFolder(System.IO.Path.GetDirectoryName(DownloadPath));
 					break;
 				case StaticFileCommand.Upload:
@@ -337,7 +337,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						async void ResetDelete()
 						{
-							await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
+							await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(true);
 							confirmingDelete = false;
 							this.RaisePropertyChanged(nameof(DeleteText));
 						}
@@ -382,7 +382,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						using var memoryStream = new MemoryStream();
 						var fileTuple2 = await configurationClient.Read(ConfigurationFile, cancellationToken);
 						using (fileTuple2.Item2)
-							await fileTuple2.Item2.CopyToAsync(memoryStream).ConfigureAwait(false);
+							await fileTuple2.Item2.CopyToAsync(memoryStream, cancellationToken).ConfigureAwait(false);
 						try
 						{
 							TextBlob = Encoding.UTF8.GetString(memoryStream.ToArray());

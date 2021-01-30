@@ -142,7 +142,7 @@ namespace Tgstation.Server.ControlPanel
 				foreach (var I in trackedJobs)
 					tasks.Add(WrapJobDisconnected(I.Value));
 
-			Task.WhenAll(tasks).ContinueWith((a) => linkedSource.Dispose());
+			Task.WhenAll(tasks).ContinueWith((a) => linkedSource.Dispose(), cancellationToken);
 
 			return tasks.Select(x => x.ToObservable()).Merge();
 		}

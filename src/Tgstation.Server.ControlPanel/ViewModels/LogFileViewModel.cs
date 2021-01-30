@@ -71,7 +71,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						var fullLogTuple = await administrationClient.GetLog(logFile, cancellationToken);
 						using var fileStream = new FileStream(savePath, FileMode.Create);
-						await fullLogTuple.Item2.CopyToAsync(fileStream);
+						await fullLogTuple.Item2.CopyToAsync(fileStream, cancellationToken);
 					}
 				}
 			}
