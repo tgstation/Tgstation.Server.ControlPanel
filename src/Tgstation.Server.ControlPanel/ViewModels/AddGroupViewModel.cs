@@ -1,8 +1,8 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
 
@@ -56,7 +56,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Add = new EnumCommand<AddGroupCommand>(AddGroupCommand.Add, this);
 			Close = new EnumCommand<AddGroupCommand>(AddGroupCommand.Close, this);
 
-			GroupName = String.Empty;
+			GroupName = string.Empty;
 		}
 
 		public Task HandleClick(CancellationToken cancellationToken)
@@ -67,15 +67,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(AddGroupCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case AddGroupCommand.Add:
-					return userRightsProvider.AdministrationRights.HasFlag(Api.Rights.AdministrationRights.WriteUsers) && !String.IsNullOrWhiteSpace(GroupName);
-				case AddGroupCommand.Close:
-					return true;
-			}
-
-			return false;
+				AddGroupCommand.Add => userRightsProvider.AdministrationRights.HasFlag(Api.Rights.AdministrationRights.WriteUsers) && !string.IsNullOrWhiteSpace(GroupName),
+				AddGroupCommand.Close => true,
+				_ => false,
+			};
 		}
 
 		public async Task RunCommand(AddGroupCommand command, CancellationToken cancellationToken)
@@ -89,7 +86,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					},
 					cancellationToken);
 
-					GroupName = String.Empty;
+					GroupName = string.Empty;
 
 					userGroupRootViewModel.DirectAdd(group);
 					break;

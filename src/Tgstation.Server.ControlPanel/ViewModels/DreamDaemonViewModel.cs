@@ -1,10 +1,10 @@
-﻿using Avalonia.Media;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Media;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
@@ -340,7 +340,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				NewPrimaryPort = Model.Port ?? 0;
 				NewAutoStart = Model.AutoStart ?? false;
 				NewAllowWebClient = Model.AllowWebClient ?? false;
-				NewAdditionalParams = Model.AdditionalParameters ?? String.Empty;
+				NewAdditionalParams = Model.AdditionalParameters ?? string.Empty;
 				initalSecurityLevel = Model.SecurityLevel;
 
 				ClearSoft = true;

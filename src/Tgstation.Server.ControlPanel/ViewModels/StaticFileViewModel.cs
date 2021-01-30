@@ -1,14 +1,14 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
@@ -88,7 +88,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => textBlob;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref textBlob, value.Replace("\r", String.Empty));
+				this.RaiseAndSetIfChanged(ref textBlob, value.Replace("\r", string.Empty));
 				this.RaisePropertyChanged(nameof(IsText));
 				textChanged = true;
 				Write.Recheck();
@@ -144,7 +144,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<StaticFileCommand> BrowseDownload { get; }
 		public EnumCommand<StaticFileCommand> EnableEditor { get; }
 
-		public string Title =>  System.IO.Path.GetFileName(Path);
+		public string Title => System.IO.Path.GetFileName(Path);
 
 		public string Icon => Refreshing ? "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png" : Denied ? "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg" : "resm:Tgstation.Server.ControlPanel.Assets.file.png";
 
@@ -225,7 +225,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				await fileTuple.Item2.DisposeAsync();
 				DirectLoad(fileTuple.Item1);
 			}
-			catch(ClientException e)
+			catch (ClientException e)
 			{
 				ErrorMessage = e.Message;
 				Denied = e is InsufficientPermissionsException;
@@ -320,7 +320,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var fileTuple = await configurationClient.Read(ConfigurationFile, cancellationToken);
 					using (fileTuple.Item2)
 					using (var fileStream = new FileStream(DownloadPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, 8192, true))
-						await fileTuple.Item2.CopyToAsync(fileStream).ConfigureAwait(false);
+						await fileTuple.Item2.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
 					ControlPanel.OpenFolder(System.IO.Path.GetDirectoryName(DownloadPath));
 					break;
 				case StaticFileCommand.Upload:
@@ -331,13 +331,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					await WriteGeneric(new MemoryStream(Encoding.UTF8.GetBytes(TextBlob))).ConfigureAwait(true);
 					break;
 				case StaticFileCommand.Delete:
-					if(confirmingDelete)
+					if (confirmingDelete)
 						await WriteGeneric(null).ConfigureAwait(true);
 					else
 					{
 						async void ResetDelete()
 						{
-							await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
+							await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(true);
 							confirmingDelete = false;
 							this.RaisePropertyChanged(nameof(DeleteText));
 						}
@@ -349,20 +349,20 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case StaticFileCommand.BrowseDownload:
 					var sfd = new SaveFileDialog
 					{
-						Title = String.Format(CultureInfo.InvariantCulture, "Save {0}", Path),
+						Title = string.Format(CultureInfo.InvariantCulture, "Save {0}", Path),
 						InitialFileName = System.IO.Path.GetFileName(Path)
 					};
 					var ext = System.IO.Path.GetExtension(Path);
-					if (!String.IsNullOrEmpty(ext))
+					if (!string.IsNullOrEmpty(ext))
 						sfd.DefaultExtension = ext;
-					
+
 					if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime1)
 						DownloadPath = (await sfd.ShowAsync(lifetime1.MainWindow).ConfigureAwait(true)) ?? DownloadPath;
 					break;
 				case StaticFileCommand.BrowseUpload:
 					var ofd = new OpenFileDialog
 					{
-						Title = String.Format(CultureInfo.InvariantCulture, "Upload to {0}", Path),
+						Title = string.Format(CultureInfo.InvariantCulture, "Upload to {0}", Path),
 						InitialFileName = System.IO.Path.GetFileName(Path),
 						AllowMultiple = false
 					};
@@ -382,7 +382,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						using var memoryStream = new MemoryStream();
 						var fileTuple2 = await configurationClient.Read(ConfigurationFile, cancellationToken);
 						using (fileTuple2.Item2)
-							await fileTuple2.Item2.CopyToAsync(memoryStream).ConfigureAwait(false);
+							await fileTuple2.Item2.CopyToAsync(memoryStream, cancellationToken).ConfigureAwait(false);
 						try
 						{
 							TextBlob = Encoding.UTF8.GetString(memoryStream.ToArray());

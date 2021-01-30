@@ -1,6 +1,6 @@
-﻿using Avalonia;
+﻿using System.Linq;
+using Avalonia;
 using Avalonia.ReactiveUI;
-using System.Linq;
 
 namespace Tgstation.Server.ControlPanel
 {

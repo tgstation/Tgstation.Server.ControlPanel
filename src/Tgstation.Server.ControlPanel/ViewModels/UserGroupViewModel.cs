@@ -1,9 +1,9 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
@@ -52,7 +52,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public bool HasError => !String.IsNullOrWhiteSpace(Error);
+		public bool HasError => !string.IsNullOrWhiteSpace(Error);
 
 		public PermissionSetViewModel PermissionSetViewModel { get; private set; }
 
@@ -134,7 +134,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Group = await groupsClient.GetId(Group, cancellationToken).ConfigureAwait(false);
 				UpdateUserStrings();
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Error = ex.Message;
 			}
@@ -153,19 +153,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(UserGroupsCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case UserGroupsCommand.AddUser:
-					return !Loading && SelectedIndex < UserStrings.Count && userProvider.GetUsers() != null && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers);
-				case UserGroupsCommand.Close:
-					return true;
-				case UserGroupsCommand.Delete:
-					return !Loading && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers) && UserCount == 0;
-				case UserGroupsCommand.Refresh:
-					return !Loading && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.ReadUsers);
-			}
-
-			return false;
+				UserGroupsCommand.AddUser => !Loading && SelectedIndex < UserStrings.Count && userProvider.GetUsers() != null && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers),
+				UserGroupsCommand.Close => true,
+				UserGroupsCommand.Delete => !Loading && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers) && UserCount == 0,
+				UserGroupsCommand.Refresh => !Loading && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.ReadUsers),
+				_ => false,
+			};
 		}
 
 		List<User> GetFilteredUsers()

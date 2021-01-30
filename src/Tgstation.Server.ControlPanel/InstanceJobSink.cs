@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
 using Tgstation.Server.Client.Components;
-using Tgstation.Server.ControlPanel.ViewModels;
 
 namespace Tgstation.Server.ControlPanel
 {
@@ -142,7 +141,7 @@ namespace Tgstation.Server.ControlPanel
 				foreach (var I in trackedJobs)
 					tasks.Add(WrapJobDisconnected(I.Value));
 
-			Task.WhenAll(tasks).ContinueWith((a) => linkedSource.Dispose());
+			Task.WhenAll(tasks).ContinueWith((a) => linkedSource.Dispose(), cancellationToken);
 
 			return tasks.Select(x => x.ToObservable()).Merge();
 		}

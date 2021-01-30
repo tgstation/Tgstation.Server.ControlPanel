@@ -1,11 +1,11 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
@@ -65,13 +65,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Working = true;
 			try
 			{
-				if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime) {
+				if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
+				{
 					var savePath = await sfd.ShowAsync(lifetime.MainWindow).ConfigureAwait(true);
 					if (Directory.Exists(System.IO.Path.GetDirectoryName(savePath)))
 					{
 						var fullLogTuple = await administrationClient.GetLog(logFile, cancellationToken);
 						using var fileStream = new FileStream(savePath, FileMode.Create);
-						await fullLogTuple.Item2.CopyToAsync(fileStream);
+						await fullLogTuple.Item2.CopyToAsync(fileStream, cancellationToken);
 					}
 				}
 			}

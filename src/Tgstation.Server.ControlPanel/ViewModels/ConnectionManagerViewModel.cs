@@ -1,11 +1,11 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
 using Tgstation.Server.ControlPanel.Models;
@@ -27,8 +27,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		const string HttpPrefix = "http://";
 		const string HttpsPrefix = "https://";
 
-		public string Title => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", connection.Url, userVM == null ? connection.Username : userVM.User.Name);
-		public bool IsExpanded {
+		public string Title => string.Format(CultureInfo.InvariantCulture, "{0} ({1})", connection.Url, userVM == null ? connection.Username : userVM.User.Name);
+		public bool IsExpanded
+		{
 			get => isExpanded;
 			set => this.RaiseAndSetIfChanged(ref isExpanded, value);
 		}
@@ -120,7 +121,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				try
 				{
-					connection.Url = new Uri(String.Concat(usingHttp ? HttpPrefix : HttpsPrefix, connection.Url.ToString().Remove(0, usingHttp ? HttpsPrefix.Length : HttpPrefix.Length)));
+					connection.Url = new Uri(string.Concat(usingHttp ? HttpPrefix : HttpsPrefix, connection.Url.ToString().Remove(0, usingHttp ? HttpsPrefix.Length : HttpPrefix.Length)));
 					this.RaisePropertyChanged(nameof(ServerAddress));
 					this.RaisePropertyChanged(nameof(Title));
 					Connect.Recheck();
@@ -166,7 +167,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							Password = User.DefaultAdminPassword;
 						}
 						else
-							Password = String.Empty;
+							Password = string.Empty;
 						Connect.Recheck();
 					}
 				}
@@ -209,7 +210,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<ConnectionManagerCommand> Delete { get; }
 
 		readonly Connection connection;
-		
+
 		readonly IServerClientFactory serverClientFactory;
 		readonly IRequestLogger requestLogger;
 
@@ -328,12 +329,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				try
 				{
 					serverInfo = await serverClient.ServerInformation(cancellationToken).ConfigureAwait(false);
-					
-					versionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", versionNode.Title, serverInfo.Version);
-					apiVersionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", apiVersionNode.Title, serverInfo.ApiVersion);
-					dmapiVersionNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", dmapiVersionNode.Title, serverInfo.DMApiVersion);
-					instanceLimitNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", instanceLimitNode.Title, serverInfo.InstanceLimit);
-					userLimitNode.Title = String.Format(CultureInfo.InvariantCulture, "{0}: {1}", userLimitNode.Title, serverInfo.UserLimit);
+
+					versionNode.Title = string.Format(CultureInfo.InvariantCulture, "{0}: {1}", versionNode.Title, serverInfo.Version);
+					apiVersionNode.Title = string.Format(CultureInfo.InvariantCulture, "{0}: {1}", apiVersionNode.Title, serverInfo.ApiVersion);
+					dmapiVersionNode.Title = string.Format(CultureInfo.InvariantCulture, "{0}: {1}", dmapiVersionNode.Title, serverInfo.DMApiVersion);
+					instanceLimitNode.Title = string.Format(CultureInfo.InvariantCulture, "{0}: {1}", instanceLimitNode.Title, serverInfo.InstanceLimit);
+					userLimitNode.Title = string.Format(CultureInfo.InvariantCulture, "{0}: {1}", userLimitNode.Title, serverInfo.UserLimit);
 					fakeSwarmNode.Title = $"Swarm: {(serverInfo.SwarmServers == null ? "Disabled" : $"{serverInfo.SwarmServers.Count} Servers")}";
 					versionNode.Icon = InfoIcon;
 					apiVersionNode.Icon = InfoIcon;
@@ -461,13 +462,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				ConnectionFailed = true;
 				this.RaisePropertyChanged(nameof(ConnectionFailed));
 
-				ErrorMessage = String.Format(CultureInfo.InvariantCulture, "{0} (HTTP {1})", e.Message, e.ResponseMessage.StatusCode);
+				ErrorMessage = string.Format(CultureInfo.InvariantCulture, "{0} (HTTP {1})", e.Message, e.ResponseMessage.StatusCode);
 			}
 			catch (HttpRequestException e)
 			{
 				ConnectionFailed = true;
 				this.RaisePropertyChanged(nameof(ConnectionFailed));
-				ErrorMessage = String.Format(CultureInfo.InvariantCulture, "An HTTP error occurred: {0}", (e.InnerException ?? e).Message);
+				ErrorMessage = string.Format(CultureInfo.InvariantCulture, "An HTTP error occurred: {0}", (e.InnerException ?? e).Message);
 			}
 			finally
 			{
@@ -507,16 +508,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(ConnectionManagerCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case ConnectionManagerCommand.Delete:
-				case ConnectionManagerCommand.Close:
-					return true;
-				case ConnectionManagerCommand.Connect:
-					return connection.Valid && !Connecting;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
+				ConnectionManagerCommand.Delete or ConnectionManagerCommand.Close => true,
+				ConnectionManagerCommand.Connect => connection.Valid && !Connecting,
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
 		}
 
 		public async Task RunCommand(ConnectionManagerCommand command, CancellationToken cancellationToken)
@@ -534,7 +531,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						async void DeleteConfirmTimeout()
 						{
-							await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
+							await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(false);
 							confirmingDelete = false;
 							this.RaisePropertyChanged(nameof(DeleteWord));
 						}

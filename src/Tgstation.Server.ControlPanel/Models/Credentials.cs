@@ -1,10 +1,12 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Tgstation.Server.ControlPanel.Models
 {
+	[SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Handled for linux deployments")]
 	public class Credentials
 	{
 		[JsonIgnore]
@@ -17,7 +19,6 @@ namespace Tgstation.Server.ControlPanel.Models
 			set => Encrypt(value);
 		}
 
-#pragma warning disable CA1819 // Properties should not return arrays
 		public byte[] CipherText
 		{
 			get => AllowSavingPassword ? cipherText : null;
@@ -25,10 +26,10 @@ namespace Tgstation.Server.ControlPanel.Models
 		}
 
 		public byte[] Entropy { get; set; }
-#pragma warning restore CA1819 // Properties should not return arrays
 
 		byte[] cipherText;
 
+		
 		void Encrypt(string cleartext)
 		{
 			if (cleartext == null)
@@ -53,7 +54,7 @@ namespace Tgstation.Server.ControlPanel.Models
 				CipherText = clearTextBytes;
 			}
 		}
-		
+
 		public string Decrypt()
 		{
 			if (cipherText == null)

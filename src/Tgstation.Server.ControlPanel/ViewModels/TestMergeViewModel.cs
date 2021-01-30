@@ -1,12 +1,12 @@
-﻿using Avalonia.Media;
-using Octokit;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Media;
+using Octokit;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
@@ -19,9 +19,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			LoadCommits
 		}
 
-		public string Title => String.Format(CultureInfo.InvariantCulture, "#{0} - {1}", TestMerge.Number, TestMerge.TitleAtMerge);
+		public string Title => string.Format(CultureInfo.InvariantCulture, "#{0} - {1}", TestMerge.Number, TestMerge.TitleAtMerge);
 
-		public string MergedBy => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", TestMerge.MergedBy.Name, TestMerge.MergedBy.Id);
+		public string MergedBy => string.Format(CultureInfo.InvariantCulture, "{0} ({1})", TestMerge.MergedBy.Name, TestMerge.MergedBy.Id);
 		public string MergedAt => TestMerge.MergedAt.ToLocalTime().ToString("g");
 
 		public bool Selected
@@ -79,7 +79,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		TestMergeViewModel(Action<int> onActivate)
 		{
 			this.onActivate = onActivate ?? throw new ArgumentNullException(nameof(onActivate));
-			
+
 			Link = new EnumCommand<TestMergeCommand>(TestMergeCommand.Link, this);
 			LoadCommits = new EnumCommand<TestMergeCommand>(TestMergeCommand.LoadCommits, this);
 		}
@@ -119,7 +119,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			if (commits == null)
 				return;
-			Commits = commits?.Select(x => String.Format(CultureInfo.InvariantCulture, "{0} - {1}", x.Sha.Substring(0, 7), x.Commit.Message.Split('\n').First())).ToList();
+			Commits = commits?.Select(x => string.Format(CultureInfo.InvariantCulture, "{0} - {1}", x.Sha.Substring(0, 7), x.Commit.Message.Split('\n').First())).ToList();
 			this.RaisePropertyChanged(nameof(Commits));
 			this.RaisePropertyChanged(nameof(CommitsLoaded));
 			LoadCommits.Recheck();
@@ -128,15 +128,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(TestMergeCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case TestMergeCommand.Link:
-					return true;
-				case TestMergeCommand.LoadCommits:
-					return !CommitsLoaded;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
+				TestMergeCommand.Link => true,
+				TestMergeCommand.LoadCommits => !CommitsLoaded,
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
 		}
 		public async Task RunCommand(TestMergeCommand command, CancellationToken cancellationToken)
 		{

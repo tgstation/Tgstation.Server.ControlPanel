@@ -1,8 +1,8 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
@@ -167,10 +167,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					instanceJobSink = await serverJobSink?.GetSinkForInstance(instanceClient, default) ?? throw new ArgumentNullException(nameof(serverJobSink));
 				}
-				catch (InsufficientPermissionsException) { }	//we won't be needing it
+				catch (InsufficientPermissionsException) { }    //we won't be needing it
 			await PostRefresh(default).ConfigureAwait(true);
 		}
-	
+
 		public void SetDDRunning(bool yes)
 		{
 			ddRunning = yes;
@@ -185,8 +185,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				ConfigMode = Instance.ConfigurationType.Value;
 				AutoUpdateInterval = Instance.AutoUpdateInterval.Value;
 				NewChatBotLimit = Instance.ChatBotLimit.Value;
-				NewName = String.Empty;
-				NewPath = String.Empty;
+				NewName = string.Empty;
+				NewPath = string.Empty;
 
 				if (!Enabled)
 					return;
@@ -215,7 +215,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, this, userRightsProvider, instanceClient.PermissionSets, instanceUser, InstanceUserRootViewModel.GetDisplayNameForInstanceUser(userProvider, instanceUser), null, null, userProvider.CurrentUser.Group != null);
 
 			instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad(null);
-			
+
 			var newChildren = new List<ITreeNode>
 			{
 				instanceUserTreeNode,
@@ -251,18 +251,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(InstanceCommand command)
 		{
-			switch (command)
+			return command switch
 			{
-				case InstanceCommand.Close:
-					return true;
-				case InstanceCommand.Save:
-				case InstanceCommand.FixPerms:
-					return !loading;
-				case InstanceCommand.Delete:
-					return userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Delete);
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
+				InstanceCommand.Close => true,
+				InstanceCommand.Save or InstanceCommand.FixPerms => !loading,
+				InstanceCommand.Delete => userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Delete),
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
 		}
 		public async Task Refresh(CancellationToken cancellationToken)
 		{
@@ -321,9 +316,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						{
 							Id = Instance.Id
 						};
-						if (!String.IsNullOrWhiteSpace(NewName) && CanRename)
+						if (!string.IsNullOrWhiteSpace(NewName) && CanRename)
 							newInstance.Name = NewName;
-						if (!String.IsNullOrWhiteSpace(NewPath) && CanRelocate)
+						if (!string.IsNullOrWhiteSpace(NewPath) && CanRelocate)
 							newInstance.Path = NewPath;
 						if (CanOnline)
 							newInstance.Online = Enabled;
@@ -341,7 +336,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						{
 							async void ResetDelete()
 							{
-								await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
+								await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(true);
 								deleteConfirming = false;
 								this.RaisePropertyChanged(nameof(DeleteText));
 							}

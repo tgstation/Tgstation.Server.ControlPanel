@@ -1,21 +1,20 @@
-﻿using Avalonia;
+﻿using System;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
-using System;
 
 namespace Tgstation.Server.ControlPanel.Views
 {
-    public class Console : UserControl
-    {
-        public Console()
-        {
-            this.InitializeComponent();
-        }
+	public class Console : UserControl
+	{
+		public Console()
+		{
+			this.InitializeComponent();
+		}
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
+		private void InitializeComponent()
+		{
+			AvaloniaXamlLoader.Load(this);
 
 			var scrollViewer = this.FindControl<TextBox>("_scrollViewer");
 			DispatcherTimer timer = new DispatcherTimer
@@ -24,9 +23,9 @@ namespace Tgstation.Server.ControlPanel.Views
 			};
 			timer.Tick += ((sender, e) =>
 			{
-				scrollViewer.CaretIndex = Int32.MaxValue;
+				scrollViewer.CaretIndex = int.MaxValue;
 			});
 			timer.Start();
 		}
-    }
+	}
 }

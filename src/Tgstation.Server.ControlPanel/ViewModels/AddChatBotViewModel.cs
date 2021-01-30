@@ -1,8 +1,8 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
@@ -27,7 +27,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public EnumCommand<AddChatBotCommand> Close { get; }
 		public EnumCommand<AddChatBotCommand> Add { get; }
-		
+
 		public ChatProvider Provider
 		{
 			get => provider;
@@ -74,7 +74,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(IrcUsingPassword));
 				if (!IrcUsingPassword)
 				{
-					IrcPassword = String.Empty;
+					IrcPassword = string.Empty;
 					this.RaisePropertyChanged(nameof(IrcPassword));
 				}
 				Add.Recheck();
@@ -172,13 +172,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				AddChatBotCommand.Close => true,
 				AddChatBotCommand.Add => !loading
-					&& !String.IsNullOrEmpty(BotName)
+					&& !string.IsNullOrEmpty(BotName)
 					&& rightsProvider.ChatBotRights.HasFlag(ChatBotRights.Create)
-					&& ((DiscordSelected && !String.IsNullOrEmpty(DiscordBotToken))
-						|| (IrcSelected && !String.IsNullOrEmpty(IrcServer)
-						&& !String.IsNullOrEmpty(IrcNick)
-						&& (!IrcUsingPassword 
-						|| !String.IsNullOrEmpty(IrcPassword)))),
+					&& ((DiscordSelected && !string.IsNullOrEmpty(DiscordBotToken))
+						|| (IrcSelected && !string.IsNullOrEmpty(IrcServer)
+						&& !string.IsNullOrEmpty(IrcNick)
+						&& (!IrcUsingPassword
+						|| !string.IsNullOrEmpty(IrcPassword)))),
 				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
 			};
 		}

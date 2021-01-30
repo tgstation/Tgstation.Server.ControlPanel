@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using Newtonsoft.Json;
 using Tgstation.Server.Api.Models;
 
 namespace Tgstation.Server.ControlPanel.Models
@@ -7,7 +7,7 @@ namespace Tgstation.Server.ControlPanel.Models
 	public sealed class Connection
 	{
 		[JsonIgnore]
-		public bool Valid => Url?.Host != null && !String.IsNullOrWhiteSpace(Username) && !String.IsNullOrEmpty(Credentials.Password);
+		public bool Valid => Url?.Host != null && !string.IsNullOrWhiteSpace(Username) && !string.IsNullOrEmpty(Credentials.Password);
 
 		public string Username { get; set; }
 

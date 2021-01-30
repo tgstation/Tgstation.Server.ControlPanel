@@ -1,11 +1,11 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
@@ -42,9 +42,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool IsSystemUser => User.SystemIdentifier != null;
 
-		public string FormatCreatedBy => User.CreatedBy != null ? String.Format(CultureInfo.InvariantCulture, "{0} ({1})", User.CreatedBy.Name, User.CreatedBy.Id) : "TGS";
+		public string FormatCreatedBy => User.CreatedBy != null ? string.Format(CultureInfo.InvariantCulture, "{0} ({1})", User.CreatedBy.Name, User.CreatedBy.Id) : "TGS";
 
-		public string Title => String.Format(CultureInfo.InvariantCulture, "User: {0} ({1})", user.Name, user.Id);
+		public string Title => string.Format(CultureInfo.InvariantCulture, "User: {0} ({1})", user.Name, user.Id);
 
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.user.png";
 
@@ -127,20 +127,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			this.usersClient = usersClient ?? throw new ArgumentNullException(nameof(usersClient));
 			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
-			if (user == null)
-				throw new ArgumentNullException(nameof(user));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.userRightsProvider = userRightsProvider ?? this;
 
-			User = user;
+			User = user ?? throw new ArgumentNullException(nameof(user));
 
 			Close = new EnumCommand<UserCommand>(UserCommand.Close, this);
 			Refresh = new EnumCommand<UserCommand>(UserCommand.Refresh, this);
 			RemoveFromGroup = new EnumCommand<UserCommand>(UserCommand.RemoveFromGroup, this);
 			Save = new EnumCommand<UserCommand>(UserCommand.Save, this);
 
-			NewPassword = String.Empty;
-			PasswordConfirm = String.Empty;
+			NewPassword = string.Empty;
+			PasswordConfirm = string.Empty;
 
 			Enabled = User.Enabled.Value;
 			void SetLocks()
@@ -252,8 +250,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			using (DelayChangeNotifications())
 			{
-				NewPassword = String.Empty;
-				PasswordConfirm = String.Empty;
+				NewPassword = string.Empty;
+				PasswordConfirm = string.Empty;
 				Refresh.Recheck();
 				Save.Recheck();
 			}

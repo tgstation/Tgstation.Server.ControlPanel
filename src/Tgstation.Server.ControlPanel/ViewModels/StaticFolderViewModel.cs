@@ -1,9 +1,9 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
@@ -25,7 +25,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get
 			{
 				var fileName = System.IO.Path.GetFileName(Path);
-				if (String.IsNullOrEmpty(fileName))
+				if (string.IsNullOrEmpty(fileName))
 					return "Configuration";
 				return fileName;
 			}
@@ -148,7 +148,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				IsExpanded = true;
 				this.RaisePropertyChanged(nameof(IsExpanded));
 			}
-			catch(ClientException e)
+			catch (ClientException e)
 			{
 				ErrorMessage = e.Message;
 				Denied = e is InsufficientPermissionsException;

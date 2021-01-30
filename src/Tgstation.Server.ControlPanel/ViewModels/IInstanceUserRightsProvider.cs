@@ -1,5 +1,4 @@
-﻿using System;
-using Tgstation.Server.Api.Rights;
+﻿using Tgstation.Server.Api.Rights;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
@@ -14,6 +13,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		DreamDaemonRights DreamDaemonRights { get; }
 		ChatBotRights ChatBotRights { get; }
 		ConfigurationRights ConfigurationRights { get; }
-		
+
 	}
 }

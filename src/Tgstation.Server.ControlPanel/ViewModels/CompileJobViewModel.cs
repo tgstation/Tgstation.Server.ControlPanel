@@ -1,8 +1,8 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
@@ -11,7 +11,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 	{
 		public CompileJob CompileJob { get; }
 
-		public string User => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", CompileJob.Job.StartedBy.Name, CompileJob.Job.StartedBy.Id);
+		public string User => string.Format(CultureInfo.InvariantCulture, "{0} ({1})", CompileJob.Job.StartedBy.Name, CompileJob.Job.StartedBy.Id);
 
 		public string StoppedAt => CompileJob.Job.StoppedAt.Value.ToLocalTime().ToString("g");
 

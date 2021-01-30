@@ -1,9 +1,9 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
@@ -179,7 +179,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var update = new ChatBot
 					{
 						Id = ChatBot.Id,
-						ConnectionString = CanConnectionString && !String.IsNullOrEmpty(NewConnectionString) && NewConnectionString != ChatBot.ConnectionString ? NewConnectionString : null,
+						ConnectionString = CanConnectionString && !string.IsNullOrEmpty(NewConnectionString) && NewConnectionString != ChatBot.ConnectionString ? NewConnectionString : null,
 						ChannelLimit = CanChannelLimit ? (ushort?)NewChannelLimit : null,
 						Enabled = CanEnable && ChatBot.Enabled != NewEnabled ? (bool?)NewEnabled : null
 					};

@@ -1,7 +1,6 @@
-﻿using Avalonia.Threading;
-using System;
-using System.Globalization;
+﻿using System;
 using System.Windows.Input;
+using Avalonia.Threading;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
