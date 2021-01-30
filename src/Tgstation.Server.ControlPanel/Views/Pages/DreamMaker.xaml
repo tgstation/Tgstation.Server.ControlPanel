@@ -12,8 +12,8 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
-      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+      <TextBlock DockPanel.Dock="Left" Text="{Binding Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Grid.Row="1">
       <StackPanel Orientation="Vertical">
@@ -25,15 +25,15 @@
             <ColumnDefinition Width="100"/>
           </Grid.ColumnDefinitions>
           <TextBlock Grid.Column="0" Text="Deployment" FontSize="26" />
-          <Image Grid.Column="2" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding PageContext.ActiveObject.Refreshing}" Margin="0,0,5,0"/>
-          <Button Grid.Column="3" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <Image Grid.Column="2" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding Refreshing}" Margin="0,0,5,0"/>
+          <Button Grid.Column="3" Content="Refresh" Command="{Binding Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
-        <StackPanel IsVisible="{Binding PageContext.ActiveObject.HasInstalledVersions}">
+        <StackPanel IsVisible="{Binding HasInstalledVersions}">
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
           <TextBlock Text="Previous Deployments:"/>
-          <local:CompileJobList DataContext="{Binding PageContext.ActiveObject.CurrentPage}"/>
-          <Grid IsVisible="{Binding PageContext.ActiveObject.CanRead}">
+          <local:CompileJobList DataContext="{Binding CurrentPage}"/>
+          <Grid IsVisible="{Binding CanRead}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="50*"/>
               <ColumnDefinition Width="5*"/>
@@ -41,14 +41,14 @@
               <ColumnDefinition Width="5*"/>
               <ColumnDefinition Width="50*"/>
             </Grid.ColumnDefinitions>
-            <Button Content="&lt;" Command="{Binding PageContext.ActiveObject.LastPage}" Grid.Column="1"/>
+            <Button Content="&lt;" Command="{Binding LastPage}" Grid.Column="1"/>
             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0">
               <TextBlock Text="Page:"/>
-              <TextBlock Text="{Binding PageContext.ActiveObject.ViewSelectedPage}" Margin="5,0,0,0"/>
+              <TextBlock Text="{Binding ViewSelectedPage}" Margin="5,0,0,0"/>
               <TextBlock Text=" of "/>
-              <TextBlock Text="{Binding PageContext.ActiveObject.ViewNumPages}"/>
+              <TextBlock Text="{Binding ViewNumPages}"/>
             </StackPanel>
-            <Button Content="&gt;" Command="{Binding PageContext.ActiveObject.NextPage}" Grid.Column="3"/>
+            <Button Content="&gt;" Command="{Binding NextPage}" Grid.Column="3"/>
           </Grid>
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
@@ -66,11 +66,11 @@
             <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <TextBlock Text="Project Name:" Grid.Row="0" Grid.Column="0"/>
-          <TextBlock Text="{Binding PageContext.ActiveObject.ProjectName}" Margin="5,0,0,0" Grid.Row="0" Grid.Column="1"/>
+          <TextBlock Text="{Binding ProjectName}" Margin="5,0,0,0" Grid.Row="0" Grid.Column="1"/>
           <TextBlock Text="DMAPI Port:" Grid.Row="2" Grid.Column="0"/>
-          <TextBlock Text="{Binding PageContext.ActiveObject.Model.ApiValidationPort}" Margin="5,0,0,0" Grid.Row="2" Grid.Column="1"/>
+          <TextBlock Text="{Binding Model.ApiValidationPort}" Margin="5,0,0,0" Grid.Row="2" Grid.Column="1"/>
           <TextBlock Text="Validation Security Level:" Grid.Row="5" Grid.Column="0"/>
-          <TextBlock Text="{Binding PageContext.ActiveObject.SecurityLevel}" Margin="5,0,0,0" Grid.Row="5" Grid.Column="1"/>
+          <TextBlock Text="{Binding SecurityLevel}" Margin="5,0,0,0" Grid.Row="5" Grid.Column="1"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -87,19 +87,19 @@
             <ColumnDefinition Width="400" />
           </Grid.ColumnDefinitions>
           <TextBlock Text="New Project Name (without '.dme'):" Grid.Row="2" Grid.Column="0" Margin="0,5,0,0"/>
-          <TextBox Text="{Binding PageContext.ActiveObject.NewDme}" IsEnabled="{Binding PageContext.ActiveObject.CanDmeView}" Margin="5,0,0,0" Grid.Row="2" Grid.Column="1"/>
+          <TextBox Text="{Binding NewDme}" IsEnabled="{Binding CanDmeView}" Margin="5,0,0,0" Grid.Row="2" Grid.Column="1"/>
           <DockPanel Grid.Row="0" Grid.Column="0">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.AutoDetectDme}" IsEnabled="{Binding PageContext.ActiveObject.CanDmeAutodetectView}" DockPanel.Dock="Left"/>
+            <CheckBox Background="White" IsChecked="{Binding AutoDetectDme}" IsEnabled="{Binding CanDmeAutodetectView}" DockPanel.Dock="Left"/>
             <TextBlock Text="Auto Detect Project Name" Margin="5,0,0,0" DockPanel.Dock="Right"/>
           </DockPanel>
           <DockPanel Grid.Row="0" Grid.Column="1">
-            <CheckBox Background="White" ToolTip.Tip="The DMAPI facilitates communication between DreamDaemon and TGS. It enables features such as heartbeats, custom chat commands/messages, and graceful actions such as changing security levels or enabling and disabling the web client among other things. Without it, the server will need to be manually rebooted from TGS when such changes are made." IsChecked="{Binding PageContext.ActiveObject.ApiRequire}" IsEnabled="{Binding PageContext.ActiveObject.CanRequire}" DockPanel.Dock="Left"/>
+            <CheckBox Background="White" ToolTip.Tip="The DMAPI facilitates communication between DreamDaemon and TGS. It enables features such as heartbeats, custom chat commands/messages, and graceful actions such as changing security levels or enabling and disabling the web client among other things. Without it, the server will need to be manually rebooted from TGS when such changes are made." IsChecked="{Binding ApiRequire}" IsEnabled="{Binding CanRequire}" DockPanel.Dock="Left"/>
             <TextBlock Text="Require DMAPI for deployments to succeed (Reccommended)" ToolTip.Tip="The DMAPI facilitates communication between DreamDaemon and TGS. It enables features such as heartbeats, custom chat commands/messages, and graceful actions such as changing security levels or enabling and disabling the web client among other things. Without it, the server will need to be manually rebooted from TGS when such changes are made." Margin="5,0,0,0" DockPanel.Dock="Right"/>
           </DockPanel>
           <TextBlock Text="Port Used For TGS DMAPI Validation (should be private, 0 doesn't change):" Grid.Row="3" Grid.Column="0" Margin="0,5,0,0"/>
-          <NumericUpDown Minimum="0" Maximum="65535"  Value="{Binding PageContext.ActiveObject.NewPort}" IsEnabled="{Binding PageContext.ActiveObject.CanPortView}" Margin="5,0,0,0" Grid.Row="3" Grid.Column="1"/>
+          <NumericUpDown Minimum="0" Maximum="65535"  Value="{Binding NewPort}" IsEnabled="{Binding CanPortView}" Margin="5,0,0,0" Grid.Row="3" Grid.Column="1"/>
         </Grid>
-        <Grid IsEnabled="{Binding PageContext.ActiveObject.CanSecurityView}">
+        <Grid IsEnabled="{Binding CanSecurityView}">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="5"/>
@@ -115,9 +115,9 @@
             <ColumnDefinition Width="10*"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="API Validation Security Level:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="7" />
-          <RadioButton GroupName="Trust" Content="Ultrasafe" Grid.Row="2" Grid.Column="1" IsChecked="{Binding PageContext.ActiveObject.Ultrasafe}" />
-          <RadioButton GroupName="Trust" Content="Safe" Grid.Row="2" Grid.Column="3" IsChecked="{Binding PageContext.ActiveObject.Safe}" />
-          <RadioButton GroupName="Trust" Content="Trusted" Grid.Row="2" Grid.Column="5" IsChecked="{Binding PageContext.ActiveObject.Trusted}" />
+          <RadioButton GroupName="Trust" Content="Ultrasafe" Grid.Row="2" Grid.Column="1" IsChecked="{Binding Ultrasafe}" />
+          <RadioButton GroupName="Trust" Content="Safe" Grid.Row="2" Grid.Column="3" IsChecked="{Binding Safe}" />
+          <RadioButton GroupName="Trust" Content="Trusted" Grid.Row="2" Grid.Column="5" IsChecked="{Binding Trusted}" />
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -129,8 +129,8 @@
             <ColumnDefinition Width="20*"/>
             <ColumnDefinition Width="30*"/>
           </Grid.ColumnDefinitions>
-          <Button Content="Save Changes" Command="{Binding PageContext.ActiveObject.Update}" Grid.Column="3"/>
-          <Button Content="Deploy Repository Code To Server" Command="{Binding PageContext.ActiveObject.Compile}" Grid.Column="1"/>
+          <Button Content="Save Changes" Command="{Binding Update}" Grid.Column="3"/>
+          <Button Content="Deploy Repository Code To Server" Command="{Binding Compile}" Grid.Column="1"/>
         </Grid>
       </StackPanel>
     </ScrollViewer>

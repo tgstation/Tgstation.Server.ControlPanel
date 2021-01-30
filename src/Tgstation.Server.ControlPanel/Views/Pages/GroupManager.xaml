@@ -12,8 +12,8 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
-      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+      <TextBlock DockPanel.Dock="Left" Text="{Binding Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
       <StackPanel Orientation="Vertical" IsEnabled="{Binding !Loading}">
@@ -23,28 +23,28 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="100"/>
           </Grid.ColumnDefinitions>
-          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Group.Name}" FontSize="26"/>
-          <Image Grid.Column="1" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding PageContext.ActiveObject.Loading}" Margin="0,0,5,0"/>
-          <Image Grid.Column="1" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.error.png" IsVisible="{Binding PageContext.ActiveObject.HasError}" Margin="0,0,5,0"/>
-          <Button Grid.Column="2" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <TextBlock Grid.Column="0" Text="{Binding Group.Name}" FontSize="26"/>
+          <Image Grid.Column="1" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding Loading}" Margin="0,0,5,0"/>
+          <Image Grid.Column="1" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.error.png" IsVisible="{Binding HasError}" Margin="0,0,5,0"/>
+          <Button Grid.Column="2" Content="Refresh" Command="{Binding Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
         <StackPanel Orientation="Vertical">
           <StackPanel Orientation="Horizontal">
             <TextBlock Text="ID:"/>
-            <TextBlock Text="{Binding PageContext.ActiveObject.Group.Id}" Margin="5,0,0,0"/>
+            <TextBlock Text="{Binding Group.Id}" Margin="5,0,0,0"/>
           </StackPanel>
-          <StackPanel Orientation="Vertical" IsVisible="{Binding PageContext.ActiveObject.CanAdd}">
+          <StackPanel Orientation="Vertical" IsVisible="{Binding CanAdd}">
             <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
             <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
             <StackPanel Orientation="Horizontal">
-              <ComboBox Items="{Binding PageContext.ActiveObject.UserStrings}" SelectedIndex="{Binding PageContext.ActiveObject.SelectedIndex}" />
-              <Button Content="Add User" Command="{Binding PageContext.ActiveObject.AddUser}" Background="#CFD6E5" BorderBrush="#ADADAD" Margin="5,0,0,0"/>
+              <ComboBox Items="{Binding UserStrings}" SelectedIndex="{Binding SelectedIndex}" />
+              <Button Content="Add User" Command="{Binding AddUser}" Background="#CFD6E5" BorderBrush="#ADADAD" Margin="5,0,0,0"/>
             </StackPanel>
           </StackPanel>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
           <TextBlock Text="Members:" FontSize="16"/>
-          <ItemsControl Items="{Binding PageContext.ActiveObject.Group.Users}">
+          <ItemsControl Items="{Binding Group.Users}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <StackPanel Orientation="Horizontal">

@@ -8,8 +8,8 @@
     </Grid.RowDefinitions>
     <DockPanel Margin="0,0,0,10" LastChildFill="False" Grid.Row="0">
       <TextBlock Text="Test Merges" FontSize="20" DockPanel.Dock="Left"/>
-      <Button Content="Refresh" Command="{Binding PageContext.ActiveObject.RefreshPRs}" DockPanel.Dock="Right"/>
-      <TextBlock Text="{Binding PageContext.ActiveObject.RateLimitSeconds}" IsVisible="{Binding PageContext.ActiveObject.RateLimited}" DockPanel.Dock="Right" Margin="0,5,5,0"/>
+      <Button Content="Refresh" Command="{Binding RefreshPRs}" DockPanel.Dock="Right"/>
+      <TextBlock Text="{Binding RateLimitSeconds}" IsVisible="{Binding RateLimited}" DockPanel.Dock="Right" Margin="0,5,5,0"/>
     </DockPanel>
     <Grid Grid.Column="1" Grid.Row="1">
       <Grid.ColumnDefinitions>
@@ -22,7 +22,7 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#FFFFFF" Grid.Row="0" Grid.Column="1">
-        <ItemsControl Items="{Binding PageContext.ActiveObject.TestMerges}">
+        <ItemsControl Items="{Binding TestMerges}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <Panel Background="#000000">
@@ -69,8 +69,8 @@
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <TextBlock Text="Manual Add PR#:" Margin="0,5,5,0" Grid.Column="0"/>
-        <NumericUpDown Minimum="1" Value="{Binding PageContext.ActiveObject.ManualPR}" Margin="0,0,5,0" Grid.Column="1"/>
-        <Button Content="Add" Command="{Binding PageContext.ActiveObject.DirectAddPR}" Grid.Column="2"/>
+        <NumericUpDown Minimum="1" Value="{Binding ManualPR}" Margin="0,0,5,0" Grid.Column="1"/>
+        <Button Content="Add" Command="{Binding DirectAddPR}" Grid.Column="2"/>
       </Grid>
     </Grid>
   </Grid>

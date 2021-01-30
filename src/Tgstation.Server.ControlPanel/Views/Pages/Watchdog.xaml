@@ -12,11 +12,11 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
-      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+      <TextBlock DockPanel.Dock="Left" Text="{Binding Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Grid.Row="1">
-      <StackPanel Orientation="Vertical" IsEnabled="{Binding !PageContext.ActiveObject.Refreshing}">
+      <StackPanel Orientation="Vertical" IsEnabled="{Binding !Refreshing}">
         <Grid >
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -25,42 +25,42 @@
             <ColumnDefinition Width="150"/>
           </Grid.ColumnDefinitions>
           <TextBlock Grid.Column="0" Text="Dream Daemon" FontSize="26" />
-          <Image Grid.Column="2" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding PageContext.ActiveObject.Refreshing}" Margin="0,0,5,0"/>
-          <Button Grid.Column="3" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <Image Grid.Column="2" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding Refreshing}" Margin="0,0,5,0"/>
+          <Button Grid.Column="3" Content="Refresh" Command="{Binding Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
         <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
           <TextBlock Grid.Column="0" Text="Status:" FontSize="20" />
-          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.StatusString}" Foreground="{Binding PageContext.ActiveObject.StatusColour}" FontSize="20" Margin="5,0,0,0"/>
+          <TextBlock Grid.Column="0" Text="{Binding StatusString}" Foreground="{Binding StatusColour}" FontSize="20" Margin="5,0,0,0"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
           <TextBlock Grid.Column="0" Text="Port:" />
-          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Port}" Margin="5,0,0,0"/>
+          <TextBlock Grid.Column="0" Text="{Binding Port}" Margin="5,0,0,0"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
           <TextBlock Grid.Column="0" Text="Security Level:"/>
-          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.CurrentSecurity}" Margin="5,0,0,0"/>
+          <TextBlock Grid.Column="0" Text="{Binding CurrentSecurity}" Margin="5,0,0,0"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
           <TextBlock Grid.Column="0" Text="Web Client Allowed:"/>
-          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.WebClient}" Margin="5,0,0,0"/>
+          <TextBlock Grid.Column="0" Text="{Binding WebClient}" Margin="5,0,0,0"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
           <TextBlock Grid.Column="0" Text="Graceful Action:"/>
-          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Graceful}" Margin="5,0,0,0"/>
+          <TextBlock Grid.Column="0" Text="{Binding Graceful}" Margin="5,0,0,0"/>
         </StackPanel>
-        <StackPanel Orientation="Vertical" IsVisible="{Binding PageContext.ActiveObject.HasRevision}">
-          <StackPanel Orientation="Vertical" IsVisible="{Binding PageContext.ActiveObject.HasStagedRevision}">
+        <StackPanel Orientation="Vertical" IsVisible="{Binding HasRevision}">
+          <StackPanel Orientation="Vertical" IsVisible="{Binding HasStagedRevision}">
             <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
             <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
             <TextBlock Text="Staged Deployment"/>
-            <local:CompileJobList DataContext="{Binding PageContext.ActiveObject.StagedCompileJob}" />
+            <local:CompileJobList DataContext="{Binding StagedCompileJob}" />
           </StackPanel>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
           <TextBlock Text="Active Deployment"/>
-          <local:CompileJobList DataContext="{Binding PageContext.ActiveObject.ActiveCompileJob}" />
+          <local:CompileJobList DataContext="{Binding ActiveCompileJob}" />
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -84,17 +84,17 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <TextBlock Text="Public Game Port:" Grid.Row="0" Grid.Column="0"/>
-          <NumericUpDown Minimum="1" Maximum="65535"  IsEnabled="{Binding PageContext.ActiveObject.CanPort}" Value="{Binding PageContext.ActiveObject.NewPrimaryPort}" Grid.Row="0" Grid.Column="1"/>
-          <CheckBox Content="Allow Web Client Connections" Grid.Column="0" Grid.Row="3" IsChecked="{Binding PageContext.ActiveObject.NewAllowWebClient}" IsEnabled="{Binding PageContext.ActiveObject.CanWebClient}" Background="White"/>
-          <CheckBox Content="Automatically Start Server with Instance" Grid.Column="1" Grid.Row="3" IsChecked="{Binding PageContext.ActiveObject.NewAutoStart}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoStart}" Background="White"/>
+          <NumericUpDown Minimum="1" Maximum="65535"  IsEnabled="{Binding CanPort}" Value="{Binding NewPrimaryPort}" Grid.Row="0" Grid.Column="1"/>
+          <CheckBox Content="Allow Web Client Connections" Grid.Column="0" Grid.Row="3" IsChecked="{Binding NewAllowWebClient}" IsEnabled="{Binding CanWebClient}" Background="White"/>
+          <CheckBox Content="Automatically Start Server with Instance" Grid.Column="1" Grid.Row="3" IsChecked="{Binding NewAutoStart}" IsEnabled="{Binding CanAutoStart}" Background="White"/>
           <TextBlock Text="Launch Inactivity Timeout Period (seconds):" Margin="0,5,5,0" Grid.Column="0" Grid.Row="5"/>
-          <NumericUpDown Minimum="1" Value="{Binding PageContext.ActiveObject.NewStartupTimeout}" Grid.Column="1" Grid.Row="5" IsEnabled="{Binding PageContext.ActiveObject.CanTimeout}" />
+          <NumericUpDown Minimum="1" Value="{Binding NewStartupTimeout}" Grid.Column="1" Grid.Row="5" IsEnabled="{Binding CanTimeout}" />
           <TextBlock Text="Heartbeat Seconds (0 disables):" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Margin="0,5,5,0" Grid.Column="0" Grid.Row="7"/>
-          <NumericUpDown Minimum="0" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Value="{Binding PageContext.ActiveObject.NewHeartbeatSeconds}" Grid.Column="1" Grid.Row="7" IsEnabled="{Binding PageContext.ActiveObject.CanHeartbeat}" />
+          <NumericUpDown Minimum="0" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Value="{Binding NewHeartbeatSeconds}" Grid.Column="1" Grid.Row="7" IsEnabled="{Binding CanHeartbeat}" />
           <TextBlock Text="Timeout For Sending BYOND Topics (Milliseconds):" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations." Margin="0,5,5,0" Grid.Column="0" Grid.Row="9"/>
-          <NumericUpDown Minimum="1" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations.." Value="{Binding PageContext.ActiveObject.NewTopicTimeout}" Grid.Column="1" Grid.Row="9" IsEnabled="{Binding PageContext.ActiveObject.CanTopic}" />
+          <NumericUpDown Minimum="1" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations.." Value="{Binding NewTopicTimeout}" Grid.Column="1" Grid.Row="9" IsEnabled="{Binding CanTopic}" />
            <TextBlock Grid.Column="0" Text="Additional Params:" Grid.Row="11"/>
-           <TextBox Text="{Binding PageContext.ActiveObject.NewAdditionalParams}" IsEnabled="{Binding PageContext.ActiveObject.CanAdditionalParams}" Margin="5,0,0,0" Grid.Column="1" Grid.Row="11"/>
+           <TextBox Text="{Binding NewAdditionalParams}" IsEnabled="{Binding CanAdditionalParams}" Margin="5,0,0,0" Grid.Column="1" Grid.Row="11"/>
         </Grid>
         <Grid Margin="0,5,0,0">
           <Grid.RowDefinitions>
@@ -114,12 +114,12 @@
           </Grid.ColumnDefinitions>
           <TextBlock Text="Security Level:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="7" ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
           <TextBlock Text="Graceful Action:" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7" />
-          <RadioButton Content="Ultrasafe" Grid.Row="1" Grid.Column="1" IsChecked="{Binding PageContext.ActiveObject.Ultrasafe}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
-          <RadioButton Content="Safe" Grid.Row="1" Grid.Column="3" IsChecked="{Binding PageContext.ActiveObject.Safe}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
-          <RadioButton Content="Trusted" Grid.Row="1" Grid.Column="5" IsChecked="{Binding PageContext.ActiveObject.Trusted}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
-          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="None" Grid.Row="3" Grid.Column="1" IsChecked="{Binding PageContext.ActiveObject.ClearSoft}" IsEnabled="{Binding PageContext.ActiveObject.Model.Running}"/>
-          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="Restart" Grid.Row="3" Grid.Column="3" IsChecked="{Binding PageContext.ActiveObject.SoftRestart}" IsEnabled="{Binding PageContext.ActiveObject.Model.Running}" />
-          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="Shutdown" Grid.Row="3" Grid.Column="5" IsChecked="{Binding PageContext.ActiveObject.SoftStop}" IsEnabled="{Binding PageContext.ActiveObject.Model.Running}" />
+          <RadioButton Content="Ultrasafe" Grid.Row="1" Grid.Column="1" IsChecked="{Binding Ultrasafe}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
+          <RadioButton Content="Safe" Grid.Row="1" Grid.Column="3" IsChecked="{Binding Safe}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
+          <RadioButton Content="Trusted" Grid.Row="1" Grid.Column="5" IsChecked="{Binding Trusted}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
+          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="None" Grid.Row="3" Grid.Column="1" IsChecked="{Binding ClearSoft}" IsEnabled="{Binding Model.Running}"/>
+          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="Restart" Grid.Row="3" Grid.Column="3" IsChecked="{Binding SoftRestart}" IsEnabled="{Binding Model.Running}" />
+          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="Shutdown" Grid.Row="3" Grid.Column="5" IsChecked="{Binding SoftStop}" IsEnabled="{Binding Model.Running}" />
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -139,12 +139,12 @@
             <ColumnDefinition Width="20*"/>
             <ColumnDefinition Width="15*"/>
           </Grid.ColumnDefinitions>
-          <Button Content="Apply Changes" Command="{Binding PageContext.ActiveObject.Update}" Grid.Column="1"/>
-          <Button Content="Start Server" Command="{Binding PageContext.ActiveObject.Start}" Grid.Column="3"/>
-          <Button Content="Connect to Server" Command="{Binding PageContext.ActiveObject.Join}" Grid.Column="5"/>
-          <Button Content="Create Process Dump" Command="{Binding PageContext.ActiveObject.Dump}" Grid.Column="7"/>
-          <Button Content="{Binding PageContext.ActiveObject.RestartWord}" Command="{Binding PageContext.ActiveObject.Restart}" Grid.Column="9"/>
-          <Button Content="{Binding PageContext.ActiveObject.StopWord}" Command="{Binding PageContext.ActiveObject.Stop}" Grid.Column="11"/>
+          <Button Content="Apply Changes" Command="{Binding Update}" Grid.Column="1"/>
+          <Button Content="Start Server" Command="{Binding Start}" Grid.Column="3"/>
+          <Button Content="Connect to Server" Command="{Binding Join}" Grid.Column="5"/>
+          <Button Content="Create Process Dump" Command="{Binding Dump}" Grid.Column="7"/>
+          <Button Content="{Binding RestartWord}" Command="{Binding Restart}" Grid.Column="9"/>
+          <Button Content="{Binding StopWord}" Command="{Binding Stop}" Grid.Column="11"/>
         </Grid>
       </StackPanel>
     </ScrollViewer>

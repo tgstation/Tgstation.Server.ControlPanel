@@ -11,8 +11,8 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
-      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+      <TextBlock DockPanel.Dock="Left" Text="{Binding Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
       <StackPanel Orientation="Vertical">
@@ -30,15 +30,15 @@
             <ColumnDefinition Width="400"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="Name:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
-          <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.Name, Mode=TwoWay}"/>
+          <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding Name, Mode=TwoWay}"/>
           <TextBlock Text="Instances may be placed in the following paths:" Margin="0,5,0,5" Grid.Column="0" Grid.Row="1" />
-          <TextBlock Text="{Binding PageContext.ActiveObject.ValidPaths}" Margin="50,5,0,5" Grid.Column="1" Grid.Row="1" />
+          <TextBlock Text="{Binding ValidPaths}" Margin="50,5,0,5" Grid.Column="1" Grid.Row="1" />
           <TextBlock Text="Path on Host:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="2" />
-          <TextBox Grid.Column="1" Grid.Row="2" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.Path, Mode=TwoWay}"/>
+          <TextBox Grid.Column="1" Grid.Row="2" Margin="50,0,0,5" Text="{Binding Path, Mode=TwoWay}"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-        <Button Content="Add Instance" Command="{Binding PageContext.ActiveObject.Add}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+        <Button Content="Add Instance" Command="{Binding Add}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
       </StackPanel>
     </ScrollViewer>
   </Grid>

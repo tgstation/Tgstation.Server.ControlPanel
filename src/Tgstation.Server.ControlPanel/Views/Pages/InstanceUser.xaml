@@ -11,8 +11,8 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
-      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+      <TextBlock DockPanel.Dock="Left" Text="{Binding Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
       <StackPanel Orientation="Vertical">
@@ -22,11 +22,11 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="100"/>
           </Grid.ColumnDefinitions>
-          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Name}" FontSize="26"/>
-          <Button Grid.Column="2" Content="Refresh" Command="{Binding PageContext.ActiveObject.RefreshCommand}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="26"/>
+          <Button Grid.Column="2" Content="Refresh" Command="{Binding RefreshCommand}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
         <TextBlock Text="Instance Permission Set Rights:" FontSize="16"/>
-        <StackPanel Orientation="Vertical" IsEnabled="{Binding PageContext.ActiveObject.CanEditRights}>">
+        <StackPanel Orientation="Vertical" IsEnabled="{Binding CanEditRights}>">
           <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="1*"/>
@@ -37,15 +37,15 @@
               <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UserRead, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding UserRead, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Read Instance Permission Sets" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UserWrite, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding UserWrite, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Edit Instance Permission Sets" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.UserCreate, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding UserCreate, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Create Instance Permission Sets" Margin="5,4,0,0" />
             </DockPanel>
           </Grid>
@@ -67,55 +67,55 @@
               <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoRead, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoRead, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Read Info" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoOrigin, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoOrigin, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Clone Remotes" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoSha, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoSha, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Checkout SHA Hashes" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoTestMerge, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoTestMerge, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Test Merge" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="0" Grid.Row="2" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoReset, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoReset, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Hard Reset to Origin Branch" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="1" Grid.Row="2" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoCommitter, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoCommitter, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Change Committer Identity" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="0" Grid.Row="3" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoTMCommits, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoTMCommits, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Allow changing the 'Push Test Merge Commits' and 'Post Test Merge Comment' settings" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="1" Grid.Row="3" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoCreds, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoCreds, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Change git Credentials" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="0" Grid.Row="4" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoRef, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoRef, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Checkout Branches and Tags" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="1" Grid.Row="4" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoAuto, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoAuto, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Change Auto Update Settings" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="0" Grid.Row="5" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoDelete, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoDelete, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Delete the Repository" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="1" Grid.Row="5" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoCancelClone, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoCancelClone, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Cancel Clone Jobs" Margin="5,4,0,0" />
             </DockPanel>
             <DockPanel Grid.Column="0" Grid.Row="6" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.RepoCancelUpdate, Mode=TwoWay}"/>
+              <CheckBox Background="White" IsChecked="{Binding RepoCancelUpdate, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Cancel Update Jobs" Margin="5,4,0,0" />
             </DockPanel>
           </Grid>
@@ -134,23 +134,23 @@
             <RowDefinition Height="1*"/>
           </Grid.RowDefinitions>
           <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ByondRead, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ByondRead, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Read Info" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ByondList, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ByondList, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="List Installed Versions" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ByondChange, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ByondChange, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Install official BYOND releases and switch between installed versions" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ByondCancel, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ByondCancel, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Cancel Install Job" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ByondUpload, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ByondUpload, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Upload and Install Custom BYOND Versions" Margin="5,4,0,0" />
           </DockPanel>
         </Grid>
@@ -169,35 +169,35 @@
             <RowDefinition Height="1*"/>
           </Grid.RowDefinitions>
           <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.CompRead, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding CompRead, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Read Info" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.CompStart, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding CompStart, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Run Deployments" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.CompCancel, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding CompCancel, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Cancel Deployments" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.CompDme, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding CompDme, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set .dme Name" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.CompVali, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding CompVali, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set API Validation Port" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.CompList, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding CompList, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="List and View Compile Jobs" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="3" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.CompSec, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding CompSec, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Change Deployment Security Level" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="3" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.CompReq, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding CompReq, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Change DMAPI Requirement for Deployments" Margin="5,4,0,0" />
           </DockPanel>
         </Grid>
@@ -220,67 +220,67 @@
             <RowDefinition Height="1*"/>
           </Grid.RowDefinitions>
           <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDRead, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDRead, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Read Revision Info" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDPort, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDPort, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set DreamDaemon Port" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDAuto, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDAuto, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Autostart" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDSec, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDSec, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Security Level" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDMeta, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDMeta, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Read Watchdog Info" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDWeb, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDWeb, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Web Client" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="3" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDSoftR, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDSoftR, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Gracefully Restart" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="3" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDSoftT, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDSoftT, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Gracefully Shutdown" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="4" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDRes, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDRes, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Hard Restart" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="4" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDTerm, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDTerm, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Hard Shutdown" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="5" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDStart, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDStart, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Start Server" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="5" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDTime, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDTime, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Startup Timeout Period" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="6" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDHeart, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDHeart, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Heartbeat Interval" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="6" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDDump, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDDump, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Create Process Dumps" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="7" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDTopicTimeout, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDTopicTimeout, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Timeout For Sending BYOND Topics" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="7" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.DDAdditionalParams, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding DDAdditionalParams, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Additional DreamDaemon Params" Margin="5,4,0,0" />
           </DockPanel>
         </Grid>
@@ -301,47 +301,47 @@
             <RowDefinition Height="1*"/>
           </Grid.RowDefinitions>
           <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ChatEnable, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ChatEnable, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Enable/Disable Bots" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ChatProvider, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ChatProvider, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Change Bot Provider" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ChatChannels, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ChatChannels, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Change Chat Channels" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ChatReadString, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ChatReadString, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Read Connection Details" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ChatWriteString, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ChatWriteString, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Write Connection Details" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="2" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ChatRead, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ChatRead, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Read Bot Info" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="3" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ChatName, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ChatName, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Change Bot Name" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="3" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ChatCreate, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ChatCreate, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Create Bot" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="4" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ChatDelete, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ChatDelete, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Delete Bot" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="4" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ChatChannelLimit, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ChatChannelLimit, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Channel Limits" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="5" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.ChatReconnectionInterval, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding ChatReconnectionInterval, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Reconnection Interval" Margin="5,4,0,0" />
           </DockPanel>
         </Grid>
@@ -359,19 +359,19 @@
             <RowDefinition Height="1*"/>
           </Grid.RowDefinitions>
           <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.StaticRead, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding StaticRead, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Read Files" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.StaticWrite, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding StaticWrite, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Write Files" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.StaticList, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding StaticList, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="List Files" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="1" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding PageContext.ActiveObject.StaticDelete, Mode=TwoWay}"/>
+            <CheckBox Background="White" IsChecked="{Binding StaticDelete, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Delete Empty Directories" Margin="5,4,0,0" />
           </DockPanel>
         </Grid>
@@ -385,8 +385,8 @@
             <ColumnDefinition Width="15*"/>
             <ColumnDefinition Width="25*"/>
           </Grid.ColumnDefinitions>
-          <Button Grid.Column="1" Content="Save" Command="{Binding PageContext.ActiveObject.Save}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
-          <Button Grid.Column="3" Content="{Binding PageContext.ActiveObject.DeleteText}" Command="{Binding PageContext.ActiveObject.Delete}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <Button Grid.Column="1" Content="Save" Command="{Binding Save}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <Button Grid.Column="3" Content="{Binding DeleteText}" Command="{Binding Delete}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
       </StackPanel>
     </ScrollViewer>

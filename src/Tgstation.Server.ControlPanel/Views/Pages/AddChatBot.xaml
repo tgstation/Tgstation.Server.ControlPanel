@@ -11,8 +11,8 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
-      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+      <TextBlock DockPanel.Dock="Left" Text="{Binding Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
       <StackPanel Orientation="Vertical">
@@ -30,18 +30,18 @@
             <ColumnDefinition Width="400"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="Name:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
-          <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.BotName, Mode=TwoWay}"/>
+          <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding BotName, Mode=TwoWay}"/>
           <TextBlock Text="Provider:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
 
-          <ComboBox SelectedIndex="{Binding PageContext.ActiveObject.Provider, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" Margin="50,0,0,5">
+          <ComboBox SelectedIndex="{Binding Provider, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" Margin="50,0,0,5">
             <ComboBoxItem>Internet Relay Chat</ComboBoxItem>
             <ComboBoxItem>Discord</ComboBoxItem>
           </ComboBox>
         </Grid>
-        <CheckBox Content="Enabled" IsChecked="{Binding PageContext.ActiveObject.Enabled}"/>
+        <CheckBox Content="Enabled" IsChecked="{Binding Enabled}"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-        <Grid IsVisible="{Binding PageContext.ActiveObject.IrcSelected}">
+        <Grid IsVisible="{Binding IrcSelected}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
@@ -57,23 +57,23 @@
             <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
           <TextBlock Text="Server Address:" Grid.Column="0" Grid.Row="0" Margin="0,5,0,0"/>
-          <TextBox Text="{Binding PageContext.ActiveObject.IrcServer}" Grid.Column="1" Grid.Row="0" Margin="5,0,0,0"/>
+          <TextBox Text="{Binding IrcServer}" Grid.Column="1" Grid.Row="0" Margin="5,0,0,0"/>
           <TextBlock Text="Server Port:" Grid.Column="0" Grid.Row="1" Margin="0,5,0,0" />
-          <NumericUpDown Minimum="1" Maximum="65535" Value="{Binding PageContext.ActiveObject.IrcPort}" Grid.Column="1" Grid.Row="1" Margin="5,0,0,0"/>
+          <NumericUpDown Minimum="1" Maximum="65535" Value="{Binding IrcPort}" Grid.Column="1" Grid.Row="1" Margin="5,0,0,0"/>
           <TextBlock Text="Nickname:" Grid.Column="0" Grid.Row="2" Margin="0,5,0,0"/>
-          <TextBox Text="{Binding PageContext.ActiveObject.IrcNick}" Grid.Column="1" Grid.Row="2" Margin="5,0,0,0"/>
-          <CheckBox Content="Use SSL" Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="4" IsChecked="{Binding PageContext.ActiveObject.IrcUseSsl}" />
+          <TextBox Text="{Binding IrcNick}" Grid.Column="1" Grid.Row="2" Margin="5,0,0,0"/>
+          <CheckBox Content="Use SSL" Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="4" IsChecked="{Binding IrcUseSsl}" />
           <TextBlock Text="Password Type:" Grid.Column="0" Grid.Row="6" Margin="0,5,0,0"/>
-          <ComboBox SelectedIndex="{Binding PageContext.ActiveObject.IrcPasswordType, Mode=TwoWay}" Grid.Column="1" Grid.Row="6" Margin="5,0,0,0">
+          <ComboBox SelectedIndex="{Binding IrcPasswordType, Mode=TwoWay}" Grid.Column="1" Grid.Row="6" Margin="5,0,0,0">
             <ComboBoxItem>Server Authentication</ComboBoxItem>
             <ComboBoxItem>SASL Authentication</ComboBoxItem>
             <ComboBoxItem>NickServ Authentication</ComboBoxItem>
             <ComboBoxItem>No Password</ComboBoxItem>
           </ComboBox>
           <TextBlock Text="Password:" Grid.Column="0" Grid.Row="7" Margin="0,5,0,0"/>
-          <TextBox Text="{Binding PageContext.ActiveObject.IrcPassword}" IsEnabled="{Binding PageContext.ActiveObject.IrcUsingPassword}" Grid.Column="1" Grid.Row="7"/>
+          <TextBox Text="{Binding IrcPassword}" IsEnabled="{Binding IrcUsingPassword}" Grid.Column="1" Grid.Row="7"/>
         </Grid>
-        <Grid IsVisible="{Binding PageContext.ActiveObject.DiscordSelected}">
+        <Grid IsVisible="{Binding DiscordSelected}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
@@ -83,17 +83,17 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <TextBlock Text="Bot Token:" Grid.Row="0" Grid.Column="0" Margin="0,5,0,0"/>
-          <TextBox Text="{Binding PageContext.ActiveObject.DiscordBotToken}" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0"/>
-          <ComboBox SelectedIndex="{Binding PageContext.ActiveObject.DiscordDMDisplay, Mode=TwoWay}" Grid.Column="0" Grid.Row="1" Margin="5,0,0,0">
+          <TextBox Text="{Binding DiscordBotToken}" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0"/>
+          <ComboBox SelectedIndex="{Binding DiscordDMDisplay, Mode=TwoWay}" Grid.Column="0" Grid.Row="1" Margin="5,0,0,0">
             <ComboBoxItem>Always Show DM Output</ComboBoxItem>
             <ComboBoxItem>Show DM Output on Error</ComboBoxItem>
             <ComboBoxItem>Never Show DM Output</ComboBoxItem>
           </ComboBox>
-          <CheckBox Content="Based on the Hardware that's Installed in it" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1" IsChecked="{Binding PageContext.ActiveObject.DiscordMeme}" />
+          <CheckBox Content="Based on the Hardware that's Installed in it" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1" IsChecked="{Binding DiscordMeme}" />
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-        <Button Content="Add Chat Bot" Command="{Binding PageContext.ActiveObject.Add}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+        <Button Content="Add Chat Bot" Command="{Binding Add}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
       </StackPanel>
     </ScrollViewer>
   </Grid>
