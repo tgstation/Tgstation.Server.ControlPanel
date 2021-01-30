@@ -27,7 +27,7 @@ namespace Tgstation.Server.ControlPanel
 			var productHeaderValue = new ProductHeaderValue(assemblyName.Name, assemblyName.Version.ToString());
 			var client = new GitHubClient(productHeaderValue);
 			var release = await client.Repository.Release.GetLatest("tgstation", "Tgstation.Server.ControlPanel");
-			var versionString = release.TagName.Substring("Tgstation.Server.ControlPanel-v".Length) + ".0";
+			var versionString = release.TagName["Tgstation.Server.ControlPanel-v".Length..] + ".0";
 			if (Version.TryParse(versionString, out var version))
 				return version;
 			return null;

@@ -52,7 +52,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public bool HasError => !String.IsNullOrWhiteSpace(Error);
+		public bool HasError => !string.IsNullOrWhiteSpace(Error);
 
 		public PermissionSetViewModel PermissionSetViewModel { get; private set; }
 

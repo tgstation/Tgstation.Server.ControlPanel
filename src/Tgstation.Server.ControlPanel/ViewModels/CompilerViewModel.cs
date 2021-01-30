@@ -122,7 +122,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref autoDetectDme, value);
 				if (value)
-					NewDme = String.Empty;
+					NewDme = string.Empty;
 				this.RaisePropertyChanged(nameof(CanDmeView));
 				Update.Recheck();
 			}
@@ -242,7 +242,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		void ResetFields()
 		{
-			NewDme = String.Empty;
+			NewDme = string.Empty;
 			NewPort = 0;
 			AutoDetectDme = Model?.ProjectName == null;
 			newSecurityLevel = Model?.ApiValidationSecurityLevel ?? DreamDaemonSecurity.Safe;
@@ -327,7 +327,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				CompilerCommand.Update => !Refreshing
 					&& (CanPort || CanDme || CanSecurity)
 					//either a new dme name is set, or the checkbox is different than the model
-					&& (!String.IsNullOrEmpty(NewDme) || (AutoDetectDme ^ (Model?.ProjectName == null))
+					&& (!string.IsNullOrEmpty(NewDme) || (AutoDetectDme ^ (Model?.ProjectName == null))
 					|| NewPort != 0
 					|| newSecurityLevel != Model?.ApiValidationSecurityLevel
 					|| ApiRequire != (Model?.RequireDMApiValidation ?? true)),
@@ -375,10 +375,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						var newModel = new DreamMaker();
 						if (CanDme)
-							if (!String.IsNullOrEmpty(NewDme))
+							if (!string.IsNullOrEmpty(NewDme))
 								newModel.ProjectName = NewDme;
 							else if (AutoDetectDme)
-								newModel.ProjectName = String.Empty;
+								newModel.ProjectName = string.Empty;
 
 						if (CanRequire)
 							newModel.RequireDMApiValidation = ApiRequire;

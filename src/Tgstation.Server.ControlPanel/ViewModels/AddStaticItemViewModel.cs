@@ -33,7 +33,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Title => "Add Item";
 
-		public string DetailTitle => String.Format(CultureInfo.InvariantCulture, "{0} in {1}", Title, parent.Path);
+		public string DetailTitle => string.Format(CultureInfo.InvariantCulture, "{0} in {1}", Title, parent.Path);
 
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.plus.jpg";
 
@@ -156,12 +156,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						return !Refreshing
 							&& rightsProvider.ConfigurationRights.HasFlag(ConfigurationRights.Write)
-							&& !String.IsNullOrEmpty(ItemName)
+							&& !string.IsNullOrEmpty(ItemName)
 							&& !ItemName.Contains("/")
 							&& !ItemName.Contains("\\")
 							&& (Type == ItemType.Folder
-							|| ((String.IsNullOrWhiteSpace(ItemText) ^ String.IsNullOrWhiteSpace(ItemPath))
-							&& (String.IsNullOrEmpty(ItemPath) || File.Exists(ItemPath))));
+							|| ((string.IsNullOrWhiteSpace(ItemText) ^ string.IsNullOrWhiteSpace(ItemPath))
+							&& (string.IsNullOrEmpty(ItemPath) || File.Exists(ItemPath))));
 					}
 					catch (IOException)
 					{
@@ -182,7 +182,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case AddStaticItemCommand.Browse:
 					var ofd = new OpenFileDialog
 					{
-						Title = String.Format(CultureInfo.InvariantCulture, "Upload to {0}", ItemName),
+						Title = string.Format(CultureInfo.InvariantCulture, "Upload to {0}", ItemName),
 						InitialFileName = ItemName,
 						AllowMultiple = false
 					};
@@ -195,7 +195,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					ErrorMessage = null;
 					try
 					{
-						var newPath = (parent.Path != "/" ? parent.Path : String.Empty) + '/' + ItemName;
+						var newPath = (parent.Path != "/" ? parent.Path : string.Empty) + '/' + ItemName;
 						ConfigurationFile file;
 						if (Type == ItemType.Folder)
 						{
@@ -225,9 +225,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						}
 						parent.DirectAdd(file);
 
-						ItemPath = String.Empty;
-						ItemText = String.Empty;
-						ItemName = String.Empty;
+						ItemPath = string.Empty;
+						ItemText = string.Empty;
+						ItemName = string.Empty;
 					}
 					catch (ClientException e)
 					{

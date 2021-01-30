@@ -92,10 +92,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public Task HandleClick(CancellationToken cancellationToken)
 		{
-			Username = String.Empty;
-			Password = String.Empty;
-			ConfirmPassword = String.Empty;
-			SystemIdentifier = String.Empty;
+			Username = string.Empty;
+			Password = string.Empty;
+			ConfirmPassword = string.Empty;
+			SystemIdentifier = string.Empty;
 			pageContext.ActiveObject = this;
 			return Task.CompletedTask;
 		}

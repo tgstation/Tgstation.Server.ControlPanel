@@ -88,7 +88,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => textBlob;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref textBlob, value.Replace("\r", String.Empty));
+				this.RaiseAndSetIfChanged(ref textBlob, value.Replace("\r", string.Empty));
 				this.RaisePropertyChanged(nameof(IsText));
 				textChanged = true;
 				Write.Recheck();
@@ -349,11 +349,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case StaticFileCommand.BrowseDownload:
 					var sfd = new SaveFileDialog
 					{
-						Title = String.Format(CultureInfo.InvariantCulture, "Save {0}", Path),
+						Title = string.Format(CultureInfo.InvariantCulture, "Save {0}", Path),
 						InitialFileName = System.IO.Path.GetFileName(Path)
 					};
 					var ext = System.IO.Path.GetExtension(Path);
-					if (!String.IsNullOrEmpty(ext))
+					if (!string.IsNullOrEmpty(ext))
 						sfd.DefaultExtension = ext;
 					
 					if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime1)
@@ -362,7 +362,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case StaticFileCommand.BrowseUpload:
 					var ofd = new OpenFileDialog
 					{
-						Title = String.Format(CultureInfo.InvariantCulture, "Upload to {0}", Path),
+						Title = string.Format(CultureInfo.InvariantCulture, "Upload to {0}", Path),
 						InitialFileName = System.IO.Path.GetFileName(Path),
 						AllowMultiple = false
 					};

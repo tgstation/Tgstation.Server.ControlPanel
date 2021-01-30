@@ -74,7 +74,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(IrcUsingPassword));
 				if (!IrcUsingPassword)
 				{
-					IrcPassword = String.Empty;
+					IrcPassword = string.Empty;
 					this.RaisePropertyChanged(nameof(IrcPassword));
 				}
 				Add.Recheck();
@@ -172,13 +172,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				AddChatBotCommand.Close => true,
 				AddChatBotCommand.Add => !loading
-					&& !String.IsNullOrEmpty(BotName)
+					&& !string.IsNullOrEmpty(BotName)
 					&& rightsProvider.ChatBotRights.HasFlag(ChatBotRights.Create)
-					&& ((DiscordSelected && !String.IsNullOrEmpty(DiscordBotToken))
-						|| (IrcSelected && !String.IsNullOrEmpty(IrcServer)
-						&& !String.IsNullOrEmpty(IrcNick)
+					&& ((DiscordSelected && !string.IsNullOrEmpty(DiscordBotToken))
+						|| (IrcSelected && !string.IsNullOrEmpty(IrcServer)
+						&& !string.IsNullOrEmpty(IrcNick)
 						&& (!IrcUsingPassword 
-						|| !String.IsNullOrEmpty(IrcPassword)))),
+						|| !string.IsNullOrEmpty(IrcPassword)))),
 				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
 			};
 		}

@@ -35,7 +35,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string CurrentVersion => data != null ? FormatByondVersion(data) : "Unknown";
 
-		public string ApplyText => String.IsNullOrWhiteSpace(ByondZipPath) ?
+		public string ApplyText => string.IsNullOrWhiteSpace(ByondZipPath) ?
 			InstalledVersions
 				.Select(x => Version.Parse(x))
 				.Any(x => x.Major == NewMajor && x.Minor == NewMinor)
@@ -185,8 +185,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		static string FormatByondVersion(Byond byond) => byond.Version == null ? "None" :
 			byond.Version.Build > 0
-				? String.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}", byond.Version.Major, byond.Version.Minor, byond.Version.Build)
-				: String.Format(CultureInfo.InvariantCulture, "{0}.{1}", byond.Version.Major, byond.Version.Minor);
+				? string.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}", byond.Version.Major, byond.Version.Minor, byond.Version.Build)
+				: string.Format(CultureInfo.InvariantCulture, "{0}.{1}", byond.Version.Major, byond.Version.Minor);
 
 		async Task Load(CancellationToken cancellationToken)
 		{
@@ -241,7 +241,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				ByondCommand.Refresh => !Refreshing && (CanRead || CanList),
 				ByondCommand.Update => !Refreshing
-				&& ((CanInstall && String.IsNullOrWhiteSpace(ByondZipPath)
+				&& ((CanInstall && string.IsNullOrWhiteSpace(ByondZipPath)
 				&& (Prebuild == 0 || InstalledVersions
 					.Select(x => Version.Parse(x))
 					.Any(x => x == new Version(NewMajor, NewMinor, Prebuild))))
@@ -266,7 +266,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					try
 					{
 						Stream zipStream = null;
-						if (!String.IsNullOrWhiteSpace(ByondZipPath))
+						if (!string.IsNullOrWhiteSpace(ByondZipPath))
 							zipStream = new FileStream(ByondZipPath, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete, 8192, true);
 						using (zipStream)
 						{

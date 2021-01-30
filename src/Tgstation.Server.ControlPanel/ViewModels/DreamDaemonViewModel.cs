@@ -340,7 +340,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				NewPrimaryPort = Model.Port ?? 0;
 				NewAutoStart = Model.AutoStart ?? false;
 				NewAllowWebClient = Model.AllowWebClient ?? false;
-				NewAdditionalParams = Model.AdditionalParameters ?? String.Empty;
+				NewAdditionalParams = Model.AdditionalParameters ?? string.Empty;
 				initalSecurityLevel = Model.SecurityLevel;
 
 				ClearSoft = true;

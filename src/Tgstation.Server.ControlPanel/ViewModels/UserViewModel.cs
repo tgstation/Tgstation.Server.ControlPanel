@@ -42,9 +42,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool IsSystemUser => User.SystemIdentifier != null;
 
-		public string FormatCreatedBy => User.CreatedBy != null ? String.Format(CultureInfo.InvariantCulture, "{0} ({1})", User.CreatedBy.Name, User.CreatedBy.Id) : "TGS";
+		public string FormatCreatedBy => User.CreatedBy != null ? string.Format(CultureInfo.InvariantCulture, "{0} ({1})", User.CreatedBy.Name, User.CreatedBy.Id) : "TGS";
 
-		public string Title => String.Format(CultureInfo.InvariantCulture, "User: {0} ({1})", user.Name, user.Id);
+		public string Title => string.Format(CultureInfo.InvariantCulture, "User: {0} ({1})", user.Name, user.Id);
 
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.user.png";
 
@@ -139,8 +139,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			RemoveFromGroup = new EnumCommand<UserCommand>(UserCommand.RemoveFromGroup, this);
 			Save = new EnumCommand<UserCommand>(UserCommand.Save, this);
 
-			NewPassword = String.Empty;
-			PasswordConfirm = String.Empty;
+			NewPassword = string.Empty;
+			PasswordConfirm = string.Empty;
 
 			Enabled = User.Enabled.Value;
 			void SetLocks()
@@ -252,8 +252,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			using (DelayChangeNotifications())
 			{
-				NewPassword = String.Empty;
-				PasswordConfirm = String.Empty;
+				NewPassword = string.Empty;
+				PasswordConfirm = string.Empty;
 				Refresh.Recheck();
 				Save.Recheck();
 			}

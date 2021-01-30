@@ -62,9 +62,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				var key = Model.IrcChannel?.Split(';').Skip(1).LastOrDefault();
 				Model.IrcChannel = value;
-				if (!String.IsNullOrWhiteSpace(key))
+				if (!string.IsNullOrWhiteSpace(key))
 					Model.IrcChannel += ';' + key;
-				BadForm = String.IsNullOrEmpty(Model.IrcChannel) || Model.IrcChannel[0] != '#';
+				BadForm = string.IsNullOrEmpty(Model.IrcChannel) || Model.IrcChannel[0] != '#';
 				Modified = true;
 				onEdit();
 			}
@@ -77,8 +77,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				if (!IsIrc)
 					return;
-				Model.IrcChannel = Model.IrcChannel?.Split(';').First() ?? String.Empty;
-				if (!String.IsNullOrWhiteSpace(value))
+				Model.IrcChannel = Model.IrcChannel?.Split(';').First() ?? string.Empty;
+				if (!string.IsNullOrWhiteSpace(value))
 					Model.IrcChannel += $";{value}";
 				Modified = true;
 				onEdit();
@@ -90,7 +90,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => Model.Tag;
 			set
 			{
-				if(String.IsNullOrEmpty(value))
+				if(string.IsNullOrEmpty(value))
 					Model.Tag = null;
 				else
 					Model.Tag = value;
@@ -105,7 +105,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				if (!IsDiscord)
 					return;
-				if (UInt64.TryParse(value, out var result))
+				if (ulong.TryParse(value, out var result))
 				{
 					Model.DiscordChannelId = result;
 					BadForm = false;

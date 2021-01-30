@@ -179,7 +179,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var update = new ChatBot
 					{
 						Id = ChatBot.Id,
-						ConnectionString = CanConnectionString && !String.IsNullOrEmpty(NewConnectionString) && NewConnectionString != ChatBot.ConnectionString ? NewConnectionString : null,
+						ConnectionString = CanConnectionString && !string.IsNullOrEmpty(NewConnectionString) && NewConnectionString != ChatBot.ConnectionString ? NewConnectionString : null,
 						ChannelLimit = CanChannelLimit ? (ushort?)NewChannelLimit : null,
 						Enabled = CanEnable && ChatBot.Enabled != NewEnabled ? (bool?)NewEnabled : null
 					};

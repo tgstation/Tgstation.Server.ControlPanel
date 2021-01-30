@@ -37,7 +37,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly ProductHeaderValue productHeaderValue;
 
-		public static string Versions => String.Format(CultureInfo.InvariantCulture, "Version: {0}, API Version: {1}", Assembly.GetExecutingAssembly().GetName().Version, ApiHeaders.Version);
+		public static string Versions => string.Format(CultureInfo.InvariantCulture, "Version: {0}, API Version: {1}", Assembly.GetExecutingAssembly().GetName().Version, ApiHeaders.Version);
 
 		public static string Meme
 		{
@@ -176,7 +176,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		void GlobalExceptionHandler(Exception e)
 		{
-			var exceptionFileName = Path.Combine(storageDirectory, String.Format(CultureInfo.InvariantCulture, "crash_please_report.{0}.log", DateTimeOffset.Now.ToUnixTimeSeconds()));
+			var exceptionFileName = Path.Combine(storageDirectory, string.Format(CultureInfo.InvariantCulture, "crash_please_report.{0}.log", DateTimeOffset.Now.ToUnixTimeSeconds()));
 			File.WriteAllText(exceptionFileName, e.ToString());
 			ControlPanel.OpenFolder(storageDirectory);
 		}
@@ -186,7 +186,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				new Octokit.Connection(
 					new Octokit.ProductHeaderValue(productHeaderValue.Name, productHeaderValue.Version),
 					new HttpClientAdapter(() => new LoggingHandler(this))));
-			if (!String.IsNullOrEmpty(GitHubToken))
+			if (!string.IsNullOrEmpty(GitHubToken))
 				tmpClient.Credentials = new Octokit.Credentials(GitHubToken);
 			gitHubClient = tmpClient;
 		}
@@ -218,7 +218,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			settings.Connections ??= new List<Connection>();
 			settings.GitHubToken ??= new Credentials()
 			{
-				Password = String.Empty
+				Password = string.Empty
 			};
 			settings.GitHubToken.AllowSavingPassword = true;
 			return settings;
@@ -283,8 +283,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (property.PropertyType == typeof(string))
 					property.SetValue(
 						model,
-						String.Join(
-							String.Empty,
+                        string.Join(
+                            string.Empty,
 							Enumerable.Repeat(
 								'*',
 								((string)censorField).Length)));
@@ -318,10 +318,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public async Task LogRequest(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
 		{
-			var instancePart = String.Empty;
+			var instancePart = string.Empty;
 			if (requestMessage.Headers.TryGetValues("Instance", out var values))
-				instancePart = String.Format(CultureInfo.InvariantCulture, " I:{0}", values.First());
-			var bodyPart = String.Empty;
+				instancePart = string.Format(CultureInfo.InvariantCulture, " I:{0}", values.First());
+			var bodyPart = string.Empty;
 
 			if (requestMessage.Content is StreamContent)
 			{
@@ -329,15 +329,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				return;
 			}
 
-			var bodyString = await (requestMessage.Content?.ReadAsStringAsync() ?? Task.FromResult<string>(null)).ConfigureAwait(false);
-			if (!String.IsNullOrEmpty(bodyString))
+			var bodyString = await (requestMessage.Content?.ReadAsStringAsync(cancellationToken) ?? Task.FromResult<string>(null)).ConfigureAwait(false);
+			if (!string.IsNullOrEmpty(bodyString))
 			{
 				//may contain the password for some things, User models, censor it
 				CensorBodyString<UserUpdate>(x => x.Password, ref bodyString);
 				CensorBodyString<Repository>(x => x.AccessToken, ref bodyString);
 				CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString);
 
-				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
+				bodyPart = string.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			}
 
 			AddToConsole($"{requestMessage.Method} {requestMessage.RequestUri}{instancePart}{bodyPart}");
@@ -346,9 +346,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public async Task LogResponse(HttpResponseMessage responseMessage, CancellationToken cancellationToken)
 		{
 			var requestMessage = responseMessage.RequestMessage;
-			var instancePart = String.Empty;
+			var instancePart = string.Empty;
 			if (requestMessage.Headers.TryGetValues("Instance", out var values))
-				instancePart = String.Format(CultureInfo.InvariantCulture, " I:{0}", values.First());
+				instancePart = string.Format(CultureInfo.InvariantCulture, " I:{0}", values.First());
 
 			if (responseMessage.Content.Headers.ContentType?.MediaType == MediaTypeNames.Application.Octet)
 			{
@@ -356,22 +356,22 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				return;
 			}
 
-			var bodyString = await (responseMessage.Content?.ReadAsStringAsync() ?? Task.FromResult<string>(null)).ConfigureAwait(false);
+			var bodyString = await (responseMessage.Content?.ReadAsStringAsync(cancellationToken) ?? Task.FromResult<string>(null)).ConfigureAwait(false);
 			if (responseMessage.StatusCode == HttpStatusCode.InternalServerError)
 			{
 				var tmpFile = Path.Combine(Path.GetTempPath(), "tgs_error.html");
 				File.WriteAllText(tmpFile, bodyString);
-				ControlPanel.LaunchUrl(String.Format("file:///{0}", tmpFile));
-				bodyString = String.Format("Error page written to {0}", tmpFile);
+				ControlPanel.LaunchUrl(string.Format("file:///{0}", tmpFile));
+				bodyString = string.Format("Error page written to {0}", tmpFile);
 			}
-			var bodyPart = String.Empty;
-			if (!String.IsNullOrEmpty(bodyString))
+			var bodyPart = string.Empty;
+			if (!string.IsNullOrEmpty(bodyString))
 			{
 				CensorBodyString<Repository>(x => x.AccessToken, ref bodyString);
 				CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString);
 				CensorBodyString<Token>(x => x.Bearer, ref bodyString);
 
-				bodyPart = String.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
+				bodyPart = string.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			}
 
 			AddToConsole($"HTTP {responseMessage.StatusCode}: {requestMessage.Method} {requestMessage.RequestUri}{instancePart}{bodyPart}");
@@ -385,18 +385,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(MainWindowCommand command)
 		{
-			switch (command)
-			{
-				case MainWindowCommand.NewServerConnection:
-				case MainWindowCommand.CopyConsole:
-				case MainWindowCommand.ReportIssue:
-					return true;
-				case MainWindowCommand.AppUpdate:
-					return updater.Functional && updateReady;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
-		}
+            return command switch
+            {
+                MainWindowCommand.NewServerConnection or MainWindowCommand.CopyConsole or MainWindowCommand.ReportIssue => true,
+                MainWindowCommand.AppUpdate => updater.Functional && updateReady,
+                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+            };
+        }
 
 		public async Task RunCommand(MainWindowCommand command, CancellationToken cancellationToken)
 		{
@@ -407,9 +402,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						Credentials = new Credentials
 						{
-							Password = String.Empty
+							Password = string.Empty
 						},
-						Username = String.Empty,
+						Username = string.Empty,
 						Timeout = TimeSpan.FromSeconds(15),
 						JobRequeryRate = TimeSpan.FromSeconds(10),
 						Url = new Uri("https://localhost:5000")
@@ -433,7 +428,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					lock(this)
 						tmp = new List<string>(ConsoleContent.Split('\n'));
 					tmp.RemoveAt(0);    //remove info line
-					var clipboard = String.Join(" ", tmp);
+					var clipboard = string.Join(" ", tmp);
 					TextCopy.Clipboard.SetText(clipboard);
 					break;
 				case MainWindowCommand.AppUpdate:
@@ -451,8 +446,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						updater.RestartApp();
 					break;
 				case MainWindowCommand.ReportIssue:
-					var body = String.Format("<Please describe your issue here>{0}{0}{0}Console:{0}```{0}{1}{0}```{0}Reported from version {2}", Environment.NewLine, ConsoleContent, Assembly.GetExecutingAssembly().GetName().Version);
-					ControlPanel.LaunchUrl(String.Format(CultureInfo.InvariantCulture, "https://github.com/tgstation/Tgstation.Server.ControlPanel/issues/new?body={0}", HttpUtility.UrlEncode(body)));
+					var body = string.Format("<Please describe your issue here>{0}{0}{0}Console:{0}```{0}{1}{0}```{0}Reported from version {2}", Environment.NewLine, ConsoleContent, Assembly.GetExecutingAssembly().GetName().Version);
+					ControlPanel.LaunchUrl(string.Format(CultureInfo.InvariantCulture, "https://github.com/tgstation/Tgstation.Server.ControlPanel/issues/new?body={0}", HttpUtility.UrlEncode(body)));
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");

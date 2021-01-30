@@ -185,8 +185,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				ConfigMode = Instance.ConfigurationType.Value;
 				AutoUpdateInterval = Instance.AutoUpdateInterval.Value;
 				NewChatBotLimit = Instance.ChatBotLimit.Value;
-				NewName = String.Empty;
-				NewPath = String.Empty;
+				NewName = string.Empty;
+				NewPath = string.Empty;
 
 				if (!Enabled)
 					return;
@@ -321,9 +321,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						{
 							Id = Instance.Id
 						};
-						if (!String.IsNullOrWhiteSpace(NewName) && CanRename)
+						if (!string.IsNullOrWhiteSpace(NewName) && CanRename)
 							newInstance.Name = NewName;
-						if (!String.IsNullOrWhiteSpace(NewPath) && CanRelocate)
+						if (!string.IsNullOrWhiteSpace(NewPath) && CanRelocate)
 							newInstance.Path = NewPath;
 						if (CanOnline)
 							newInstance.Online = Enabled;

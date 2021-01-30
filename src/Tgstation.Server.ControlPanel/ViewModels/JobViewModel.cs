@@ -18,7 +18,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Cancel
 		}
 
-		public string Title => String.Format(CultureInfo.InvariantCulture, "Job #{0}", job.Id) + (Finished ? (Cancelled ? " (Cancelled)" : Error ? " (Failed)" : " (Done)") : String.Empty);
+		public string Title => string.Format(CultureInfo.InvariantCulture, "Job #{0}", job.Id) + (Finished ? (Cancelled ? " (Cancelled)" : Error ? " (Failed)" : " (Done)") : string.Empty);
 
 		public bool Finished => job.StoppedAt.HasValue;
 		public bool Error => job.ExceptionDetails != null;
@@ -31,7 +31,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string Description => job.Description;
 
-		public string StartedBy => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", job.StartedBy.Name, job.StartedBy.Id);
+		public string StartedBy => string.Format(CultureInfo.InvariantCulture, "{0} ({1})", job.StartedBy.Name, job.StartedBy.Id);
 		public string StartedAt => job.StartedAt.Value.ToLocalTime().ToString("g");
 
 		public bool Cancelled => job.Cancelled == true;

@@ -25,7 +25,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get
 			{
 				var fileName = System.IO.Path.GetFileName(Path);
-				if (String.IsNullOrEmpty(fileName))
+				if (string.IsNullOrEmpty(fileName))
 					return "Configuration";
 				return fileName;
 			}

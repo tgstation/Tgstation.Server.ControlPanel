@@ -137,18 +137,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(CanSetRef));
 					if (value)
 					{
-						if (String.IsNullOrEmpty(NewReference) && Repository != null)
+						if (string.IsNullOrEmpty(NewReference) && Repository != null)
 							NewReference = Repository.Reference;
-						NewSha = String.Empty;
+						NewSha = string.Empty;
 					}
 					else if (NewReference == Repository?.Reference)
-						NewReference = String.Empty;
+						NewReference = string.Empty;
 					RebuildTestMergeList();
 				}
 			}
 		}
 
-		public bool CanUpdateMerge => !UpdateHard && String.IsNullOrEmpty(NewReference) && String.IsNullOrEmpty(NewSha);
+		public bool CanUpdateMerge => !UpdateHard && string.IsNullOrEmpty(NewReference) && string.IsNullOrEmpty(NewSha);
 
 		public bool NewShowTestMergeCommitters
 		{
@@ -191,8 +191,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanClone => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetOrigin);
 		public bool CanDelete => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.Delete);
-		public bool CanSetRef => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetReference) && String.IsNullOrEmpty(NewSha) && !UpdateHard;
-		public bool CanSetSha => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetSha) && String.IsNullOrEmpty(NewReference);
+		public bool CanSetRef => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetReference) && string.IsNullOrEmpty(NewSha) && !UpdateHard;
+		public bool CanSetSha => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetSha) && string.IsNullOrEmpty(NewReference);
 		public bool CanShowTMCommitters => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeTestMergeCommits);
 		public bool CanChangeCommitter => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeCommitter);
 		public bool CanAccess => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeCredentials);
@@ -220,7 +220,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref refreshing, value);
 		}
 
-		public string UpdateText => String.IsNullOrEmpty(NewSha) && (String.IsNullOrEmpty(NewReference) || NewReference == Repository.Reference) ? "Fetch and Hard Reset To Tracked Origin Reference" : "Fetch and Hard Reset to Target Origin Object";
+		public string UpdateText => string.IsNullOrEmpty(NewSha) && (string.IsNullOrEmpty(NewReference) || NewReference == Repository.Reference) ? "Fetch and Hard Reset To Tracked Origin Reference" : "Fetch and Hard Reset to Target Origin Object";
 
 		public string ErrorMessage
 		{
@@ -400,13 +400,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 					Repository = newRepo;
 
-					NewOrigin = String.Empty;
-					NewSha = String.Empty;
-					NewReference = String.Empty;
-					NewCommitterEmail = String.Empty;
-					NewCommitterName = String.Empty;
-					NewAccessUser = String.Empty;
-					NewAccessToken = String.Empty;
+					NewOrigin = string.Empty;
+					NewSha = string.Empty;
+					NewReference = string.Empty;
+					NewCommitterEmail = string.Empty;
+					NewCommitterName = string.Empty;
+					NewAccessUser = string.Empty;
+					NewAccessToken = string.Empty;
 
 					UpdateHard = false;
 					UpdateMerge = false;
@@ -581,14 +581,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				// manual addition
 				var manualPr = new Octokit.Issue(
-					String.Empty,
+                    string.Empty,
 					$"https://github.com/{Repository.RemoteRepositoryOwner}/{Repository.RemoteRepositoryName}/pull/{number}",
-					String.Empty,
-					String.Empty,
+                    string.Empty,
+                    string.Empty,
 					number,
 					Octokit.ItemState.Open,
 					"Unable to Load PR Details",
-					String.Empty,
+                    string.Empty,
 					null,
 					new Octokit.User(),
 					Array.Empty<Octokit.Label>(),
@@ -601,7 +601,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					default,
 					null,
 					0,
-					String.Empty,
+                    string.Empty,
 					false,
 					null,
 					null);
@@ -620,7 +620,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		void HandleRateLimit(Octokit.RateLimitExceededException e)
 		{
 			RateLimited = true;
-			void UpdateSeconds() => RateLimitSeconds = String.Format(CultureInfo.InvariantCulture, "You have been rate limited by GitHub, add a personal access token on the Connection Manager to increase the limit. This will reset in {0}s...", Math.Floor((e.Reset - DateTimeOffset.Now).TotalSeconds));
+			void UpdateSeconds() => RateLimitSeconds = string.Format(CultureInfo.InvariantCulture, "You have been rate limited by GitHub, add a personal access token on the Connection Manager to increase the limit. This will reset in {0}s...", Math.Floor((e.Reset - DateTimeOffset.Now).TotalSeconds));
 			UpdateSeconds();
 			async void ResetRate()
 			{
@@ -652,11 +652,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case RepositoryCommand.Update:
 					return !Refreshing
 						&& (CanAutoUpdate | CanChangeCommitter | CanAccess | CanShowTMCommitters | CanTestMerge | CanSetRef | CanSetSha | CanUpdate)
-						&& !(!String.IsNullOrEmpty(NewAccessUser) ^ !String.IsNullOrEmpty(NewAccessToken));
+						&& !(!string.IsNullOrEmpty(NewAccessUser) ^ !string.IsNullOrEmpty(NewAccessToken));
 				case RepositoryCommand.Delete:
 					return !Refreshing && CanDelete;
 				case RepositoryCommand.Clone:
-					return !Refreshing && CanClone && !String.IsNullOrEmpty(NewOrigin) && Uri.TryCreate(NewOrigin, UriKind.Absolute, out var _) && !(!String.IsNullOrEmpty(NewAccessUser) ^ !String.IsNullOrEmpty(NewAccessToken));
+					return !Refreshing && CanClone && !string.IsNullOrEmpty(NewOrigin) && Uri.TryCreate(NewOrigin, UriKind.Absolute, out var _) && !(!string.IsNullOrEmpty(NewAccessUser) ^ !string.IsNullOrEmpty(NewAccessToken));
 				case RepositoryCommand.RemoveCredentials:
 					return !Refreshing && CanAccess;
 				case RepositoryCommand.DirectAddPR:
@@ -680,12 +680,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case RepositoryCommand.Update:
 					var update = new Repository
 					{
-						CheckoutSha = String.IsNullOrEmpty(NewSha) ? null : NewSha,
-						Reference = String.IsNullOrEmpty(NewReference) ? null : NewReference,
+						CheckoutSha = string.IsNullOrEmpty(NewSha) ? null : NewSha,
+						Reference = string.IsNullOrEmpty(NewReference) ? null : NewReference,
 						UpdateFromOrigin = UpdateHard || UpdateMerge ? (bool?)true : null,
 
-						AccessToken = String.IsNullOrEmpty(NewAccessToken) ? null : NewAccessToken,
-						AccessUser = String.IsNullOrEmpty(NewAccessUser) ? null : NewAccessUser,
+						AccessToken = string.IsNullOrEmpty(NewAccessToken) ? null : NewAccessToken,
+						AccessUser = string.IsNullOrEmpty(NewAccessUser) ? null : NewAccessUser,
 
 						AutoUpdatesKeepTestMerges = CanAutoUpdate ? (bool?)NewAutoUpdatesKeepTestMerges : null,
 						AutoUpdatesSynchronize = CanAutoUpdate ? (bool?)NewAutoUpdatesSynchronize : null,
@@ -694,8 +694,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						ShowTestMergeCommitters = CanShowTMCommitters ? (bool?)NewShowTestMergeCommitters : null,
 						CreateGitHubDeployments = CanShowTMCommitters ? (bool?)NewGitHubDeployments : null,
 
-						CommitterEmail = !String.IsNullOrEmpty(NewCommitterEmail) ? NewCommitterEmail : null,
-						CommitterName = !String.IsNullOrEmpty(NewCommitterName) ? NewCommitterName : null
+						CommitterEmail = !string.IsNullOrEmpty(NewCommitterEmail) ? NewCommitterEmail : null,
+						CommitterName = !string.IsNullOrEmpty(NewCommitterName) ? NewCommitterName : null
 					};
 
 					if (modifiedPRList || UpdateHard)
@@ -743,9 +743,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var clone = new Repository
 					{
 						Origin = new Uri(NewOrigin),
-						Reference = String.IsNullOrEmpty(NewReference) ? null : NewReference,
-						AccessToken = String.IsNullOrEmpty(NewAccessToken) || !CanAccess ? null : NewAccessToken,
-						AccessUser = String.IsNullOrEmpty(NewAccessUser) || !CanAccess ? null : NewAccessUser,
+						Reference = string.IsNullOrEmpty(NewReference) ? null : NewReference,
+						AccessToken = string.IsNullOrEmpty(NewAccessToken) || !CanAccess ? null : NewAccessToken,
+						AccessUser = string.IsNullOrEmpty(NewAccessUser) || !CanAccess ? null : NewAccessUser,
 						RecurseSubmodules = RecurseSubmodules
 					};
 					await Refresh(clone, true, cancellationToken).ConfigureAwait(true);
@@ -753,8 +753,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case RepositoryCommand.RemoveCredentials:
 					await Refresh(new Repository
 					{
-						AccessUser = String.Empty,
-						AccessToken = String.Empty
+						AccessUser = string.Empty,
+						AccessToken = string.Empty
 					}, null, cancellationToken).ConfigureAwait(true);
 					break;
 				case RepositoryCommand.DirectAddPR:

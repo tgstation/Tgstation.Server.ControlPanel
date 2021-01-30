@@ -56,7 +56,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			users = userProvider.GetUsers()?.Where(x => x.Id != userProvider.CurrentUser.Id).ToList();
 			groups = userProvider.GetGroups()?.Where(x => x.Id != userProvider.CurrentUser.Group?.Id).ToList();
-			var userStrings = users?.Select(x => String.Format(CultureInfo.InvariantCulture, "User {0} ({1})", x.Name, x.Id)).ToList() ?? new List<string>();
+			var userStrings = users?.Select(x => string.Format(CultureInfo.InvariantCulture, "User {0} ({1})", x.Name, x.Id)).ToList() ?? new List<string>();
 			userStrings.AddRange(groups?.Select(x => $"Group {x.Name} ({x.Id})") ?? Enumerable.Empty<string>());
 			if (userStrings.Count > 0)
 				UserStrings = userStrings;

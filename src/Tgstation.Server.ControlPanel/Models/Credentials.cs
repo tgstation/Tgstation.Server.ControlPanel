@@ -17,17 +17,15 @@ namespace Tgstation.Server.ControlPanel.Models
 			set => Encrypt(value);
 		}
 
-#pragma warning disable CA1819 // Properties should not return arrays
-		public byte[] CipherText
+        public byte[] CipherText
 		{
 			get => AllowSavingPassword ? cipherText : null;
 			set => cipherText = value;
 		}
 
 		public byte[] Entropy { get; set; }
-#pragma warning restore CA1819 // Properties should not return arrays
 
-		byte[] cipherText;
+        byte[] cipherText;
 
 		void Encrypt(string cleartext)
 		{

@@ -19,9 +19,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			LoadCommits
 		}
 
-		public string Title => String.Format(CultureInfo.InvariantCulture, "#{0} - {1}", TestMerge.Number, TestMerge.TitleAtMerge);
+		public string Title => string.Format(CultureInfo.InvariantCulture, "#{0} - {1}", TestMerge.Number, TestMerge.TitleAtMerge);
 
-		public string MergedBy => String.Format(CultureInfo.InvariantCulture, "{0} ({1})", TestMerge.MergedBy.Name, TestMerge.MergedBy.Id);
+		public string MergedBy => string.Format(CultureInfo.InvariantCulture, "{0} ({1})", TestMerge.MergedBy.Name, TestMerge.MergedBy.Id);
 		public string MergedAt => TestMerge.MergedAt.ToLocalTime().ToString("g");
 
 		public bool Selected
@@ -119,7 +119,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			if (commits == null)
 				return;
-			Commits = commits?.Select(x => String.Format(CultureInfo.InvariantCulture, "{0} - {1}", x.Sha.Substring(0, 7), x.Commit.Message.Split('\n').First())).ToList();
+			Commits = commits?.Select(x => string.Format(CultureInfo.InvariantCulture, "{0} - {1}", x.Sha.Substring(0, 7), x.Commit.Message.Split('\n').First())).ToList();
 			this.RaisePropertyChanged(nameof(Commits));
 			this.RaisePropertyChanged(nameof(CommitsLoaded));
 			LoadCommits.Recheck();
