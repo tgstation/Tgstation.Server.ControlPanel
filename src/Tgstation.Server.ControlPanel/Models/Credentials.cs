@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 
 namespace Tgstation.Server.ControlPanel.Models
 {
+	[SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Handled for linux deployments")]
 	public class Credentials
 	{
 		[JsonIgnore]
@@ -27,6 +29,7 @@ namespace Tgstation.Server.ControlPanel.Models
 
 		byte[] cipherText;
 
+		
 		void Encrypt(string cleartext)
 		{
 			if (cleartext == null)
