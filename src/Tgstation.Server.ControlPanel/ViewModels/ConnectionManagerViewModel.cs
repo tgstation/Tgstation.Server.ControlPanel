@@ -230,6 +230,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		UserViewModel userVM;
 
+		public string GitHubToken { get; set; }
+
 		bool usingHttp;
 		bool confirmingDelete;
 		bool usingDefaultCredentials;
