@@ -74,16 +74,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(JobCommand command)
 		{
-			switch (command)
-			{
-				case JobCommand.Remove:
-					return Finished;
-				case JobCommand.Cancel:
-					return canCancel && !Finished && jobsClient != null;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
-		}
+            return command switch
+            {
+                JobCommand.Remove => Finished,
+                JobCommand.Cancel => canCancel && !Finished && jobsClient != null,
+                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+            };
+        }
 
 		public async Task RunCommand(JobCommand command, CancellationToken cancellationToken)
 		{

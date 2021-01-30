@@ -153,20 +153,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(UserGroupsCommand command)
 		{
-			switch (command)
-			{
-				case UserGroupsCommand.AddUser:
-					return !Loading && SelectedIndex < UserStrings.Count && userProvider.GetUsers() != null && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers);
-				case UserGroupsCommand.Close:
-					return true;
-				case UserGroupsCommand.Delete:
-					return !Loading && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers) && UserCount == 0;
-				case UserGroupsCommand.Refresh:
-					return !Loading && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.ReadUsers);
-			}
-
-			return false;
-		}
+            return command switch
+            {
+                UserGroupsCommand.AddUser => !Loading && SelectedIndex < UserStrings.Count && userProvider.GetUsers() != null && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers),
+                UserGroupsCommand.Close => true,
+                UserGroupsCommand.Delete => !Loading && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers) && UserCount == 0,
+                UserGroupsCommand.Refresh => !Loading && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.ReadUsers),
+                _ => false,
+            };
+        }
 
 		List<User> GetFilteredUsers()
 		{

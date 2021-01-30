@@ -128,16 +128,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(TestMergeCommand command)
 		{
-			switch (command)
-			{
-				case TestMergeCommand.Link:
-					return true;
-				case TestMergeCommand.LoadCommits:
-					return !CommitsLoaded;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
-		}
+            return command switch
+            {
+                TestMergeCommand.Link => true,
+                TestMergeCommand.LoadCommits => !CommitsLoaded,
+                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+            };
+        }
 		public async Task RunCommand(TestMergeCommand command, CancellationToken cancellationToken)
 		{
 			switch (command)

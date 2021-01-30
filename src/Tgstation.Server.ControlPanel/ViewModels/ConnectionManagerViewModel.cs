@@ -507,17 +507,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(ConnectionManagerCommand command)
 		{
-			switch (command)
-			{
-				case ConnectionManagerCommand.Delete:
-				case ConnectionManagerCommand.Close:
-					return true;
-				case ConnectionManagerCommand.Connect:
-					return connection.Valid && !Connecting;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
-		}
+            return command switch
+            {
+                ConnectionManagerCommand.Delete or ConnectionManagerCommand.Close => true,
+                ConnectionManagerCommand.Connect => connection.Valid && !Connecting,
+                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+            };
+        }
 
 		public async Task RunCommand(ConnectionManagerCommand command, CancellationToken cancellationToken)
 		{
@@ -534,7 +530,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						async void DeleteConfirmTimeout()
 						{
-							await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
+							await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(false);
 							confirmingDelete = false;
 							this.RaisePropertyChanged(nameof(DeleteWord));
 						}

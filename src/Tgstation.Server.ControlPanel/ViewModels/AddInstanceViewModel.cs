@@ -88,16 +88,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(AddInstanceCommand command)
 		{
-			switch (command)
-			{
-				case AddInstanceCommand.Close:
-					return true;
-				case AddInstanceCommand.Add:
-					return !adding && !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Path);
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
-		}
+            return command switch
+            {
+                AddInstanceCommand.Close => true,
+                AddInstanceCommand.Add => !adding && !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Path),
+                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+            };
+        }
 
 		public async Task RunCommand(AddInstanceCommand command, CancellationToken cancellationToken)
 		{

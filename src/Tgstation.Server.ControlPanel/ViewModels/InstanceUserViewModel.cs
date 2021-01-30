@@ -939,19 +939,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(InstanceUserCommand command)
 		{
-			switch (command)
-			{
-				case InstanceUserCommand.Close:
-					return true;
-				case InstanceUserCommand.Refresh:
-					return !loading;
-				case InstanceUserCommand.Save:
-				case InstanceUserCommand.Delete:
-					return rightsProvider.InstanceUserRights.HasFlag(InstancePermissionSetRights.Write) && !loading;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
-		}
+            return command switch
+            {
+                InstanceUserCommand.Close => true,
+                InstanceUserCommand.Refresh => !loading,
+                InstanceUserCommand.Save or InstanceUserCommand.Delete => rightsProvider.InstanceUserRights.HasFlag(InstancePermissionSetRights.Write) && !loading,
+                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+            };
+        }
 
 		public async Task RunCommand(InstanceUserCommand command, CancellationToken cancellationToken)
 		{
@@ -1002,7 +997,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 						async void ResetConfirm()
 						{
-							await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
+							await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(true);
 							confirmingDelete = false;
 							this.RaisePropertyChanged(nameof(DeleteText));
 						}

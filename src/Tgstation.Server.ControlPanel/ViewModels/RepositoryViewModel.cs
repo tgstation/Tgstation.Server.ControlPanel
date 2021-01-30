@@ -643,29 +643,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(RepositoryCommand command)
 		{
-			switch (command)
-			{
-				case RepositoryCommand.Close:
-					return true;
-				case RepositoryCommand.Refresh:
-					return !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.Read);
-				case RepositoryCommand.Update:
-					return !Refreshing
-						&& (CanAutoUpdate | CanChangeCommitter | CanAccess | CanShowTMCommitters | CanTestMerge | CanSetRef | CanSetSha | CanUpdate)
-						&& !(!string.IsNullOrEmpty(NewAccessUser) ^ !string.IsNullOrEmpty(NewAccessToken));
-				case RepositoryCommand.Delete:
-					return !Refreshing && CanDelete;
-				case RepositoryCommand.Clone:
-					return !Refreshing && CanClone && !string.IsNullOrEmpty(NewOrigin) && Uri.TryCreate(NewOrigin, UriKind.Absolute, out var _) && !(!string.IsNullOrEmpty(NewAccessUser) ^ !string.IsNullOrEmpty(NewAccessToken));
-				case RepositoryCommand.RemoveCredentials:
-					return !Refreshing && CanAccess;
-				case RepositoryCommand.DirectAddPR:
-				case RepositoryCommand.RefreshPRs:
-					return !Refreshing && CanTestMerge && !RateLimited && !loadingPRs;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
-		}
+            return command switch
+            {
+                RepositoryCommand.Close => true,
+                RepositoryCommand.Refresh => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.Read),
+                RepositoryCommand.Update => !Refreshing
+                    && (CanAutoUpdate | CanChangeCommitter | CanAccess | CanShowTMCommitters | CanTestMerge | CanSetRef | CanSetSha | CanUpdate)
+                    && !(!string.IsNullOrEmpty(NewAccessUser) ^ !string.IsNullOrEmpty(NewAccessToken)),
+                RepositoryCommand.Delete => !Refreshing && CanDelete,
+                RepositoryCommand.Clone => !Refreshing 
+                    && CanClone && !string.IsNullOrEmpty(NewOrigin) 
+                    && Uri.TryCreate(NewOrigin, UriKind.Absolute, out var _)
+                    && !(!string.IsNullOrEmpty(NewAccessUser) ^ !string.IsNullOrEmpty(NewAccessToken)),
+                RepositoryCommand.RemoveCredentials => !Refreshing && CanAccess,
+                RepositoryCommand.DirectAddPR or RepositoryCommand.RefreshPRs => !Refreshing && CanTestMerge && !RateLimited && !loadingPRs,
+                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+            };
+        }
 
 		public async Task RunCommand(RepositoryCommand command, CancellationToken cancellationToken)
 		{

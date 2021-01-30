@@ -251,19 +251,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(InstanceCommand command)
 		{
-			switch (command)
-			{
-				case InstanceCommand.Close:
-					return true;
-				case InstanceCommand.Save:
-				case InstanceCommand.FixPerms:
-					return !loading;
-				case InstanceCommand.Delete:
-					return userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Delete);
-				default:
-					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
-			}
-		}
+            return command switch
+            {
+                InstanceCommand.Close => true,
+                InstanceCommand.Save or InstanceCommand.FixPerms => !loading,
+                InstanceCommand.Delete => userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Delete),
+                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+            };
+        }
 		public async Task Refresh(CancellationToken cancellationToken)
 		{
 			loading = true;
@@ -341,7 +336,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						{
 							async void ResetDelete()
 							{
-								await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
+								await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(true);
 								deleteConfirming = false;
 								this.RaisePropertyChanged(nameof(DeleteText));
 							}

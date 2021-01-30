@@ -127,12 +127,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			this.usersClient = usersClient ?? throw new ArgumentNullException(nameof(usersClient));
 			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
-			if (user == null)
-				throw new ArgumentNullException(nameof(user));
-			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
+            this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.userRightsProvider = userRightsProvider ?? this;
 
-			User = user;
+			User = user ?? throw new ArgumentNullException(nameof(user));
 
 			Close = new EnumCommand<UserCommand>(UserCommand.Close, this);
 			Refresh = new EnumCommand<UserCommand>(UserCommand.Refresh, this);
