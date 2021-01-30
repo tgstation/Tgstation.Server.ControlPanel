@@ -1,14 +1,14 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
@@ -144,7 +144,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<StaticFileCommand> BrowseDownload { get; }
 		public EnumCommand<StaticFileCommand> EnableEditor { get; }
 
-		public string Title =>  System.IO.Path.GetFileName(Path);
+		public string Title => System.IO.Path.GetFileName(Path);
 
 		public string Icon => Refreshing ? "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png" : Denied ? "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg" : "resm:Tgstation.Server.ControlPanel.Assets.file.png";
 
@@ -225,7 +225,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				await fileTuple.Item2.DisposeAsync();
 				DirectLoad(fileTuple.Item1);
 			}
-			catch(ClientException e)
+			catch (ClientException e)
 			{
 				ErrorMessage = e.Message;
 				Denied = e is InsufficientPermissionsException;
@@ -331,7 +331,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					await WriteGeneric(new MemoryStream(Encoding.UTF8.GetBytes(TextBlob))).ConfigureAwait(true);
 					break;
 				case StaticFileCommand.Delete:
-					if(confirmingDelete)
+					if (confirmingDelete)
 						await WriteGeneric(null).ConfigureAwait(true);
 					else
 					{
@@ -355,7 +355,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					var ext = System.IO.Path.GetExtension(Path);
 					if (!string.IsNullOrEmpty(ext))
 						sfd.DefaultExtension = ext;
-					
+
 					if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime1)
 						DownloadPath = (await sfd.ShowAsync(lifetime1.MainWindow).ConfigureAwait(true)) ?? DownloadPath;
 					break;

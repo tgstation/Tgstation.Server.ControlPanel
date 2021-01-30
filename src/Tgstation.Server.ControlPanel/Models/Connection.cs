@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using Newtonsoft.Json;
 using Tgstation.Server.Api.Models;
 
 namespace Tgstation.Server.ControlPanel.Models

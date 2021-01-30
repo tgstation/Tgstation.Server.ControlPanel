@@ -1,37 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using ReactiveUI;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-    public class ViewModelBase : ReactiveObject
-    {
-        public bool IsSelected
+	public class ViewModelBase : ReactiveObject
+	{
+		public bool IsSelected
 		{
-            get => isSelected;
-            set
-            {
-                var wasClick = value && !isSelected;
-                isSelected = value;
-                if (wasClick)
-                    TryClick();
-            }
+			get => isSelected;
+			set
+			{
+				var wasClick = value && !isSelected;
+				isSelected = value;
+				if (wasClick)
+					TryClick();
+			}
 		}
 
-        bool isSelected;
+		bool isSelected;
 
-        async void TryClick()
-        {
-            if (this is ITreeNode treeNode)
-                try
-                {
-                    await treeNode.HandleClick(default);
-                }
-                catch (Exception ex)
-                {
-                    MainWindowViewModel.HandleException(ex);
-                }
-        }
-    }
+		async void TryClick()
+		{
+			if (this is ITreeNode treeNode)
+				try
+				{
+					await treeNode.HandleClick(default);
+				}
+				catch (Exception ex)
+				{
+					MainWindowViewModel.HandleException(ex);
+				}
+		}
+	}
 }

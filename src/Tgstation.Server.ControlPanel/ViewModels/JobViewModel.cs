@@ -1,9 +1,9 @@
-﻿using Avalonia.Media;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Media;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
 using Tgstation.Server.Client.Components;
@@ -74,13 +74,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(JobCommand command)
 		{
-            return command switch
-            {
-                JobCommand.Remove => Finished,
-                JobCommand.Cancel => canCancel && !Finished && jobsClient != null,
-                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
-            };
-        }
+			return command switch
+			{
+				JobCommand.Remove => Finished,
+				JobCommand.Cancel => canCancel && !Finished && jobsClient != null,
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
+		}
 
 		public async Task RunCommand(JobCommand command, CancellationToken cancellationToken)
 		{

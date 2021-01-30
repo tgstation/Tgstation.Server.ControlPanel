@@ -1,8 +1,8 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 
 namespace Tgstation.Server.ControlPanel.ViewModels

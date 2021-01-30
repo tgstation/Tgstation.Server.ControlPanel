@@ -1,11 +1,11 @@
-﻿using Avalonia.Media;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Media;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
@@ -482,7 +482,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				HandleRateLimit(e);
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				MainWindowViewModel.HandleException(ex);
 			}
@@ -581,14 +581,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				// manual addition
 				var manualPr = new Octokit.Issue(
-                    string.Empty,
+					string.Empty,
 					$"https://github.com/{Repository.RemoteRepositoryOwner}/{Repository.RemoteRepositoryName}/pull/{number}",
-                    string.Empty,
-                    string.Empty,
+					string.Empty,
+					string.Empty,
 					number,
 					Octokit.ItemState.Open,
 					"Unable to Load PR Details",
-                    string.Empty,
+					string.Empty,
 					null,
 					new Octokit.User(),
 					Array.Empty<Octokit.Label>(),
@@ -601,7 +601,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					default,
 					null,
 					0,
-                    string.Empty,
+					string.Empty,
 					false,
 					null,
 					null);
@@ -643,23 +643,23 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(RepositoryCommand command)
 		{
-            return command switch
-            {
-                RepositoryCommand.Close => true,
-                RepositoryCommand.Refresh => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.Read),
-                RepositoryCommand.Update => !Refreshing
-                    && (CanAutoUpdate | CanChangeCommitter | CanAccess | CanShowTMCommitters | CanTestMerge | CanSetRef | CanSetSha | CanUpdate)
-                    && !(!string.IsNullOrEmpty(NewAccessUser) ^ !string.IsNullOrEmpty(NewAccessToken)),
-                RepositoryCommand.Delete => !Refreshing && CanDelete,
-                RepositoryCommand.Clone => !Refreshing 
-                    && CanClone && !string.IsNullOrEmpty(NewOrigin) 
-                    && Uri.TryCreate(NewOrigin, UriKind.Absolute, out var _)
-                    && !(!string.IsNullOrEmpty(NewAccessUser) ^ !string.IsNullOrEmpty(NewAccessToken)),
-                RepositoryCommand.RemoveCredentials => !Refreshing && CanAccess,
-                RepositoryCommand.DirectAddPR or RepositoryCommand.RefreshPRs => !Refreshing && CanTestMerge && !RateLimited && !loadingPRs,
-                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
-            };
-        }
+			return command switch
+			{
+				RepositoryCommand.Close => true,
+				RepositoryCommand.Refresh => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.Read),
+				RepositoryCommand.Update => !Refreshing
+					&& (CanAutoUpdate | CanChangeCommitter | CanAccess | CanShowTMCommitters | CanTestMerge | CanSetRef | CanSetSha | CanUpdate)
+					&& !(!string.IsNullOrEmpty(NewAccessUser) ^ !string.IsNullOrEmpty(NewAccessToken)),
+				RepositoryCommand.Delete => !Refreshing && CanDelete,
+				RepositoryCommand.Clone => !Refreshing
+					&& CanClone && !string.IsNullOrEmpty(NewOrigin)
+					&& Uri.TryCreate(NewOrigin, UriKind.Absolute, out var _)
+					&& !(!string.IsNullOrEmpty(NewAccessUser) ^ !string.IsNullOrEmpty(NewAccessToken)),
+				RepositoryCommand.RemoveCredentials => !Refreshing && CanAccess,
+				RepositoryCommand.DirectAddPR or RepositoryCommand.RefreshPRs => !Refreshing && CanTestMerge && !RateLimited && !loadingPRs,
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
+		}
 
 		public async Task RunCommand(RepositoryCommand command, CancellationToken cancellationToken)
 		{
@@ -706,7 +706,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						// Wait until the job has progress
 						if (job != null)
 						{
-							while(!job.StoppedAt.HasValue && !job.Progress.HasValue)
+							while (!job.StoppedAt.HasValue && !job.Progress.HasValue)
 							{
 								await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 								job = await jobsClient.GetId(job, cancellationToken).ConfigureAwait(false);

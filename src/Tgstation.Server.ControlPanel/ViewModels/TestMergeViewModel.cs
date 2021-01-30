@@ -1,12 +1,12 @@
-﻿using Avalonia.Media;
-using Octokit;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Media;
+using Octokit;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
@@ -79,7 +79,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		TestMergeViewModel(Action<int> onActivate)
 		{
 			this.onActivate = onActivate ?? throw new ArgumentNullException(nameof(onActivate));
-			
+
 			Link = new EnumCommand<TestMergeCommand>(TestMergeCommand.Link, this);
 			LoadCommits = new EnumCommand<TestMergeCommand>(TestMergeCommand.LoadCommits, this);
 		}
@@ -128,13 +128,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(TestMergeCommand command)
 		{
-            return command switch
-            {
-                TestMergeCommand.Link => true,
-                TestMergeCommand.LoadCommits => !CommitsLoaded,
-                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
-            };
-        }
+			return command switch
+			{
+				TestMergeCommand.Link => true,
+				TestMergeCommand.LoadCommits => !CommitsLoaded,
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
+		}
 		public async Task RunCommand(TestMergeCommand command, CancellationToken cancellationToken)
 		{
 			switch (command)

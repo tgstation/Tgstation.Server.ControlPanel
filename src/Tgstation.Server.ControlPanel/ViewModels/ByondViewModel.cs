@@ -1,8 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -10,6 +6,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
@@ -302,7 +302,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						InitialFileName = Path.GetFileName(ByondZipPath),
 						Filters = new List<FileDialogFilter>
 						{
-							new FileDialogFilter 
+							new FileDialogFilter
 							{
 								Name = "Zip Files",
 								Extensions = new List<string>
@@ -312,7 +312,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							}
 						}
 					};
-					if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime) {
+					if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
+					{
 						ByondZipPath = (await ofd.ShowAsync(lifetime.MainWindow).ConfigureAwait(true))[0] ?? ByondZipPath;
 					}
 					break;

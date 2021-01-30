@@ -1,11 +1,11 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
 using Tgstation.Server.ControlPanel.Models;
@@ -28,7 +28,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		const string HttpsPrefix = "https://";
 
 		public string Title => string.Format(CultureInfo.InvariantCulture, "{0} ({1})", connection.Url, userVM == null ? connection.Username : userVM.User.Name);
-		public bool IsExpanded {
+		public bool IsExpanded
+		{
 			get => isExpanded;
 			set => this.RaiseAndSetIfChanged(ref isExpanded, value);
 		}
@@ -209,7 +210,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<ConnectionManagerCommand> Delete { get; }
 
 		readonly Connection connection;
-		
+
 		readonly IServerClientFactory serverClientFactory;
 		readonly IRequestLogger requestLogger;
 
@@ -328,7 +329,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				try
 				{
 					serverInfo = await serverClient.ServerInformation(cancellationToken).ConfigureAwait(false);
-					
+
 					versionNode.Title = string.Format(CultureInfo.InvariantCulture, "{0}: {1}", versionNode.Title, serverInfo.Version);
 					apiVersionNode.Title = string.Format(CultureInfo.InvariantCulture, "{0}: {1}", apiVersionNode.Title, serverInfo.ApiVersion);
 					dmapiVersionNode.Title = string.Format(CultureInfo.InvariantCulture, "{0}: {1}", dmapiVersionNode.Title, serverInfo.DMApiVersion);
@@ -507,13 +508,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(ConnectionManagerCommand command)
 		{
-            return command switch
-            {
-                ConnectionManagerCommand.Delete or ConnectionManagerCommand.Close => true,
-                ConnectionManagerCommand.Connect => connection.Valid && !Connecting,
-                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
-            };
-        }
+			return command switch
+			{
+				ConnectionManagerCommand.Delete or ConnectionManagerCommand.Close => true,
+				ConnectionManagerCommand.Connect => connection.Valid && !Connecting,
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
+		}
 
 		public async Task RunCommand(ConnectionManagerCommand command, CancellationToken cancellationToken)
 		{

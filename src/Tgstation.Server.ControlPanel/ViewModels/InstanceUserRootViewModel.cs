@@ -1,10 +1,9 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
@@ -60,7 +59,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			rightsProvider.OnUpdated += (a, b) => InitialLoad();
 		}
 
-		public static string GetDisplayNameForInstanceUser(IUserProvider userProvider, InstancePermissionSet user) {
+		public static string GetDisplayNameForInstanceUser(IUserProvider userProvider, InstancePermissionSet user)
+		{
 			var actualUser = userProvider
 				.GetUsers()
 				?.Where(x => x.GetPermissionSet().Id == user.PermissionSetId)
@@ -89,7 +89,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var nullPage = true;
 			try
 			{
-				if(rightsProvider.InstanceUserRights == InstancePermissionSetRights.None)
+				if (rightsProvider.InstanceUserRights == InstancePermissionSetRights.None)
 				{
 					Children = null;
 					Icon = "resm:Tgstation.Server.ControlPanel.Assets.denied.jpg";
@@ -110,7 +110,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (rightsProvider.InstanceUserRights.HasFlag(InstancePermissionSetRights.Create))
 					newChildren.Add(new AddInstanceUserViewModel(pageContext, this, instanceUserClient, rightsProvider, userProvider));
 
-				if(hasReadRight)
+				if (hasReadRight)
 					newChildren.AddRange(activeUsers
 						.Select(x => new InstanceUserViewModel(pageContext, instanceViewModel, rightsProvider, instanceUserClient, x,
 						GetDisplayNameForInstanceUser(userProvider, x),

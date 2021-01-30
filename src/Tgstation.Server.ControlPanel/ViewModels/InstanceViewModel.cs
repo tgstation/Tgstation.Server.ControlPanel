@@ -1,8 +1,8 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
@@ -167,10 +167,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					instanceJobSink = await serverJobSink?.GetSinkForInstance(instanceClient, default) ?? throw new ArgumentNullException(nameof(serverJobSink));
 				}
-				catch (InsufficientPermissionsException) { }	//we won't be needing it
+				catch (InsufficientPermissionsException) { }    //we won't be needing it
 			await PostRefresh(default).ConfigureAwait(true);
 		}
-	
+
 		public void SetDDRunning(bool yes)
 		{
 			ddRunning = yes;
@@ -215,7 +215,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var instanceUserTreeNode = new InstanceUserViewModel(pageContext, this, userRightsProvider, instanceClient.PermissionSets, instanceUser, InstanceUserRootViewModel.GetDisplayNameForInstanceUser(userProvider, instanceUser), null, null, userProvider.CurrentUser.Group != null);
 
 			instanceUserTreeNode.OnUpdated += (a, b) => SafeLoad(null);
-			
+
 			var newChildren = new List<ITreeNode>
 			{
 				instanceUserTreeNode,
@@ -251,14 +251,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(InstanceCommand command)
 		{
-            return command switch
-            {
-                InstanceCommand.Close => true,
-                InstanceCommand.Save or InstanceCommand.FixPerms => !loading,
-                InstanceCommand.Delete => userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Delete),
-                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
-            };
-        }
+			return command switch
+			{
+				InstanceCommand.Close => true,
+				InstanceCommand.Save or InstanceCommand.FixPerms => !loading,
+				InstanceCommand.Delete => userRightsProvider.InstanceManagerRights.HasFlag(InstanceManagerRights.Delete),
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
+		}
 		public async Task Refresh(CancellationToken cancellationToken)
 		{
 			loading = true;

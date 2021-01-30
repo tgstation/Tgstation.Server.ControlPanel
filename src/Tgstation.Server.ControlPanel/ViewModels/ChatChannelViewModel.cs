@@ -90,7 +90,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => Model.Tag;
 			set
 			{
-				if(string.IsNullOrEmpty(value))
+				if (string.IsNullOrEmpty(value))
 					Model.Tag = null;
 				else
 					Model.Tag = value;

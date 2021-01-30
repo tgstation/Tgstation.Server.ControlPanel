@@ -1,8 +1,8 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
@@ -939,14 +939,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(InstanceUserCommand command)
 		{
-            return command switch
-            {
-                InstanceUserCommand.Close => true,
-                InstanceUserCommand.Refresh => !loading,
-                InstanceUserCommand.Save or InstanceUserCommand.Delete => rightsProvider.InstanceUserRights.HasFlag(InstancePermissionSetRights.Write) && !loading,
-                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
-            };
-        }
+			return command switch
+			{
+				InstanceUserCommand.Close => true,
+				InstanceUserCommand.Refresh => !loading,
+				InstanceUserCommand.Save or InstanceUserCommand.Delete => rightsProvider.InstanceUserRights.HasFlag(InstancePermissionSetRights.Write) && !loading,
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
+		}
 
 		public async Task RunCommand(InstanceUserCommand command, CancellationToken cancellationToken)
 		{

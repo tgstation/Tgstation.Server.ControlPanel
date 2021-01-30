@@ -1,9 +1,9 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
@@ -166,7 +166,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IDreamMakerClient dreamMakerClient;
 		readonly IInstanceJobSink jobSink;
 		readonly IInstanceUserRightsProvider rightsProvider;
-		
+
 		readonly Dictionary<int, IReadOnlyList<CompileJobViewModel>> jobPages;
 
 		IReadOnlyList<CompileJob> jobIds;
@@ -179,7 +179,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		string newDme;
 		int newPort;
-		
+
 		bool refreshing;
 		bool apiRequire;
 		bool autoDetectDme;
@@ -264,13 +264,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				async Task AssignModel() => Model = await (CanRead ? dreamMakerClient.Read(cancellationToken) : Task.FromResult<DreamMaker>(null)).ConfigureAwait(true);
 
 				var readTask = AssignModel();
-				
+
 				var jobsTask = CanGetJobs ? dreamMakerClient.ListCompileJobs(new Client.PaginationSettings
 				{
 					PageSize = 100,
 					RetrieveCount = 500
 				}, cancellationToken) : Task.FromResult<IReadOnlyList<CompileJob>>(null);
-				
+
 				jobIds = (await jobsTask.ConfigureAwait(true)).OfType<CompileJob>().ToList();
 				numPages = (jobIds.Count / JobsPerPage) + (jobIds.Count > JobsPerPage && ((jobIds.Count % JobsPerPage) > 0) ? 1 : 0);
 				this.RaisePropertyChanged(nameof(ViewNumPages));

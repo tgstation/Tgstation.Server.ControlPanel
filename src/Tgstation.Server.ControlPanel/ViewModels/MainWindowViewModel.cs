@@ -1,9 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
-using Octokit.Internal;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -18,6 +13,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Input;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
+using Octokit.Internal;
+using ReactiveUI;
 using Tgstation.Server.Api;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
@@ -283,8 +283,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (property.PropertyType == typeof(string))
 					property.SetValue(
 						model,
-                        string.Join(
-                            string.Empty,
+						string.Join(
+							string.Empty,
 							Enumerable.Repeat(
 								'*',
 								((string)censorField).Length)));
@@ -385,13 +385,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(MainWindowCommand command)
 		{
-            return command switch
-            {
-                MainWindowCommand.NewServerConnection or MainWindowCommand.CopyConsole or MainWindowCommand.ReportIssue => true,
-                MainWindowCommand.AppUpdate => updater.Functional && updateReady,
-                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
-            };
-        }
+			return command switch
+			{
+				MainWindowCommand.NewServerConnection or MainWindowCommand.CopyConsole or MainWindowCommand.ReportIssue => true,
+				MainWindowCommand.AppUpdate => updater.Functional && updateReady,
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
+		}
 
 		public async Task RunCommand(MainWindowCommand command, CancellationToken cancellationToken)
 		{
@@ -425,7 +425,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					break;
 				case MainWindowCommand.CopyConsole:
 					List<string> tmp;
-					lock(this)
+					lock (this)
 						tmp = new List<string>(ConsoleContent.Split('\n'));
 					tmp.RemoveAt(0);    //remove info line
 					var clipboard = string.Join(" ", tmp);

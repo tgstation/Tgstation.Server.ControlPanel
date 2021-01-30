@@ -1,9 +1,9 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
@@ -134,7 +134,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Group = await groupsClient.GetId(Group, cancellationToken).ConfigureAwait(false);
 				UpdateUserStrings();
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Error = ex.Message;
 			}
@@ -153,15 +153,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(UserGroupsCommand command)
 		{
-            return command switch
-            {
-                UserGroupsCommand.AddUser => !Loading && SelectedIndex < UserStrings.Count && userProvider.GetUsers() != null && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers),
-                UserGroupsCommand.Close => true,
-                UserGroupsCommand.Delete => !Loading && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers) && UserCount == 0,
-                UserGroupsCommand.Refresh => !Loading && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.ReadUsers),
-                _ => false,
-            };
-        }
+			return command switch
+			{
+				UserGroupsCommand.AddUser => !Loading && SelectedIndex < UserStrings.Count && userProvider.GetUsers() != null && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers),
+				UserGroupsCommand.Close => true,
+				UserGroupsCommand.Delete => !Loading && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers) && UserCount == 0,
+				UserGroupsCommand.Refresh => !Loading && rightsProvider.AdministrationRights.HasFlag(AdministrationRights.ReadUsers),
+				_ => false,
+			};
+		}
 
 		List<User> GetFilteredUsers()
 		{

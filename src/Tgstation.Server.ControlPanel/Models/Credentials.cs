@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Security.Cryptography;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Tgstation.Server.ControlPanel.Models
 {
@@ -17,7 +17,7 @@ namespace Tgstation.Server.ControlPanel.Models
 			set => Encrypt(value);
 		}
 
-        public byte[] CipherText
+		public byte[] CipherText
 		{
 			get => AllowSavingPassword ? cipherText : null;
 			set => cipherText = value;
@@ -25,7 +25,7 @@ namespace Tgstation.Server.ControlPanel.Models
 
 		public byte[] Entropy { get; set; }
 
-        byte[] cipherText;
+		byte[] cipherText;
 
 		void Encrypt(string cleartext)
 		{
@@ -51,7 +51,7 @@ namespace Tgstation.Server.ControlPanel.Models
 				CipherText = clearTextBytes;
 			}
 		}
-		
+
 		public string Decrypt()
 		{
 			if (cipherText == null)

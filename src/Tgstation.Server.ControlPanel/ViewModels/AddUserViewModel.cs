@@ -1,9 +1,9 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
 
@@ -21,7 +21,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool IsExpanded { get; set; }
 
 		public string Icon => "resm:Tgstation.Server.ControlPanel.Assets.plus.jpg";
-		
+
 		public string Username
 		{
 			get => username;

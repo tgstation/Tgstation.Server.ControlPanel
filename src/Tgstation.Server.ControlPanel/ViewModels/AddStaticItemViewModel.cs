@@ -1,14 +1,14 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
@@ -186,7 +186,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						InitialFileName = ItemName,
 						AllowMultiple = false
 					};
-					if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime) {
+					if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
+					{
 						ItemPath = (await ofd.ShowAsync(lifetime.MainWindow).ConfigureAwait(true))[0] ?? ItemPath;
 					}
 					break;

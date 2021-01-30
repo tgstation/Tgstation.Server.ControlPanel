@@ -1,11 +1,10 @@
-﻿using Avalonia.Controls;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
@@ -29,7 +28,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		public string Title => model?.LatestVersion > tgsVersion && userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.ChangeVersion) ? "Administration (Update Available)" : "Administration";
-		
+
 		public bool IsExpanded { get; set; }
 		public string Icon
 		{
@@ -155,7 +154,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 				model = await modelTask.ConfigureAwait(true);
 			}
-			catch(ClientException e)
+			catch (ClientException e)
 			{
 				ErrorMessage = e.Message;
 			}

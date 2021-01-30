@@ -60,7 +60,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			userStrings.AddRange(groups?.Select(x => $"Group {x.Name} ({x.Id})") ?? Enumerable.Empty<string>());
 			if (userStrings.Count > 0)
 				UserStrings = userStrings;
-				
+
 			rightsProvider.OnUpdated += (a, b) => Add.Recheck();
 
 			Close = new EnumCommand<AddInstanceUserCommand>(AddInstanceUserCommand.Close, this);

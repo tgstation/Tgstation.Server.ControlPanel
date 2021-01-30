@@ -1,10 +1,10 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Client;
 
@@ -88,13 +88,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool CanRunCommand(AddInstanceCommand command)
 		{
-            return command switch
-            {
-                AddInstanceCommand.Close => true,
-                AddInstanceCommand.Add => !adding && !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Path),
-                _ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
-            };
-        }
+			return command switch
+			{
+				AddInstanceCommand.Close => true,
+				AddInstanceCommand.Add => !adding && !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Path),
+				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
+			};
+		}
 
 		public async Task RunCommand(AddInstanceCommand command, CancellationToken cancellationToken)
 		{
