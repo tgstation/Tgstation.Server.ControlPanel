@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using Avalonia;
 using Avalonia.ReactiveUI;
 
@@ -11,11 +11,11 @@ namespace Tgstation.Server.ControlPanel
 		/// </summary>
 		private static string[] ApplicationArgs;
 
-		public static void Main(string[] args) 
+		public static void Main(string[] args)
 		{
 			ApplicationArgs = args;
 			BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-		} 
+		}
 
 		public static AppBuilder BuildAvaloniaApp()
 		{

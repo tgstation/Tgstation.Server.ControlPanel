@@ -29,7 +29,7 @@ namespace Tgstation.Server.ControlPanel.Models
 
 		byte[] cipherText;
 
-		
+
 		void Encrypt(string cleartext)
 		{
 			if (cleartext == null)
