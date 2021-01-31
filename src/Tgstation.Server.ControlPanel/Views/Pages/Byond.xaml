@@ -11,8 +11,8 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
-      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+      <TextBlock DockPanel.Dock="Left" Text="{Binding Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Grid.Row="1">
       <StackPanel Orientation="Vertical">
@@ -24,20 +24,20 @@
             <ColumnDefinition Width="150"/>
           </Grid.ColumnDefinitions>
           <TextBlock Grid.Column="0" Text="Byond" FontSize="26" />
-          <Image Grid.Column="2" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding PageContext.ActiveObject.Refreshing}" Margin="0,0,5,0"/>
-          <Button Grid.Column="3" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <Image Grid.Column="2" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding Refreshing}" Margin="0,0,5,0"/>
+          <Button Grid.Column="3" Content="Refresh" Command="{Binding Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
         <StackPanel Orientation="Horizontal">
           <TextBlock Text="Active Version:"/>
-          <TextBlock Text="{Binding PageContext.ActiveObject.CurrentVersion}" Margin="5,0,0,0"/>
+          <TextBlock Text="{Binding CurrentVersion}" Margin="5,0,0,0"/>
         </StackPanel>
-        <StackPanel IsVisible="{Binding PageContext.ActiveObject.HasInstalledVersions}">
+        <StackPanel IsVisible="{Binding HasInstalledVersions}">
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
           <TextBlock Text="Installed Versions:"/>
-          <ItemsControl Items="{Binding PageContext.ActiveObject.InstalledVersions}">
+          <ItemsControl Items="{Binding InstalledVersions}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <TextBlock Text="{Binding}"/>
@@ -61,11 +61,11 @@
             <ColumnDefinition Width="100" />
           </Grid.ColumnDefinitions>
           <TextBlock Text="Major:" Grid.Row="0" Grid.Column="0" Margin="0,5,0,0"/>
-          <NumericUpDown Minimum="1" Value="{Binding PageContext.ActiveObject.NewMajor}" Margin="0,0,5,0" Grid.Row="0" Grid.Column="1"/>
+          <NumericUpDown Minimum="1" Value="{Binding NewMajor}" Margin="0,0,5,0" Grid.Row="0" Grid.Column="1"/>
           <TextBlock Text="Minor:" Grid.Row="2" Grid.Column="0" Margin="0,5,0,0"/>
-          <NumericUpDown Minimum="1" Value="{Binding PageContext.ActiveObject.NewMinor}" Margin="0,0,5,0" Grid.Row="2" Grid.Column="1"/>
+          <NumericUpDown Minimum="1" Value="{Binding NewMinor}" Margin="0,0,5,0" Grid.Row="2" Grid.Column="1"/>
           <TextBlock Text="Prebuild:" Grid.Row="5" Grid.Column="0" Margin="0,5,0,0"/>
-          <NumericUpDown Minimum="1" Value="{Binding PageContext.ActiveObject.Prebuild}" Margin="0,0,5,0" Grid.Row="5" Grid.Column="1"/>
+          <NumericUpDown Minimum="1" Value="{Binding Prebuild}" Margin="0,0,5,0" Grid.Row="5" Grid.Column="1"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -82,8 +82,8 @@
             <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
           <TextBlock Text="Upload From File:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
-          <TextBox Text="{Binding PageContext.ActiveObject.ByondZipPath}" IsEnabled="{Binding PageContext.ActiveObject.CanUpload}" Grid.Column="1" Margin="5,0,0,0" Grid.Row="0"/>
-          <Button Content="..." Command="{Binding PageContext.ActiveObject.Browse}" Grid.Column="2" Grid.Row="0"/>
+          <TextBox Text="{Binding ByondZipPath}" IsEnabled="{Binding CanUpload}" Grid.Column="1" Margin="5,0,0,0" Grid.Row="0"/>
+          <Button Content="..." Command="{Binding Browse}" Grid.Column="2" Grid.Row="0"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -93,7 +93,7 @@
             <ColumnDefinition Width="20*"/>
             <ColumnDefinition Width="40*"/>
           </Grid.ColumnDefinitions>
-          <Button Content="{Binding PageContext.ActiveObject.ApplyText}" Command="{Binding PageContext.ActiveObject.Update}" Grid.Column="1"/>
+          <Button Content="{Binding ApplyText}" Command="{Binding Update}" Grid.Column="1"/>
         </Grid>
       </StackPanel>
     </ScrollViewer>

@@ -230,12 +230,21 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		UserViewModel userVM;
 
+		public string GitHubToken
+		{
+			get => getGitHubToken();
+			set => setGitHubToken(value);
+		}
+
 		bool usingHttp;
 		bool confirmingDelete;
 		bool usingDefaultCredentials;
 		bool isExpanded;
 
-		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, PageContextViewModel pageContext, Action onDelete, IJobSink jobSink, Octokit.IGitHubClient gitHubClient)
+		Action<string> setGitHubToken { get; }
+		Func<string> getGitHubToken { get; }
+
+		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, PageContextViewModel pageContext, Action onDelete, IJobSink jobSink, Octokit.IGitHubClient gitHubClient, Action<string> setGitHubToken, Func<string> getGitHubToken)
 		{
 			this.serverClientFactory = serverClientFactory ?? throw new ArgumentNullException(nameof(serverClientFactory));
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -244,6 +253,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate, () => Title, () => userVM?.User) ?? throw new ArgumentNullException(nameof(jobSink));
 			this.gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
+			this.setGitHubToken = setGitHubToken ?? throw new ArgumentNullException(nameof(setGitHubToken));
+			this.getGitHubToken = getGitHubToken ?? throw new ArgumentNullException(nameof(getGitHubToken));
 
 			Connect = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Connect, this);
 			Close = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Close, this);

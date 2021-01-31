@@ -11,24 +11,24 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
-      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+      <TextBlock DockPanel.Dock="Left" Text="{Binding Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
       <StackPanel Orientation="Vertical">
-        <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Title}" FontSize="26"/>
+        <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="26"/>
         <StackPanel Orientation="Horizontal">
           <TextBlock Text="ID:"/>
-          <TextBlock Text="{Binding PageContext.ActiveObject.Instance.Id}" Margin="5,0,0,0"/>
+          <TextBlock Text="{Binding Instance.Id}" Margin="5,0,0,0"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
           <TextBlock Text="Path:"/>
-          <TextBlock Text="{Binding PageContext.ActiveObject.Instance.Path}" Margin="5,0,0,0"/>
+          <TextBlock Text="{Binding Instance.Path}" Margin="5,0,0,0"/>
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
         <StackPanel Orientation="Horizontal">
-          <CheckBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanOnline}" IsChecked="{Binding PageContext.ActiveObject.Enabled, Mode=TwoWay}"/>
+          <CheckBox Background="White" IsEnabled="{Binding CanOnline}" IsChecked="{Binding Enabled, Mode=TwoWay}"/>
           <TextBlock Text="Online" Margin="5,4,0,0" />
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
@@ -44,11 +44,11 @@
             <ColumnDefinition Width="400"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="New Name:" Margin="5,4,50,0" Grid.Column="0" Grid.Row="0"/>
-          <TextBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanRename}" Text="{Binding PageContext.ActiveObject.NewName, Mode=TwoWay}" Grid.Column="1" Grid.Row="0"/>
+          <TextBox Background="White" IsEnabled="{Binding CanRename}" Text="{Binding NewName, Mode=TwoWay}" Grid.Column="1" Grid.Row="0"/>
           <TextBlock Text="New Path:" Margin="5,4,50,0"  Grid.Column="0" Grid.Row="1"/>
-          <TextBox Background="White" IsEnabled="{Binding PageContext.ActiveObject.CanRelocate}" Text="{Binding PageContext.ActiveObject.NewPath, Mode=TwoWay}" Grid.Column="1" Grid.Row="1"/>
+          <TextBox Background="White" IsEnabled="{Binding CanRelocate}" Text="{Binding NewPath, Mode=TwoWay}" Grid.Column="1" Grid.Row="1"/>
           <TextBlock Text="Chat Bot Limit:" Margin="5,4,50,0"  Grid.Column="0" Grid.Row="2"/>
-          <NumericUpDown Minimum="0" Maximum="65535"  IsEnabled="{Binding PageContext.ActiveObject.CanChatBot}" Value="{Binding PageContext.ActiveObject.NewChatBotLimit}" Grid.Row="2" Grid.Column="1"/>
+          <NumericUpDown Minimum="0" Maximum="65535"  IsEnabled="{Binding CanChatBot}" Value="{Binding NewChatBotLimit}" Grid.Row="2" Grid.Column="1"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -63,13 +63,13 @@
             <ColumnDefinition Width="400"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="Static File Mode:" Margin="0,5,50,0" Grid.Column="0" Grid.Row="0"/>
-          <ComboBox SelectedIndex="{Binding PageContext.ActiveObject.ConfigMode, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanConfig}" Grid.Column="1" Grid.Row="0">
+          <ComboBox SelectedIndex="{Binding ConfigMode, Mode=TwoWay}" IsEnabled="{Binding CanConfig}" Grid.Column="1" Grid.Row="0">
             <ComboBoxItem>No File Management</ComboBoxItem>
             <ComboBoxItem>Authorized users can read and write any file</ComboBoxItem>
             <ComboBoxItem>Authorized users read and write using their system identity</ComboBoxItem>
           </ComboBox>
           <TextBlock Text="Automatic Update Interval (Minutes) (0 to disable):" Margin="0,5,50,0" Grid.Column="0" Grid.Row="1" />
-          <NumericUpDown Minimum="0" Value="{Binding PageContext.ActiveObject.AutoUpdateInterval, Mode=TwoWay}" IsEnabled="{Binding PageContext.ActiveObject.CanAutoUpdate}" Grid.Column="1" Grid.Row="1"/>
+          <NumericUpDown Minimum="0" Value="{Binding AutoUpdateInterval, Mode=TwoWay}" IsEnabled="{Binding CanAutoUpdate}" Grid.Column="1" Grid.Row="1"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -81,9 +81,9 @@
             <ColumnDefinition Width="5*"/>
             <ColumnDefinition Width="15*"/>
           </Grid.ColumnDefinitions>
-          <Button Grid.Column="0" Content="Save" Command="{Binding PageContext.ActiveObject.Save}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
-          <Button Grid.Column="2" Content="Grant Permissions on This Instance" IsEnabled="{Binding PageContext.ActiveObject.CanGetPerms}" Command="{Binding PageContext.ActiveObject.FixPerms}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
-          <Button Grid.Column="4" Content="{Binding PageContext.ActiveObject.DeleteText}" Command="{Binding PageContext.ActiveObject.Delete}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <Button Grid.Column="0" Content="Save" Command="{Binding Save}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <Button Grid.Column="2" Content="Grant Permissions on This Instance" IsEnabled="{Binding CanGetPerms}" Command="{Binding FixPerms}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <Button Grid.Column="4" Content="{Binding DeleteText}" Command="{Binding Delete}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
       </StackPanel>
     </ScrollViewer>

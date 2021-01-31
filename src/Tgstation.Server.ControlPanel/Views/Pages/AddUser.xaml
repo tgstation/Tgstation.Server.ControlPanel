@@ -11,8 +11,8 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
-      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+      <TextBlock DockPanel.Dock="Left" Text="{Binding Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
       <StackPanel Orientation="Vertical">
@@ -30,11 +30,11 @@
             <ColumnDefinition Width="400"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="Username:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
-          <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.Username, Mode=TwoWay}"/>
+          <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding Username, Mode=TwoWay}"/>
           <TextBlock Text="Password:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
-          <TextBox PasswordChar="*" Watermark="{Binding PageContext.ActiveObject.PasswordLength}" Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.Password, Mode=TwoWay}"/>
+          <TextBox PasswordChar="*" Watermark="{Binding PasswordLength}" Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" Text="{Binding Password, Mode=TwoWay}"/>
           <TextBlock Text="Confirm Password:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="2" />
-          <TextBox PasswordChar="*" Watermark="{Binding PageContext.ActiveObject.PasswordLength}" Grid.Column="1" Grid.Row="2" Margin="50,0,0,5" Text="{Binding PageContext.ActiveObject.ConfirmPassword, Mode=TwoWay}"/>
+          <TextBox PasswordChar="*" Watermark="{Binding PasswordLength}" Grid.Column="1" Grid.Row="2" Margin="50,0,0,5" Text="{Binding ConfirmPassword, Mode=TwoWay}"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -53,11 +53,11 @@
             <ColumnDefinition Width="400"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="System Username:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
-          <TextBox Grid.Column="1" Grid.Row="0" Margin="8,0,42,5" Text="{Binding PageContext.ActiveObject.SystemIdentifier, Mode=TwoWay}"/>
+          <TextBox Grid.Column="1" Grid.Row="0" Margin="8,0,42,5" Text="{Binding SystemIdentifier, Mode=TwoWay}"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-        <Button Content="Add User" Command="{Binding PageContext.ActiveObject.Add}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+        <Button Content="Add User" Command="{Binding Add}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
       </StackPanel>
     </ScrollViewer>
   </Grid>

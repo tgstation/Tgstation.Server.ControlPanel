@@ -11,8 +11,8 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <TextBlock DockPanel.Dock="Left" Text="{Binding PageContext.ActiveObject.Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
-      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Close}" Margin="0,0,5,0" />
+      <TextBlock DockPanel.Dock="Left" Text="{Binding Title}" Margin="3" Foreground="White"  Grid.Column="0"/>
+      <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Grid.Row="1">
       <StackPanel Orientation="Vertical">
@@ -22,32 +22,32 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="100"/>
           </Grid.ColumnDefinitions>
-          <TextBlock Grid.Column="0" Text="{Binding PageContext.ActiveObject.Title}" FontSize="26"/>
-          <Image Grid.Column="1" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding PageContext.ActiveObject.Refreshing}" Margin="0,0,5,0"/>
-          <Button Grid.Column="2" Content="Refresh" Command="{Binding PageContext.ActiveObject.Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="26"/>
+          <Image Grid.Column="1" Width="20" Height="20" Source="resm:Tgstation.Server.ControlPanel.Assets.hourglass.blue_back.png" IsVisible="{Binding Refreshing}" Margin="0,0,5,0"/>
+          <Button Grid.Column="2" Content="Refresh" Command="{Binding Refresh}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
         <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
           <TextBlock Text="Provider:" />
-          <TextBlock Text="{Binding PageContext.ActiveObject.Provider}" Margin="5,0,0,0"/>
+          <TextBlock Text="{Binding Provider}" Margin="5,0,0,0"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
           <TextBlock Text="Enabled:" />
-          <TextBlock Text="{Binding PageContext.ActiveObject.Enabled}" Margin="5,0,0,0"/>
+          <TextBlock Text="{Binding Enabled}" Margin="5,0,0,0"/>
         </StackPanel>
-        <StackPanel IsVisible="{Binding PageContext.ActiveObject.HasConnectionString}" Orientation="Horizontal">
+        <StackPanel IsVisible="{Binding HasConnectionString}" Orientation="Horizontal">
           <TextBlock Text="Connection String:" />
-          <TextBlock Text="{Binding PageContext.ActiveObject.ChatBot.ConnectionString}" Margin="5,0,0,0"/>
+          <TextBlock Text="{Binding ChatBot.ConnectionString}" Margin="5,0,0,0"/>
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-        <CheckBox IsChecked="{Binding PageContext.ActiveObject.NewEnabled}" IsEnabled="{Binding PageContext.ActiveObject.CanEnable}" Content="Enabled" Background="White" Margin="0,5,0,5" />
+        <CheckBox IsChecked="{Binding NewEnabled}" IsEnabled="{Binding CanEnable}" Content="Enabled" Background="White" Margin="0,5,0,5" />
         <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
           <TextBlock Text="New Connection String:" Grid.Column="0" Margin="0,5,0,0"/>
-          <TextBox Text="{Binding PageContext.ActiveObject.NewConnectionString}" IsEnabled="{Binding PageContext.ActiveObject.CanConnectionString}" Margin="5,0,0,0" Grid.Column="1"/>
+          <TextBox Text="{Binding NewConnectionString}" IsEnabled="{Binding CanConnectionString}" Margin="5,0,0,0" Grid.Column="1"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -62,12 +62,12 @@
           </Grid.ColumnDefinitions>
           <TextBlock Text="Channels" FontSize="20" Grid.Column="0"/>
           <TextBlock Text="Maximum:" FontSize="15" Grid.Column="1"/>
-          <NumericUpDown Minimum="1" Maximum="65535" IsEnabled="{Binding PageContext.ActiveObject.CanChannelLimit}" Value="{Binding PageContext.ActiveObject.NewChannelLimit}" Grid.Column="2"/>
-          <Button Grid.Column="4" Content="Add Channel" Command="{Binding PageContext.ActiveObject.AddChannel}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <NumericUpDown Minimum="1" Maximum="65535" IsEnabled="{Binding CanChannelLimit}" Value="{Binding NewChannelLimit}" Grid.Column="2"/>
+          <Button Grid.Column="4" Content="Add Channel" Command="{Binding AddChannel}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-        <ItemsControl Items="{Binding PageContext.ActiveObject.Channels}" Margin="0,5,0,0" IsEnabled="{Binding PageContext.ActiveObject.CanChannels}">
+        <ItemsControl Items="{Binding Channels}" Margin="0,5,0,0" IsEnabled="{Binding CanChannels}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <StackPanel Orientation="Vertical" Margin="5">
@@ -115,8 +115,8 @@
               <ColumnDefinition Width="20*"/>
               <ColumnDefinition Width="10*"/>
             </Grid.ColumnDefinitions>
-            <Button Content="Apply Changes" Grid.Column="1" Command="{Binding PageContext.ActiveObject.Update}" Margin="0,0,5,0" />
-            <Button Content="{Binding PageContext.ActiveObject.DeleteText}" Grid.Column="3" Command="{Binding PageContext.ActiveObject.Delete}" Margin="0,0,5,0" />
+            <Button Content="Apply Changes" Grid.Column="1" Command="{Binding Update}" Margin="0,0,5,0" />
+            <Button Content="{Binding DeleteText}" Grid.Column="3" Command="{Binding Delete}" Margin="0,0,5,0" />
           </Grid>
       </StackPanel>
     </ScrollViewer>

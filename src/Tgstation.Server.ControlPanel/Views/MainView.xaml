@@ -5,6 +5,66 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Tgstation.Server.ControlPanel.Views.MainView">
 
+  <UserControl.DataTemplates>
+    <DataTemplate DataType="{x:Type vms:ConnectionManagerViewModel}">
+      <page:AddServer />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:AddUserViewModel}">
+      <page:AddUser />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:AdministrationViewModel}">
+      <page:Administration />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:UserViewModel}">
+      <page:UserManager />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:AddInstanceViewModel}">
+      <page:AddInstance />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:InstanceViewModel}">
+      <page:InstanceManager />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:AddInstanceUserViewModel}">
+      <page:AddInstanceUser />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:InstanceUserViewModel}">
+      <page:InstanceUser />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:RepositoryViewModel}">
+      <page:Repository />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:StaticFolderViewModel}">
+      <page:StaticFolder />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:StaticFileViewModel}">
+      <page:StaticFile />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:AddGroupViewModel}">
+      <page:AddUserGroup />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:UserGroupViewModel}">
+      <page:GroupManager />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:AddStaticItemViewModel}">
+      <page:StaticAdd />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:DreamDaemonViewModel}">
+      <page:Watchdog />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:AddChatBotViewModel}">
+      <page:AddChatBot />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:ChatBotViewModel}">
+      <page:ChatBot />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:CompilerViewModel}">
+      <page:DreamMaker />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vms:ByondViewModel}">
+      <page:Byond />
+    </DataTemplate>
+  </UserControl.DataTemplates>
+  
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
@@ -38,25 +98,7 @@
           <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <Panel Grid.Row="0" >
-          <page:AddServer IsVisible="{Binding PageContext.IsConnectionManager}" IsEnabled="{Binding PageContext.IsConnectionManager}"/>
-          <page:AddUser IsVisible="{Binding PageContext.IsAddUser}" IsEnabled="{Binding PageContext.IsAddUser}"/>
-          <page:Administration IsVisible="{Binding PageContext.IsAdministration}" IsEnabled="{Binding PageContext.IsAdministration}"/>
-          <page:UserManager IsVisible="{Binding PageContext.IsUser}" IsEnabled="{Binding PageContext.IsUser}"/>
-          <page:AddInstance IsVisible="{Binding PageContext.IsAddInstance}" IsEnabled="{Binding PageContext.IsAddInstance}"/>
-          <page:InstanceManager IsVisible="{Binding PageContext.IsInstance}" IsEnabled="{Binding PageContext.IsInstance}"/>
-          <page:AddInstanceUser IsVisible="{Binding PageContext.IsAddInstanceUser}" IsEnabled="{Binding PageContext.IsAddInstanceUser}"/>
-          <page:InstanceUser IsVisible="{Binding PageContext.IsInstanceUser}" IsEnabled="{Binding PageContext.IsInstanceUser}"/>
-          <page:Repository IsVisible="{Binding PageContext.IsRepository}" IsEnabled="{Binding PageContext.IsRepository}"/>
-          <page:StaticFolder IsVisible="{Binding PageContext.IsStaticFolder}" IsEnabled="{Binding PageContext.IsStaticFolder}"/>
-          <page:StaticFile IsVisible="{Binding PageContext.IsStaticFile}" IsEnabled="{Binding PageContext.IsStaticFile}"/>
-          <page:AddUserGroup IsVisible="{Binding PageContext.IsAddGroup}" IsEnabled="{Binding PageContext.IsAddGroup}"/>
-          <page:GroupManager IsVisible="{Binding PageContext.IsGroup}" IsEnabled="{Binding PageContext.IsGroup}"/>
-          <page:StaticAdd IsVisible="{Binding PageContext.IsStaticAdd}" IsEnabled="{Binding PageContext.IsStaticAdd}"/>
-          <page:Watchdog IsVisible="{Binding PageContext.IsDreamDaemon}" IsEnabled="{Binding PageContext.IsDreamDaemon}"/>
-          <page:AddChatBot IsVisible="{Binding PageContext.IsAddChatBot}" IsEnabled="{Binding PageContext.IsAddChatBot}"/>
-          <page:ChatBot IsVisible="{Binding PageContext.IsChatBot}" IsEnabled="{Binding PageContext.IsChatBot}"/>
-          <page:DreamMaker IsVisible="{Binding PageContext.IsCompiler}" IsEnabled="{Binding PageContext.IsCompiler}"/>
-          <page:Byond IsVisible="{Binding PageContext.IsByond}" IsEnabled="{Binding PageContext.IsByond}"/>
+          <ContentControl Content="{Binding PageContext.ActiveObject}" />
         </Panel>
         <GridSplitter HorizontalAlignment="Right"
                       VerticalAlignment="Stretch"
