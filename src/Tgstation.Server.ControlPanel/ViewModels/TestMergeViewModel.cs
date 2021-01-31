@@ -84,7 +84,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			LoadCommits = new EnumCommand<TestMergeCommand>(TestMergeCommand.LoadCommits, this);
 		}
 
-		public TestMergeViewModel(Issue pullRequest, IReadOnlyList<PullRequestCommit> commits, Action<int> onActivate, Func<CancellationToken, Task> onLoadCommits, int? activeCommit = null) : this(onActivate)
+		public TestMergeViewModel(Issue pullRequest, IReadOnlyList<PullRequestCommit> commits, Action<int> onActivate, Func<CancellationToken, Task> onLoadCommits, int? activeCommit = null, bool selected = false) : this(onActivate)
 		{
 			if (pullRequest == null)
 				throw new ArgumentNullException(nameof(pullRequest));
@@ -103,6 +103,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				SelectedIndex = activeCommit.Value;
 			FontWeight = pullRequest.Labels.Any(x => x.Name.ToUpperInvariant().Contains("TEST MERGE")) ? FontWeight.Bold : FontWeight.Normal;
 			CanEdit = true;
+			this.selected = selected; // The use of the private property is intended; for avoiding calling activation function again
 		}
 
 		public TestMergeViewModel(TestMerge testMerge, Action<int> onActivate) : this(onActivate)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media;
@@ -23,8 +24,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Delete,
 			Update,
 			RemoveCredentials,
-			DirectAddPR,
-			RefreshPRs
+			DirectAddManualPR,
+			RefreshPRs,
+			AddPR
 		}
 
 		const string NoCredentials = "(not set)";
@@ -201,7 +203,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanTestMerge => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.MergePullRequest);
 		public bool CanDeploy => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.Compile);
 
-		public int ManualPR { get; set; }
+		string manualPR;
+		public string ManualPR
+		{
+			get => manualPR;
+			set => this.RaiseAndSetIfChanged(ref manualPR, value);
+		}
+
 		public bool Error
 		{
 			get => error;
@@ -240,6 +248,27 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref testMerges, value);
 		}
 
+		IReadOnlyList<TestMergeViewModel> availableTestMerges;
+		public IReadOnlyList<TestMergeViewModel> AvailableTestMerges
+		{
+			get => availableTestMerges;
+			set => this.RaiseAndSetIfChanged(ref availableTestMerges, value);
+		}
+
+		IReadOnlyList<TestMergeViewModel> selectedTestMerges;
+		public IReadOnlyList<TestMergeViewModel> SelectedTestMerges
+		{
+			get => selectedTestMerges;
+			set => this.RaiseAndSetIfChanged(ref selectedTestMerges, value);
+		}
+
+		TestMergeViewModel currentTestMerge;
+		public TestMergeViewModel CurrentTestMerge
+		{
+			get => currentTestMerge;
+			set => this.RaiseAndSetIfChanged(ref currentTestMerge, value);
+		}
+
 		public bool HasCredentials => Repository?.AccessUser != null && Repository?.AccessUser != NoCredentials;
 
 		public bool RateLimited
@@ -261,6 +290,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<RepositoryCommand> RemoveCredentials { get; }
 		public EnumCommand<RepositoryCommand> DirectAddPR { get; }
 		public EnumCommand<RepositoryCommand> RefreshPRs { get; }
+		public EnumCommand<RepositoryCommand> AddPR { get; }
 
 		readonly PageContextViewModel pageContext;
 		readonly IRepositoryClient repositoryClient;
@@ -328,11 +358,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Delete = new EnumCommand<RepositoryCommand>(RepositoryCommand.Delete, this);
 			Update = new EnumCommand<RepositoryCommand>(RepositoryCommand.Update, this);
 			RemoveCredentials = new EnumCommand<RepositoryCommand>(RepositoryCommand.RemoveCredentials, this);
-			DirectAddPR = new EnumCommand<RepositoryCommand>(RepositoryCommand.DirectAddPR, this);
+			DirectAddPR = new EnumCommand<RepositoryCommand>(RepositoryCommand.DirectAddManualPR, this);
 			RefreshPRs = new EnumCommand<RepositoryCommand>(RepositoryCommand.RefreshPRs, this);
+			AddPR = new EnumCommand<RepositoryCommand>(RepositoryCommand.AddPR, this);
 
 			rightsProvider.OnUpdated += (a, b) => RecheckCommands();
-			ManualPR = 1;
 			RecurseSubmodules = true;
 
 			async void InitialLoad() => await Refresh(null, null, default).ConfigureAwait(false);
@@ -444,6 +474,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return job;
 		}
 
+		void UpdateSelectedPRs()
+		{
+			SelectedTestMerges = TestMerges.Where(x => x.Selected).ToList();
+			AvailableTestMerges = TestMerges.Where(x => !x.Selected).ToList();
+		}
+
 		void DigestPR(Octokit.Issue pr, IReadOnlyList<Octokit.PullRequestCommit> commits)
 		{
 			if (pullRequests == null)
@@ -540,13 +576,47 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						testMergeViewModel.LoadCommitsAction(await gitHubClient.PullRequest.Commits(Repository.RemoteRepositoryOwner, Repository.RemoteRepositoryName, a.Key).ConfigureAwait(false));
 					}
 
-					testMergeViewModel = new TestMergeViewModel(a.Value, b.Value, x => modifiedPRList = true, LoadCommits);
+					// Maintain selected status changes between refreshes
+					var selected = false;
+					if (SelectedTestMerges != null)
+					{
+						var tm = SelectedTestMerges.FirstOrDefault(x => x.TestMerge.Number == a.Value.Number);
+						if (tm != null)
+						{
+							selected = tm.Selected;
+						}
+					}
+
+					testMergeViewModel = new TestMergeViewModel(a.Value, b.Value, x => modifiedPRList = true, LoadCommits, selected: selected);
 					return testMergeViewModel;
 				}).Where(x => x != null).ToList();
 				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Bold));
 				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Normal));
 			}
+
+			// Use new testmerge list, and enforce selected status
 			TestMerges = tmp;
+			UpdateSelectedPRs();
+		}
+
+		static readonly Regex PRNumberPattern = new Regex(@"[^0-9]?(?<pr_number>[0-9]+)[^0-9]*$", RegexOptions.Compiled);
+
+		async Task DirectAdd(string input, bool forceRebuild)
+		{
+			// Attempt to extract PR number from the provided string, as it could be a link
+			var matchResult = PRNumberPattern.Match(input);
+			if (!matchResult.Success)
+			{
+				return;
+				// do thing for no result
+			}
+			if (!int.TryParse(matchResult.Groups["pr_number"].Value, out var number))
+			{
+				return;
+				// do thing for bad number
+			}
+
+			await DirectAdd(number, forceRebuild);
 		}
 
 		async Task DirectAdd(int number, bool forceRebuild)
@@ -564,7 +634,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					try
 					{
 						var prTask = gitHubClient.Issue.Get(Repository.RemoteRepositoryOwner, Repository.RemoteRepositoryName, number);
-						var commits = await gitHubClient.PullRequest.Commits(Repository.RemoteRepositoryOwner, Repository.RemoteRepositoryName, ManualPR).ConfigureAwait(true);
+						var commits = await gitHubClient.PullRequest.Commits(Repository.RemoteRepositoryOwner, Repository.RemoteRepositoryName, number).ConfigureAwait(true);
 						var pr = await prTask.ConfigureAwait(true);
 						DigestPR(pr, commits);
 					}
@@ -614,6 +684,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				loadingPRs = false;
 				DirectAddPR.Recheck();
 				RefreshPRs.Recheck();
+
+				// Flag new addition as active if successful
+				var newPr = TestMerges.FirstOrDefault(x => x.TestMerge.Number == number);
+				if (newPr != null)
+				{
+					newPr.Selected = true;
+					ManualPR = null;
+					UpdateSelectedPRs();
+				}
 			}
 		}
 
@@ -656,7 +735,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					&& Uri.TryCreate(NewOrigin, UriKind.Absolute, out var _)
 					&& !(!string.IsNullOrEmpty(NewAccessUser) ^ !string.IsNullOrEmpty(NewAccessToken)),
 				RepositoryCommand.RemoveCredentials => !Refreshing && CanAccess,
-				RepositoryCommand.DirectAddPR or RepositoryCommand.RefreshPRs => !Refreshing && CanTestMerge && !RateLimited && !loadingPRs,
+				RepositoryCommand.DirectAddManualPR or RepositoryCommand.AddPR or RepositoryCommand.RefreshPRs => !Refreshing && CanTestMerge && !RateLimited && !loadingPRs,
 				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
 			};
 		}
@@ -751,8 +830,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						AccessToken = string.Empty
 					}, null, cancellationToken).ConfigureAwait(true);
 					break;
-				case RepositoryCommand.DirectAddPR:
+				case RepositoryCommand.DirectAddManualPR:
 					await DirectAdd(ManualPR, false).ConfigureAwait(true);
+					break;
+				case RepositoryCommand.AddPR:
+					CurrentTestMerge.Selected = true;
+					UpdateSelectedPRs();
 					break;
 				case RepositoryCommand.RefreshPRs:
 					await RefreshPRList().ConfigureAwait(true);
