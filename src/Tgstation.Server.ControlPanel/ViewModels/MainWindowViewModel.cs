@@ -198,7 +198,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				settings.Connections.Remove(connection);
 				Connections = new List<ConnectionManagerViewModel>(Connections.Where(x => x != newManager));
-			}, Jobs, gitHubClient);
+			}, Jobs, gitHubClient, (x) => GitHubToken = x, () => GitHubToken);
 			return newManager;
 		}
 
