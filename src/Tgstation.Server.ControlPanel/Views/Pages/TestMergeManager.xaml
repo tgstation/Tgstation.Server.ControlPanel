@@ -1,7 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Tgstation.Server.ControlPanel.Views.Pages.TestMergeManager">
-  
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -25,7 +24,7 @@
       </Grid.RowDefinitions>
       <Grid Grid.Row="0" Grid.Column="1">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="80" />
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
           <ColumnDefinition Width="Auto" />
@@ -43,7 +42,7 @@
       </Grid>
       <Grid Grid.Row="1" Grid.Column="1" Margin="0,5,0,5">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="80"/>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
@@ -55,8 +54,8 @@
         <ItemsControl Items="{Binding SelectedTestMerges}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <Panel Background="#000000">
-                <Grid Margin="0,0,0,1" Background="#FFFFFF">
+              <Border Margin="5,5,5,0" BorderThickness="0,0,0,1" BorderBrush="Gray">
+                <Grid Margin="0,0,0,5" Background="#FFFFFF">
                   <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -64,7 +63,7 @@
                   <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto"/>
-                      <ColumnDefinition Width="*" MaxWidth="900"/>
+                      <ColumnDefinition Width="*"/>
                       <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <CheckBox Background="White" IsChecked="{Binding Selected, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" Grid.Column="0"/>
@@ -87,7 +86,7 @@
                     <TextBox Text="{Binding Comment, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"/>
                   </Grid>
                 </Grid>
-              </Panel>
+              </Border>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
