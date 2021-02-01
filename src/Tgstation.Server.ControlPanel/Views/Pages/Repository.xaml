@@ -17,7 +17,7 @@
       <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Grid.Row="1">
-      <Grid IsEnabled="{Binding !Refreshing}">
+      <Grid IsEnabled="{Binding !Refreshing}" Margin="10,5,10,5">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
@@ -77,58 +77,56 @@
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
           <Grid>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="400"/>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="6" />
+              <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Checkout Sha:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
-            <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding NewSha, Mode=TwoWay}" IsEnabled="{Binding CanSetSha}"/>
-            <TextBlock Text="Checkout Reference:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
-            <TextBox Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" Text="{Binding NewReference, Mode=TwoWay}" IsEnabled="{Binding CanSetRef}"/>
+            <Grid Grid.Column="0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <TextBlock Text="Checkout Sha:" VerticalAlignment="Center" Margin="0,0,0,0" Grid.Column="0" Grid.Row="0"/>
+              <TextBox Grid.Column="1" Grid.Row="0" Margin="5,0,0,5" Text="{Binding NewSha, Mode=TwoWay}" IsEnabled="{Binding CanSetSha}"/>
+              <TextBlock Text="Checkout Reference:" VerticalAlignment="Center" Margin="0,0,0,0" Grid.Column="0" Grid.Row="1" />
+              <TextBox Grid.Column="1" Grid.Row="1" Margin="5,0,0,5" Text="{Binding NewReference, Mode=TwoWay}" IsEnabled="{Binding CanSetRef}"/>
+            </Grid>
+            <Grid Grid.Column="3">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <TextBlock Text="Committer Name:" VerticalAlignment="Center" Margin="0,0,0,0" Grid.Column="0" Grid.Row="0"/>
+              <TextBox Grid.Column="1" Grid.Row="0" Margin="5,0,0,5" Text="{Binding NewCommitterName, Mode=TwoWay}" IsEnabled="{Binding CanChangeCommitter}"/>
+              <TextBlock Text="Committer E-Mail:" VerticalAlignment="Center" Margin="0,0,0,0" Grid.Column="0" Grid.Row="1" />
+              <TextBox Grid.Column="1" Grid.Row="1" Margin="5,0,0,5" Text="{Binding NewCommitterEmail, Mode=TwoWay}" IsEnabled="{Binding CanChangeCommitter}"/>
+            </Grid>
           </Grid>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
           <Grid>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="400"/>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Committer Name:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
-            <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding NewCommitterName, Mode=TwoWay}" IsEnabled="{Binding CanChangeCommitter}"/>
-            <TextBlock Text="Committer E-Mail:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
-            <TextBox Grid.Column="1" Grid.Row="1" Margin="50,0,0,5" Text="{Binding NewCommitterEmail, Mode=TwoWay}" IsEnabled="{Binding CanChangeCommitter}"/>
-          </Grid>
-          <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
-          <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="1*"/>
-              <ColumnDefinition Width="1*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding NewAutoUpdatesKeepTestMerges, Mode=TwoWay}" IsEnabled="{Binding CanAutoUpdate}" ToolTip.Tip="Enabling this may cause automatic updates to fail due to merge conflicts" />
-              <TextBlock DockPanel.Dock="Right" Text="Automatic Updates Maintain Test Merges" ToolTip.Tip="Enabling this may cause automatic updates to fail due to merge conflicts" Margin="5,4,0,0" />
-            </DockPanel>
-            <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding NewAutoUpdatesSynchronize, Mode=TwoWay}" IsEnabled="{Binding CanAutoUpdate}"/>
-              <TextBlock DockPanel.Dock="Right" Text="Push Test Merge Commits to Temporary Branch" Margin="5,4,0,0" />
-            </DockPanel>
-            <CheckBox Background="White" Content="Show Merger Usernames in Public Metadata" IsChecked="{Binding NewShowTestMergeCommitters, Mode=TwoWay}" IsEnabled="{Binding CanShowTMCommitters}" Grid.Column="0" Grid.Row="1"/>
-            <CheckBox Background="White" Content="Post GitHub comment when test merge is deployed" IsChecked="{Binding NewPostTestMergeComment, Mode=TwoWay}" IsEnabled="{Binding CanShowTMCommitters}" Grid.Column="1" Grid.Row="1"/>
-            <CheckBox Background="White" Content="Create GitHub Deployment Statuses" IsChecked="{Binding NewGitHubDeployments, Mode=TwoWay}" IsEnabled="{Binding CanShowTMCommitters}" Grid.Column="0" Grid.Row="2"/>
+            <StackPanel Orientation="Vertical" Grid.Column="0" Spacing="6">
+              <CheckBox Background="White" Content="Automatic Updates Maintain Test Merges" IsChecked="{Binding NewAutoUpdatesKeepTestMerges, Mode=TwoWay}" IsEnabled="{Binding CanAutoUpdate}" ToolTip.Tip="Enabling this may cause automatic updates to fail due to merge conflicts" />
+              <CheckBox Background="White" Content="Push Test Merge Commits to Temporary Branch" IsChecked="{Binding NewAutoUpdatesSynchronize, Mode=TwoWay}" IsEnabled="{Binding CanAutoUpdate}"/>
+              <CheckBox Background="White" Content="Show Merger Usernames in Public Metadata" IsChecked="{Binding NewShowTestMergeCommitters, Mode=TwoWay}" IsEnabled="{Binding CanShowTMCommitters}" Grid.Column="0" Grid.Row="1"/>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Grid.Column="1" Spacing="6">
+              <CheckBox Background="White" Content="Post GitHub comment when test merge is deployed" IsChecked="{Binding NewPostTestMergeComment, Mode=TwoWay}" IsEnabled="{Binding CanShowTMCommitters}" Grid.Column="1" Grid.Row="1"/>
+              <CheckBox Background="White" Content="Create GitHub Deployment Statuses" IsChecked="{Binding NewGitHubDeployments, Mode=TwoWay}" IsEnabled="{Binding CanShowTMCommitters}" Grid.Column="0" Grid.Row="2"/>
+            </StackPanel>
           </Grid>
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" Grid.Row="2"/>
@@ -140,12 +138,12 @@
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <TextBlock Text="Repository Access Username:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
-          <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding NewAccessUser, Mode=TwoWay}" IsEnabled="{Binding CanAccess}"/>
-          <TextBlock Text="Personal Access Token (repo scope) or Password for Non-GitHub Repos:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="1" />
-          <TextBox Grid.Column="1" PasswordChar="*" Grid.Row="1" Margin="50,0,0,5" Text="{Binding NewAccessToken, Mode=TwoWay}" IsEnabled="{Binding CanAccess}"/>
+          <TextBlock Text="Repository Access Username:" Margin="0,0,0,7" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
+          <TextBox Grid.Column="1" Grid.Row="0" Margin="5,0,0,7" Text="{Binding NewAccessUser, Mode=TwoWay}" IsEnabled="{Binding CanAccess}"/>
+          <TextBlock Text="PAT (GitHub) / Password (Others):" ToolTip.Tip="Personal Access Token (PAT) must be repo-scope, or use a password for non-GitHub repos" VerticalAlignment="Center"  Grid.Column="0" Grid.Row="1" />
+          <TextBox Grid.Column="1" PasswordChar="*" Grid.Row="1" Margin="5,0,0,0" Text="{Binding NewAccessToken, Mode=TwoWay}" IsEnabled="{Binding CanAccess}"/>
         </Grid>
         <StackPanel Orientation="Vertical" IsVisible="{Binding CloneAvailable}" Grid.Row="5">
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
@@ -193,25 +191,16 @@
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5" Grid.Row="1"/>
           <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="1*"/>
-              <ColumnDefinition Width="1*"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding UpdateMerge, Mode=TwoWay}" IsEnabled="{Binding CanUpdateMerge}"/>
-              <TextBlock DockPanel.Dock="Right" Text="Merge From Tracked Origin Reference" Margin="5,4,0,0" />
-            </DockPanel>
-            <DockPanel Grid.Column="1" Grid.Row="0" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding UpdateHard, Mode=TwoWay}" IsEnabled="{Binding CanUpdate}"/>
-              <TextBlock DockPanel.Dock="Right" Text="{Binding UpdateText}" Margin="5,4,0,0" />
-            </DockPanel>
-            <DockPanel Grid.Column="0" Grid.Row="1" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding DeployAfter, Mode=TwoWay}" IsEnabled="{Binding CanDeploy}"/>
-              <TextBlock DockPanel.Dock="Right" Text="Deploy Code After Changes" Margin="5,4,0,0" />
-            </DockPanel>
+            <StackPanel Orientation="Vertical" Spacing="7" Grid.Column="0">
+              <CheckBox Background="White" Content="Merge From Tracked Origin Reference" IsChecked="{Binding UpdateMerge, Mode=TwoWay}" IsEnabled="{Binding CanUpdateMerge}"/>
+              <CheckBox Background="White" Content="{Binding UpdateText}" IsChecked="{Binding UpdateHard, Mode=TwoWay}" IsEnabled="{Binding CanUpdate}"/>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Spacing="7" Grid.Column="2">
+              <CheckBox Background="White" Content="Deploy Code After Changes" IsChecked="{Binding DeployAfter, Mode=TwoWay}" IsEnabled="{Binding CanDeploy}"/>
+            </StackPanel>
           </Grid>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" Grid.Row="3"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5" Grid.Row="4"/>
