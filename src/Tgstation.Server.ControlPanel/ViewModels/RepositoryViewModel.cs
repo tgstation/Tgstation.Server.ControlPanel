@@ -471,6 +471,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				RecheckCommands();
 			}
 
+
+
 			return job;
 		}
 

@@ -3,6 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Tgstation.Server.ControlPanel.Views.Pages"
         x:Class="Tgstation.Server.ControlPanel.Views.Pages.Repository">
+  <UserControl.Styles>
+    <Style Selector="TextBox[IsReadOnly=True] /template/ Border#border">
+      <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
+    </Style>
+  </UserControl.Styles>
   <Grid Background="#CFD6E5">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -17,17 +22,8 @@
       <Button DockPanel.Dock="Right" Content="X" Padding="0,0" Width="20" Height="20" Background="#4D6082" Foreground="White" Grid.Column="1" Command="{Binding Close}" Margin="0,0,5,0" />
     </Grid>
     <ScrollViewer Background="#CFD6E5" Margin="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Grid.Row="1">
-      <Grid IsEnabled="{Binding !Refreshing}" Margin="10,5,10,5">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
+      <StackPanel Orientation="Vertical" IsEnabled="{Binding !Refreshing}" Margin="10,5,10,5">
+        <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
@@ -40,39 +36,64 @@
           <TextBlock Grid.Column="2" Text="{Binding ErrorMessage}" IsVisible="{Binding Error}" Margin="0,10,0,0"/>
           <Button Grid.Column="3" Content="Refresh" Command="{Binding RefreshCommand}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
-        <StackPanel Orientation="Vertical" IsVisible="{Binding !CloneAvailable}" Grid.Row="1">
-          <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
-          <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
-          <StackPanel Orientation="Horizontal">
-            <TextBlock Text="Origin URL:"/>
-            <TextBlock Text="{Binding Repository.Origin}" Margin="5,0,0,0"/>
-          </StackPanel>
-          <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-            <TextBlock Text="Sha:"/>
-            <TextBlock Text="{Binding Repository.RevisionInformation.CommitSha}" Margin="5,0,0,0"/>
-          </StackPanel>
-          <StackPanel Orientation="Horizontal">
-            <TextBlock Text="Closest Origin Sha:"/>
-            <TextBlock Text="{Binding Repository.RevisionInformation.OriginCommitSha}" Margin="5,0,0,0"/>
-          </StackPanel>
-          <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-            <TextBlock Text="Reference:"/>
-            <TextBlock Text="{Binding Repository.Reference}" Margin="5,0,0,0"/>
-          </StackPanel>
-          <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-            <TextBlock Text="Committer Name:"/>
-            <TextBlock Text="{Binding Repository.CommitterName}" Margin="5,0,0,0"/>
-          </StackPanel>
-          <StackPanel Orientation="Horizontal">
-            <TextBlock Text="Committer E-Mail:"/>
-            <TextBlock Text="{Binding Repository.CommitterEmail}" Margin="5,0,0,0"/>
-          </StackPanel>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <Grid IsVisible="{Binding !CloneAvailable}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="6" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid Grid.Column="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Origin URL:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
+            <TextBox IsReadOnly="True" Text="{Binding Repository.Origin}" Margin="5,0,0,6" Grid.Column="1" Grid.Row="0"/>
+            <TextBlock Text="Sha:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
+            <TextBox IsReadOnly="True" Text="{Binding Repository.RevisionInformation.CommitSha}" Margin="5,0,0,6" Grid.Column="1" Grid.Row="1"/>
+            <TextBlock Text="Closest Origin Sha:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"/>
+            <TextBox IsReadOnly="True" Text="{Binding Repository.RevisionInformation.OriginCommitSha}" Margin="5,0,0,6" Grid.Column="1" Grid.Row="2"/>
+          </Grid>
+          <Grid Grid.Column="2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Reference:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
+            <TextBox IsReadOnly="True" Text="{Binding Repository.Reference}" Margin="5,0,0,6" Grid.Column="1" Grid.Row="0"/>
+            <TextBlock Text="Committer Name:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
+            <TextBox IsReadOnly="True" Text="{Binding Repository.CommitterName}" Margin="5,0,0,6" Grid.Column="1" Grid.Row="1"/>
+            <TextBlock Text="Committer E-Mail:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"/>
+            <TextBox IsReadOnly="True" Text="{Binding Repository.CommitterEmail}" Margin="5,0,0,6" Grid.Column="1" Grid.Row="2"/>
+          </Grid>
+        </Grid>
+        <StackPanel Orientation="Vertical" IsVisible="{Binding !CloneAvailable}">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Width="99" VerticalAlignment="Center" Text="Credentials:" Grid.Column="0"/>
+            <TextBox IsReadOnly="True" Text="{Binding Repository.AccessUser}" Margin="5,0,0,0" Grid.Column="1"/>
+            <Button Command="{Binding RemoveCredentials}" Margin="5,0,0,0" Content="Clear Credentials" IsVisible="{Binding HasCredentials}" Grid.Column="2"/>
+          </Grid>
           <DockPanel LastChildFill="False" Margin="0,5,0,0">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-              <TextBlock Text="Credentials:"/>
-              <TextBlock Text="{Binding Repository.AccessUser}" Margin="5,0,0,0"/>
             </StackPanel>
-            <Button Command="{Binding RemoveCredentials}" Content="Clear Credentials" IsVisible="{Binding HasCredentials}" DockPanel.Dock="Right"/>
+            
           </DockPanel>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -129,9 +150,9 @@
             </StackPanel>
           </Grid>
         </StackPanel>
-        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" Grid.Row="2"/>
-        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5" Grid.Row="3"/>
-        <Grid Grid.Row="4">
+        <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+        <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+        <Grid>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -145,7 +166,7 @@
           <TextBlock Text="PAT (GitHub) / Password (Others):" ToolTip.Tip="Personal Access Token (PAT) must be repo-scope, or use a password for non-GitHub repos" VerticalAlignment="Center"  Grid.Column="0" Grid.Row="1" />
           <TextBox Grid.Column="1" PasswordChar="*" Grid.Row="1" Margin="5,0,0,0" Text="{Binding NewAccessToken, Mode=TwoWay}" IsEnabled="{Binding CanAccess}"/>
         </Grid>
-        <StackPanel Orientation="Vertical" IsVisible="{Binding CloneAvailable}" Grid.Row="5">
+        <StackPanel Orientation="Vertical" IsVisible="{Binding CloneAvailable}">
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
           <Grid IsEnabled="{Binding CanClone}">
@@ -175,7 +196,7 @@
             <Button Command="{Binding Clone}" Content="Clone" Grid.Column="1"/>
           </Grid>
         </StackPanel>
-        <Grid IsVisible="{Binding !CloneAvailable}" Grid.Row="6">
+        <Grid IsVisible="{Binding !CloneAvailable}">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -219,7 +240,7 @@
             <Button Content="{Binding DeleteText}" Grid.Column="3" Command="{Binding Delete}" Margin="0,0,5,0" />
           </Grid>
         </Grid>
-      </Grid>
+      </StackPanel>
     </ScrollViewer>
   </Grid>
 </UserControl>
