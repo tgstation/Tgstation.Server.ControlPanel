@@ -53,6 +53,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(HasRevision));
 				this.RaisePropertyChanged(nameof(HasStagedRevision));
 				this.RaisePropertyChanged(nameof(NewAdditionalParams));
+				if (model != null)
+				{
+					SoftRestart = model.SoftRestart.Value;
+					SoftStop = model.SoftShutdown.Value;
+				}
+
 				onRunningChanged(model?.Status != WatchdogStatus.Offline);
 			}
 		}
