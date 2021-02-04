@@ -220,7 +220,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly IServerJobSink jobSink;
 
-		readonly Octokit.IGitHubClient gitHubClient;
+		readonly Func<Octokit.IGitHubClient> gitHubClientFactory;
 
 		IReadOnlyList<ITreeNode> children;
 
@@ -244,7 +244,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		Action<string> setGitHubToken { get; }
 		Func<string> getGitHubToken { get; }
 
-		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, PageContextViewModel pageContext, Action onDelete, IJobSink jobSink, Octokit.IGitHubClient gitHubClient, Action<string> setGitHubToken, Func<string> getGitHubToken)
+		public ConnectionManagerViewModel(IServerClientFactory serverClientFactory, IRequestLogger requestLogger, Connection connection, PageContextViewModel pageContext, Action onDelete, IJobSink jobSink, Func<Octokit.IGitHubClient> gitHubClientFactory, Action<string> setGitHubToken, Func<string> getGitHubToken)
 		{
 			this.serverClientFactory = serverClientFactory ?? throw new ArgumentNullException(nameof(serverClientFactory));
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -252,7 +252,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.onDelete = onDelete ?? throw new ArgumentNullException(nameof(onDelete));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate, () => Title, () => userVM?.User) ?? throw new ArgumentNullException(nameof(jobSink));
-			this.gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
+			this.gitHubClientFactory = gitHubClientFactory ?? throw new ArgumentNullException(nameof(gitHubClientFactory));
 			this.setGitHubToken = setGitHubToken ?? throw new ArgumentNullException(nameof(setGitHubToken));
 			this.getGitHubToken = getGitHubToken ?? throw new ArgumentNullException(nameof(getGitHubToken));
 
@@ -389,7 +389,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newChildren.Add(new AdministrationViewModel(pageContext, serverClient.Administration, userVM, this, serverInfo.Version));
 					var urVM = new UsersRootViewModel(serverClient.Users, serverClient.Groups, serverInfo, pageContext, userVM);
 					newChildren.Add(urVM);
-					newChildren.Add(new InstanceRootViewModel(pageContext, serverInfo, serverClient.Instances, userVM, urVM, jobSink, gitHubClient, connection.Url.Host));
+					newChildren.Add(new InstanceRootViewModel(pageContext, serverInfo, serverClient.Instances, userVM, urVM, jobSink, gitHubClientFactory(), connection.Url.Host));
 				}
 				catch
 				{
