@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -480,6 +480,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			SelectedTestMerges = TestMerges.Where(x => x.Selected).ToList();
 			AvailableTestMerges = TestMerges.Where(x => !x.Selected).ToList();
+			AddPR.Recheck();
 		}
 
 		void DigestPR(Octokit.Issue pr, IReadOnlyList<Octokit.PullRequestCommit> commits)
