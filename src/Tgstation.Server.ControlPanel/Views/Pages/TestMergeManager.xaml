@@ -18,15 +18,44 @@
         <ColumnDefinition Width="5*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="500"/>
         <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="300"/>
       </Grid.RowDefinitions>
-      <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#FFFFFF" Grid.Row="0" Grid.Column="1">
-        <ItemsControl Items="{Binding TestMerges}">
+      <Grid Grid.Row="0" Grid.Column="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="80" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="Select open PR:" VerticalAlignment="Center" Grid.Column="0" />
+        <ComboBox Background="White" VirtualizationMode="Simple" Items="{Binding AvailableTestMerges}" SelectedItem="{Binding CurrentTestMerge, Mode=TwoWay}" Grid.Column="1" Margin="5,0,5,0">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Title}" FontWeight="{Binding FontWeight}" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        <Button Content="Open in Browser" Command="{Binding CurrentTestMerge.Link}" Margin="0,0,5,0" Grid.Column="2" />
+        <Button Content="Add" IsEnabled="{Binding CurrentTestMerge, Converter={x:Static ObjectConverters.IsNotNull}}" Command="{Binding AddPR}" Grid.Column="3" />
+      </Grid>
+      <Grid Grid.Row="1" Grid.Column="1" Margin="0,5,0,5">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="80"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="Manually Add:" VerticalAlignment="Center" Grid.Column="0"/>
+        <TextBox Text="{Binding ManualPR}" Watermark="GitHub link or PR number..." Margin="5,0,5,0" Grid.Column="1"/>
+        <Button Content="Add" Command="{Binding DirectAddPR}" Grid.Column="2"/>
+      </Grid>
+      <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#FFFFFF" Grid.Row="2" Grid.Column="1">
+        <ItemsControl Items="{Binding SelectedTestMerges}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <Panel Background="#000000">
-                <Grid Margin="0,0,0,1" Background="#FFFFFF">
+              <Border Margin="5,5,5,0" BorderThickness="0,0,0,1" BorderBrush="Gray">
+                <Grid Margin="0,0,0,5" Background="#FFFFFF">
                   <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -34,7 +63,7 @@
                   <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto"/>
-                      <ColumnDefinition Width="*" MaxWidth="900"/>
+                      <ColumnDefinition Width="*"/>
                       <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <CheckBox Background="White" IsChecked="{Binding Selected, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" Grid.Column="0"/>
@@ -51,27 +80,17 @@
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="Commit:" Grid.Row="0" Grid.Column="0" Margin="0,10,0,0"/>
-                    <ComboBox Items="{Binding Commits}" IsEnabled="{Binding CanEdit}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" Margin="5,5,0,0" IsVisible="{Binding CommitsLoaded}"/>
+                    <ComboBox Items="{Binding Commits}" VirtualizationMode="Simple" IsEnabled="{Binding CanEdit}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" Margin="5,5,0,0" IsVisible="{Binding CommitsLoaded}"/>
                     <Button Content="Load Commits" Command="{Binding LoadCommits}" Grid.Row="0" Grid.Column="1" Margin="5,5,0,0" IsVisible="{Binding !CommitsLoaded}"/>
                     <TextBlock Text="Comment:" Grid.Row="1" Grid.Column="0" Margin="0,10,0,0"/>
                     <TextBox Text="{Binding Comment, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"/>
                   </Grid>
                 </Grid>
-              </Panel>
+              </Border>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </ScrollViewer>
-      <Grid Grid.Row="1" Grid.Column="1">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <TextBlock Text="Manual Add PR#:" Margin="0,5,5,0" Grid.Column="0"/>
-        <NumericUpDown Minimum="1" Value="{Binding ManualPR}" Margin="0,0,5,0" Grid.Column="1"/>
-        <Button Content="Add" Command="{Binding DirectAddPR}" Grid.Column="2"/>
-      </Grid>
     </Grid>
   </Grid>
 </UserControl>
