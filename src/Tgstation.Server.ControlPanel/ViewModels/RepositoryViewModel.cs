@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -578,19 +578,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						testMergeViewModel.LoadCommitsAction(await gitHubClient.PullRequest.Commits(Repository.RemoteRepositoryOwner, Repository.RemoteRepositoryName, a.Key).ConfigureAwait(false));
 					}
 
-					// Maintain selected status changes between refreshes
-					var selected = false;
-					if (SelectedTestMerges != null)
-					{
-						var tm = SelectedTestMerges.FirstOrDefault(x => x.TestMerge.Number == a.Value.Number);
-						if (tm != null)
-						{
-							selected = tm.Selected;
-						}
-					}
-
-					testMergeViewModel = new TestMergeViewModel(a.Value, b.Value, x => modifiedPRList = true, LoadCommits, selected: selected);
-					return testMergeViewModel;
+					return new TestMergeViewModel(a.Value, b.Value, x => modifiedPRList = true, LoadCommits);
 				}).Where(x => x != null).ToList();
 				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Bold));
 				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Normal));
