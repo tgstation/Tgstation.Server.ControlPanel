@@ -20,7 +20,7 @@ Once that's done, [Click Here](https://github.com/tgstation/Tgstation.Server.Con
 
 To install the latest version of the code
 
-1. Download and install the [Dotnet 2.1 SDK](https://www.microsoft.com/net/download/dotnet-core/2.1)
+1. Download and install the [Dotnet 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/5.0)
 1. Clone this repository
 1. Navigate to `src/Tgstation.Server.ControlPanel.Core`
 1. Run `dotnet publish -c Release -o <Your chosen installation directory>`
