@@ -147,7 +147,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					return;
 				Model.SecurityLevel = DreamDaemonSecurity.Ultrasafe;
 				this.RaisePropertyChanged(nameof(Safe));
-				this.RaisePropertyChanged(nameof(Ultrasafe));
+				this.RaisePropertyChanged(nameof(Trusted));
 			}
 		}
 
