@@ -12,7 +12,7 @@ Official management suite for tgstation-server v4
 
 ### Windows
 
-First, ensure you have the .NET Core 5.0 runtime installed. See [here](https://dotnet.microsoft.com/download/dotnet-core/current/runtime) for download.
+First, ensure you have the .NET Core 5.0 runtime installed. See [here](https://dotnet.microsoft.com/download/dotnet/current/runtime) for download.
 
 Once that's done, [Click Here](https://github.com/tgstation/Tgstation.Server.ControlPanel/releases/latest) for a download link to the self updating version.
 
