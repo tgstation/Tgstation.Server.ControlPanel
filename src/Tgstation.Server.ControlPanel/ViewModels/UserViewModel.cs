@@ -153,6 +153,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			};
 
 			UpdatePermissionSet();
+			SetLocks();
 		}
 
 		public Task HandleClick(CancellationToken cancellationToken)
