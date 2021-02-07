@@ -14,6 +14,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Save,
 		}
 
+		public EnumCommand<PermissionSetCommand> Save { get; }
+
 		public bool InstanceCreate
 		{
 			get => newInstanceManagerRights.HasFlag(InstanceManagerRights.Create);
@@ -242,6 +244,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			newAdministrationRights = PermissionSet.AdministrationRights.Value;
 			newInstanceManagerRights = PermissionSet.InstanceManagerRights.Value;
+
+			Save = new EnumCommand<PermissionSetCommand>(PermissionSetCommand.Save, this);
 		}
 
 		public PermissionSetViewModel(IUserRightsProvider userRightsProvider, IUserGroupsClient groupsClient, UserGroup group)
@@ -254,7 +258,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			newInstanceManagerRights = PermissionSet.InstanceManagerRights.Value;
 		}
 
-		async Task Save(CancellationToken cancellationToken)
+		async Task SaveImpl(CancellationToken cancellationToken)
 		{
 			var permissionSet = new PermissionSet
 			{
@@ -287,7 +291,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public Task RunCommand(PermissionSetCommand command, CancellationToken cancellationToken)
 		{
-			return Save(cancellationToken);
+			return SaveImpl(cancellationToken);
 		}
 	}
 }
