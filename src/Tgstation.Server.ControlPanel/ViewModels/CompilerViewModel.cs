@@ -54,9 +54,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => newSecurityLevel == DreamDaemonSecurity.Ultrasafe;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref newSecurityLevel, DreamDaemonSecurity.Ultrasafe);
-				this.RaisePropertyChanged(nameof(Trusted));
-				this.RaisePropertyChanged(nameof(Safe));
+				this.RaiseAndSetIfChanged(ref newSecurityLevel, value ? DreamDaemonSecurity.Ultrasafe : null);
 				Update.Recheck();
 			}
 		}
@@ -66,9 +64,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => newSecurityLevel == DreamDaemonSecurity.Safe;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref newSecurityLevel, DreamDaemonSecurity.Safe);
-				this.RaisePropertyChanged(nameof(Trusted));
-				this.RaisePropertyChanged(nameof(Ultrasafe));
+				this.RaiseAndSetIfChanged(ref newSecurityLevel, value ? DreamDaemonSecurity.Safe : null);
 				Update.Recheck();
 			}
 		}
@@ -78,9 +74,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			get => newSecurityLevel == DreamDaemonSecurity.Trusted;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref newSecurityLevel, DreamDaemonSecurity.Trusted);
-				this.RaisePropertyChanged(nameof(Safe));
-				this.RaisePropertyChanged(nameof(Ultrasafe));
+				this.RaiseAndSetIfChanged(ref newSecurityLevel, value ? DreamDaemonSecurity.Trusted : null);
 				Update.Recheck();
 			}
 		}
@@ -175,7 +169,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		DreamMaker model;
 
-		DreamDaemonSecurity newSecurityLevel;
+		DreamDaemonSecurity? newSecurityLevel; // never actually nullable
 
 		string newDme;
 		int newPort;

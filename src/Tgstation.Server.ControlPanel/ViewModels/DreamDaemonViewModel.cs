@@ -96,85 +96,42 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public bool Running => Model.Status == WatchdogStatus.Online;
+
 		public bool SoftRestart
 		{
 			get => softRestart;
-			set
-			{
-				this.RaiseAndSetIfChanged(ref softRestart, value);
-				if (value)
-				{
-					SoftStop = false;
-					ClearSoft = false;
-				}
-			}
+			set => this.RaiseAndSetIfChanged(ref softRestart, value);
 		}
 
 		public bool SoftStop
 		{
 			get => softStop;
-			set
-			{
-				this.RaiseAndSetIfChanged(ref softStop, value);
-				if (value)
-				{
-					ClearSoft = false;
-					SoftRestart = false;
-				}
-			}
+			set => this.RaiseAndSetIfChanged(ref softStop, value);
 		}
 
 		public bool ClearSoft
 		{
 			get => clearSoft;
-			set
-			{
-				this.RaiseAndSetIfChanged(ref clearSoft, value);
-				if (value)
-				{
-					SoftStop = false;
-					SoftRestart = false;
-				}
-			}
+			set => this.RaiseAndSetIfChanged(ref clearSoft, value);
 		}
 
 		public bool Ultrasafe
 		{
 			get => Model?.SecurityLevel == DreamDaemonSecurity.Ultrasafe;
-			set
-			{
-				if (!value)
-					return;
-				Model.SecurityLevel = DreamDaemonSecurity.Ultrasafe;
-				this.RaisePropertyChanged(nameof(Safe));
-				this.RaisePropertyChanged(nameof(Trusted));
-			}
+			set => Model.SecurityLevel = value ? DreamDaemonSecurity.Ultrasafe : null;
 		}
 
 		public bool Safe
 		{
 			get => Model?.SecurityLevel == DreamDaemonSecurity.Safe;
-			set
-			{
-				if (!value)
-					return;
-				Model.SecurityLevel = DreamDaemonSecurity.Safe;
-				this.RaisePropertyChanged(nameof(Trusted));
-				this.RaisePropertyChanged(nameof(Ultrasafe));
-			}
+			set => Model.SecurityLevel = value ? DreamDaemonSecurity.Safe : null;
 		}
 
 		public bool Trusted
 		{
 			get => Model?.SecurityLevel == DreamDaemonSecurity.Trusted;
-			set
-			{
-				if (!value)
-					return;
-				Model.SecurityLevel = DreamDaemonSecurity.Trusted;
-				this.RaisePropertyChanged(nameof(Safe));
-				this.RaisePropertyChanged(nameof(Ultrasafe));
-			}
+			set => Model.SecurityLevel = value ? DreamDaemonSecurity.Trusted : null;
 		}
 
 		public uint NewStartupTimeout

@@ -114,12 +114,12 @@
           </Grid.ColumnDefinitions>
           <TextBlock Text="Security Level:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="7" ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
           <TextBlock Text="Graceful Action:" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7" />
-          <RadioButton Content="Ultrasafe" Grid.Row="1" Grid.Column="1" IsChecked="{Binding Ultrasafe}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
-          <RadioButton Content="Safe" Grid.Row="1" Grid.Column="3" IsChecked="{Binding Safe}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
-          <RadioButton Content="Trusted" Grid.Row="1" Grid.Column="5" IsChecked="{Binding Trusted}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
-          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="None" Grid.Row="3" Grid.Column="1" IsChecked="{Binding ClearSoft}" IsEnabled="{Binding Model.Running}"/>
-          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="Restart" Grid.Row="3" Grid.Column="3" IsChecked="{Binding SoftRestart}" IsEnabled="{Binding Model.Running}" />
-          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="Shutdown" Grid.Row="3" Grid.Column="5" IsChecked="{Binding SoftStop}" IsEnabled="{Binding Model.Running}" />
+					<RadioButton GroupName="DDTrust" Content="Ultrasafe" Grid.Row="1" Grid.Column="1" IsChecked="{Binding Ultrasafe, Mode=TwoWay}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
+					<RadioButton GroupName="DDTrust" Content="Safe" Grid.Row="1" Grid.Column="3" IsChecked="{Binding Safe, Mode=TwoWay}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
+					<RadioButton GroupName="DDTrust" Content="Trusted" Grid.Row="1" Grid.Column="5" IsChecked="{Binding Trusted, Mode=TwoWay}" ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
+          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="None" Grid.Row="3" Grid.Column="1" IsChecked="{Binding ClearSoft, Mode=TwoWay}" IsEnabled="{Binding Running}"/>
+          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="Restart" Grid.Row="3" Grid.Column="3" IsChecked="{Binding SoftRestart, Mode=TwoWay}" IsEnabled="{Binding Running}" />
+          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="Shutdown" Grid.Row="3" Grid.Column="5" IsChecked="{Binding SoftStop, Mode=TwoWay}" IsEnabled="{Binding Running}" />
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

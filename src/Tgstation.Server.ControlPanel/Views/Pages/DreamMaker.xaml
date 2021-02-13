@@ -115,9 +115,9 @@
             <ColumnDefinition Width="10*"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="API Validation Security Level:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="7" />
-          <RadioButton GroupName="Trust" Content="Ultrasafe" Grid.Row="2" Grid.Column="1" IsChecked="{Binding Ultrasafe}" />
-          <RadioButton GroupName="Trust" Content="Safe" Grid.Row="2" Grid.Column="3" IsChecked="{Binding Safe}" />
-          <RadioButton GroupName="Trust" Content="Trusted" Grid.Row="2" Grid.Column="5" IsChecked="{Binding Trusted}" />
+          <RadioButton GroupName="Trust" Content="Ultrasafe" Grid.Row="2" Grid.Column="1" IsChecked="{Binding Ultrasafe, Mode=TwoWay}" />
+          <RadioButton GroupName="Trust" Content="Safe" Grid.Row="2" Grid.Column="3" IsChecked="{Binding Safe, Mode=TwoWay}" />
+          <RadioButton GroupName="Trust" Content="Trusted" Grid.Row="2" Grid.Column="5" IsChecked="{Binding Trusted, Mode=TwoWay}" />
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
