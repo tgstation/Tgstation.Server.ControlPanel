@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 
@@ -26,7 +28,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public InstanceManagerRights InstanceManagerRights => user.GetPermissionSet().InstanceManagerRights.Value;
 		public bool IsExpanded { get; set; }
 
-		public User User
+		public UserResponse User
 		{
 			get => user;
 			set
@@ -108,12 +110,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public event EventHandler OnUpdated;
 
-		readonly ServerInformation serverInformation;
+		readonly ServerInformationResponse serverInformation;
 		readonly IUserRightsProvider userRightsProvider;
 		readonly IUsersClient usersClient;
 		readonly PageContextViewModel pageContext;
 
-		User user;
+		UserResponse user;
 
 		bool refreshing;
 		bool error;
@@ -123,7 +125,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string newPassword;
 		string passwordConfirm;
 
-		public UserViewModel(IUsersClient usersClient, ServerInformation serverInformation, User user, PageContextViewModel pageContext, IUserRightsProvider userRightsProvider)
+		public UserViewModel(IUsersClient usersClient, ServerInformationResponse serverInformation, UserResponse user, PageContextViewModel pageContext, IUserRightsProvider userRightsProvider)
 		{
 			this.usersClient = usersClient ?? throw new ArgumentNullException(nameof(usersClient));
 			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
@@ -222,7 +224,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					OnUpdated?.Invoke(this, new EventArgs());
 					break;
 				case UserCommand.RemoveFromGroup:
-					var update = new UserUpdate
+					var update = new UserUpdateRequest
 					{
 						Id = User.Id,
 						PermissionSet = new PermissionSet
@@ -235,7 +237,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					UpdatePermissionSet();
 					break;
 				case UserCommand.Save:
-					var update2 = new UserUpdate
+					var update2 = new UserUpdateRequest
 					{
 						Id = User.Id,
 						Enabled = Enabled

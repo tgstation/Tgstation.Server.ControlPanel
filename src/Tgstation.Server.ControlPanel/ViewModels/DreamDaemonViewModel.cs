@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Avalonia.Media;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
 
@@ -33,7 +35,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public IReadOnlyList<ITreeNode> Children => null;
 
-		public DreamDaemon Model
+		public DreamDaemonResponse Model
 		{
 			get => model;
 			set
@@ -214,7 +216,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly string serverAddress;
 
-		DreamDaemon model;
+		DreamDaemonResponse model;
 
 		DreamDaemonSecurity? initalSecurityLevel;
 
@@ -292,7 +294,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			InitialLoad();
 		}
 
-		void LoadModel(DreamDaemon model)
+		void LoadModel(DreamDaemonResponse model)
 		{
 			using (DelayChangeNotifications())
 			{
@@ -323,7 +325,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (!CanRevision && !CanPort)
 					using (DelayChangeNotifications())
 					{
-						Model = new DreamDaemon();
+						Model = new DreamDaemonResponse();
 						ClearSoft = true;
 						return;
 					}
@@ -403,7 +405,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Refreshing = true;
 					try
 					{
-						var newModel = new DreamDaemon
+						var newModel = new DreamDaemonRequest
 						{
 							AllowWebClient = CanWebClient && Model.AllowWebClient != NewAllowWebClient ? (bool?)NewAllowWebClient : null,
 							AutoStart = CanAutoStart && Model.AutoStart != NewAutoStart ? (bool?)NewAutoStart : null,

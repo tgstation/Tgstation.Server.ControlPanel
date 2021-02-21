@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 using Tgstation.Server.Client.Components;
@@ -159,7 +161,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public void DirectAdd(ConfigurationFile file)
+		public void DirectAdd(ConfigurationFileResponse file)
 		{
 			IStaticNode vm;
 			if (!file.IsDirectory.Value)
@@ -201,7 +203,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Refreshing = true;
 					try
 					{
-						await configurationClient.DeleteEmptyDirectory(new ConfigurationFile
+						await configurationClient.DeleteEmptyDirectory(new ConfigurationFileRequest
 						{
 							Path = Path
 						}, cancellationToken).ConfigureAwait(false);

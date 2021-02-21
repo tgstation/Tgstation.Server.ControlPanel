@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
 
@@ -28,7 +29,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref children, value);
 		}
 
-		public User CurrentUser => userProvider.CurrentUser;
+		public UserResponse CurrentUser => userProvider.CurrentUser;
 
 		readonly PageContextViewModel pageContext;
 		readonly IInstancePermissionSetClient instanceUserClient;
@@ -37,7 +38,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly InstanceViewModel instanceViewModel;
 
 		IReadOnlyList<ITreeNode> children;
-		IReadOnlyList<InstancePermissionSet> activeUsers;
+		IReadOnlyList<InstancePermissionSetResponse> activeUsers;
 
 		bool loading;
 		string icon;
@@ -59,7 +60,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			rightsProvider.OnUpdated += (a, b) => InitialLoad();
 		}
 
-		public static string GetDisplayNameForInstanceUser(IUserProvider userProvider, InstancePermissionSet user)
+		public static string GetDisplayNameForInstanceUser(IUserProvider userProvider, InstancePermissionSetResponse user)
 		{
 			var actualUser = userProvider
 				.GetUsers()
@@ -151,14 +152,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public void DirectAdd(InstancePermissionSet user)
+		public void DirectAdd(InstancePermissionSetResponse user)
 		{
 			var newModel = new InstanceUserViewModel(pageContext, instanceViewModel, rightsProvider, instanceUserClient, user, GetDisplayNameForInstanceUser(userProvider, user), rightsProvider, this, (userProvider.GetGroups()?.Any(y => y.PermissionSet.Id == user.PermissionSetId) == true));
 			var newChildren = new List<ITreeNode>(Children)
 			{
 				newModel
 			};
-			activeUsers = new List<InstancePermissionSet>(activeUsers)
+			activeUsers = new List<InstancePermissionSetResponse>(activeUsers)
 			{
 				user
 			};

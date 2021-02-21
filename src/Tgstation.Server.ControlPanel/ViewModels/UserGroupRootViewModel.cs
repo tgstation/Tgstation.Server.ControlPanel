@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 
@@ -32,10 +33,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IUserProvider userProvider;
 		readonly PageContextViewModel pageContext;
 		readonly IUserGroupsClient groupsClient;
-		readonly ServerInformation serverInformation;
+		readonly ServerInformationResponse serverInformation;
 		readonly IUserRightsProvider rightsProvider;
 
-		IReadOnlyList<UserGroup> lastGroups;
+		IReadOnlyList<UserGroupResponse> lastGroups;
 		IReadOnlyList<ITreeNode> children;
 
 		bool loading;
@@ -45,7 +46,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			IUsersClient usersClient,
 			IUserProvider userProvider,
 			PageContextViewModel pageContext,
-			ServerInformation serverInformation,
+			ServerInformationResponse serverInformation,
 			IUserRightsProvider rightsProvider,
 			IUserGroupsClient userGroupsClient)
 		{
@@ -111,9 +112,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 		public Task HandleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
 
-		public IReadOnlyList<UserGroup> GetGroups() => lastGroups?.ToList();
+		public IReadOnlyList<UserGroupResponse> GetGroups() => lastGroups?.ToList();
 
-		public void DirectAdd(UserGroup group)
+		public void DirectAdd(UserGroupResponse group)
 		{
 			var lastGroupsList = lastGroups.ToList();
 			lastGroupsList.Add(group);

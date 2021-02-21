@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
 
@@ -195,7 +196,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Add.Recheck();
 					try
 					{
-						var newBot = new ChatBot
+						var newBot = new ChatBotCreateRequest
 						{
 							Provider = Provider,
 							Name = BotName,
@@ -228,8 +229,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 								throw new InvalidOperationException("Invalid Provider!");
 						}
 
-						newBot = await chatBotsClient.Create(newBot, cancellationToken).ConfigureAwait(true);
-						chatRootViewModel.DirectAdd(newBot);
+						var createdBot = await chatBotsClient.Create(newBot, cancellationToken).ConfigureAwait(true);
+						chatRootViewModel.DirectAdd(createdBot);
 					}
 					finally
 					{

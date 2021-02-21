@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using ReactiveUI;
-using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Client;
 using Tgstation.Server.Client.Components;
 
@@ -43,11 +43,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly Action onRemove;
 
-		Job job;
+		JobResponse job;
 		IJobsClient jobsClient;
 		bool canCancel;
 
-		public JobViewModel(Job job, Action onRemove, IJobsClient jobsClient)
+		public JobViewModel(JobResponse job, Action onRemove, IJobsClient jobsClient)
 		{
 			this.onRemove = onRemove ?? throw new ArgumentNullException(nameof(onRemove));
 			canCancel = true;
@@ -56,7 +56,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Update(job, jobsClient);
 		}
 
-		public void Update(Job job, IJobsClient jobsClient)
+		public void Update(JobResponse job, IJobsClient jobsClient)
 		{
 			this.job = job ?? throw new ArgumentNullException(nameof(job));
 			this.jobsClient = jobsClient ?? throw new ArgumentNullException(nameof(jobsClient));

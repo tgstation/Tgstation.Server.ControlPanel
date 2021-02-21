@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
-using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Client;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
@@ -38,14 +39,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<AddGroupCommand> Close { get; }
 
 		readonly PageContextViewModel pageContext;
-		readonly ServerInformation serverInformation;
+		readonly ServerInformationResponse serverInformation;
 		readonly IUserGroupsClient groupsClient;
 		readonly IUserRightsProvider userRightsProvider;
 		readonly UserGroupRootViewModel userGroupRootViewModel;
 
 		string groupName;
 
-		public AddGroupViewModel(PageContextViewModel pageContext, ServerInformation serverInformation, IUserGroupsClient groupsClient, IUserRightsProvider userRightsProvider, UserGroupRootViewModel userGroupRootViewModel)
+		public AddGroupViewModel(PageContextViewModel pageContext, ServerInformationResponse serverInformation, IUserGroupsClient groupsClient, IUserRightsProvider userRightsProvider, UserGroupRootViewModel userGroupRootViewModel)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
@@ -80,7 +81,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			switch (command)
 			{
 				case AddGroupCommand.Add:
-					var group = await groupsClient.Create(new UserGroup
+					var group = await groupsClient.Create(new UserGroupCreateRequest
 					{
 						Name = GroupName,
 					},

@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
 
@@ -786,7 +788,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly string displayName;
 		readonly bool isForGroup;
 
-		InstancePermissionSet instanceUser;
+		InstancePermissionSetResponse instanceUser;
 
 		InstancePermissionSetRights newInstanceUserRights;
 		RepositoryRights newRepositoryRights;
@@ -801,7 +803,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public event EventHandler OnUpdated;
 
-		public InstanceUserViewModel(PageContextViewModel pageContext, InstanceViewModel instanceViewModel, IUserRightsProvider userRightsProvider, IInstancePermissionSetClient instanceUserClient, InstancePermissionSet instanceUser, string displayName, IInstanceUserRightsProvider rightsProvider, InstanceUserRootViewModel instanceUserRootViewModel, bool isForGroup)
+		public InstanceUserViewModel(PageContextViewModel pageContext, InstanceViewModel instanceViewModel, IUserRightsProvider userRightsProvider, IInstancePermissionSetClient instanceUserClient, InstancePermissionSetResponse instanceUser, string displayName, IInstanceUserRightsProvider rightsProvider, InstanceUserRootViewModel instanceUserRootViewModel, bool isForGroup)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.instanceViewModel = instanceViewModel ?? throw new ArgumentNullException(nameof(instanceViewModel));
@@ -961,7 +963,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(IsExpanded));
 					break;
 				case InstanceUserCommand.Save:
-					var update = new InstancePermissionSet
+					var update = new InstancePermissionSetRequest
 					{
 						PermissionSetId = instanceUser.PermissionSetId,
 						ByondRights = newByondRights,

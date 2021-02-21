@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using ReactiveUI;
-using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
 	sealed class CompileJobViewModel : ViewModelBase
 	{
-		public CompileJob CompileJob { get; }
+		public CompileJobResponse CompileJob { get; }
 
 		public string User => string.Format(CultureInfo.InvariantCulture, "{0} ({1})", CompileJob.Job.StartedBy.Name, CompileJob.Job.StartedBy.Id);
 
@@ -40,7 +40,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		bool isExpanded;
 
-		public CompileJobViewModel(CompileJob compileJob)
+		public CompileJobViewModel(CompileJobResponse compileJob)
 		{
 			CompileJob = compileJob ?? throw new ArgumentNullException(nameof(compileJob));
 			TestMerges = compileJob.RevisionInformation.ActiveTestMerges.Select(x => new TestMergeViewModel(x, y => { })).ToList();

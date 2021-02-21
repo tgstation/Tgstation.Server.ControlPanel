@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Client;
 using Tgstation.Server.Client.Components;
 
@@ -35,13 +36,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly Task updateTask;
 
-		readonly Func<User> currentUserProvider;
+		readonly Func<UserResponse> currentUserProvider;
 
 		TaskCompletionSource<object> updated;
 
 		IReadOnlyList<JobViewModel> jobs;
 
-		public ServerJobSinkViewModel(Func<IServerClient> clientProvider, Func<TimeSpan> requeryRateProvider, Func<string> nameProvider, Func<User> currentUserProvider, Action onDisposed)
+		public ServerJobSinkViewModel(Func<IServerClient> clientProvider, Func<TimeSpan> requeryRateProvider, Func<string> nameProvider, Func<UserResponse> currentUserProvider, Action onDisposed)
 		{
 			this.clientProvider = clientProvider ?? throw new ArgumentNullException(nameof(clientProvider));
 			this.requeryRateProvider = requeryRateProvider ?? throw new ArgumentNullException(nameof(requeryRateProvider));
@@ -74,11 +75,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			InstanceJobSink sink;
 			lock (instanceSinks)
 			{
-				var newSink = !instanceSinks.TryGetValue(instanceClient.Metadata.Id, out sink);
+				var newSink = !instanceSinks.TryGetValue(instanceClient.Metadata.Id.Value, out sink);
 				if (newSink)
 				{
 					sink = new InstanceJobSink(instanceClient.Metadata, currentUserProvider);
-					instanceSinks.Add(instanceClient.Metadata.Id, sink);
+					instanceSinks.Add(instanceClient.Metadata.Id.Value, sink);
 				}
 			}
 			if (instanceClient.Metadata.Online == true)
@@ -94,16 +95,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return sink;
 		}
 
-		public IObservable<Job> UpdateJobs(IServerClient client, CancellationToken cancellationToken)
+		public IObservable<JobResponse> UpdateJobs(IServerClient client, CancellationToken cancellationToken)
 		{
-			var observables = new List<IObservable<Job>>();
+			var observables = new List<IObservable<JobResponse>>();
 			lock (instanceSinks)
 				foreach (var I in instanceSinks)
 					observables.Add(I.Value.UpdateJobs(client.Instances.CreateClient(I.Value.Instance).Jobs, cancellationToken));
 			return observables.Merge();
 		}
 
-		long? DeregisterJob(Job job, out Func<CancellationToken, Task> postAction)
+		long? DeregisterJob(JobResponse job, out Func<CancellationToken, Task> postAction)
 		{
 			lock (instanceSinks)
 				foreach (var I in instanceSinks)
@@ -113,7 +114,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return null;
 		}
 
-		async Task UpdateJobList(Job job, IServerClient serverClient)
+		async Task UpdateJobList(JobResponse job, IServerClient serverClient)
 		{
 			if (job == null)
 				return;
@@ -131,14 +132,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			if (!instanceId.HasValue)
 				return;
 
-			var client = serverClient.Instances.CreateClient(new Instance
+			var client = serverClient.Instances.CreateClient(new InstanceResponse
 			{
 				Id = instanceId.Value
 			}).Jobs;
 
 			JobViewModel viewModel;
 			lock (jobModelMap)
-				if (!jobModelMap.TryGetValue(job.Id, out viewModel))
+				if (!jobModelMap.TryGetValue(job.Id.Value, out viewModel))
 				{
 					JobViewModel newModel = null;
 					newModel = new JobViewModel(job, () =>
@@ -146,11 +147,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						DeregisterJob(job, out var innerDeregTask);
 						lock (jobModelMap)
 						{
-							jobModelMap.Remove(job.Id);
+							jobModelMap.Remove(job.Id.Value);
 							Jobs = new List<JobViewModel>(Jobs.Where(x => x != newModel));
 						}
 					}, client);
-					jobModelMap.Add(job.Id, newModel);
+					jobModelMap.Add(job.Id.Value, newModel);
 					Jobs = new List<JobViewModel>(Jobs)
 					{
 						newModel
@@ -165,9 +166,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}).ConfigureAwait(false);
 		}
 
-		IObservable<Job> NewJobs()
+		IObservable<JobResponse> NewJobs()
 		{
-			var observables = new List<IObservable<Job>>();
+			var observables = new List<IObservable<JobResponse>>();
 			lock (instanceSinks)
 				foreach (var I in instanceSinks)
 					observables.Add(I.Value.NewJobs());

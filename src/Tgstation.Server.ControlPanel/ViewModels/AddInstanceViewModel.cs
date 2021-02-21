@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Client;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
@@ -59,14 +61,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly PageContextViewModel pageContext;
 		readonly IInstanceManagerClient instanceManagerClient;
 		readonly InstanceRootViewModel instanceRootViewModel;
-		readonly ServerInformation serverInformation;
+		readonly ServerInformationResponse serverInformation;
 
 		string name;
 		string path;
 
 		bool adding;
 
-		public AddInstanceViewModel(PageContextViewModel pageContext, ServerInformation serverInformation, IInstanceManagerClient instanceManagerClient, InstanceRootViewModel instanceRootViewModel)
+		public AddInstanceViewModel(PageContextViewModel pageContext, ServerInformationResponse serverInformation, IInstanceManagerClient instanceManagerClient, InstanceRootViewModel instanceRootViewModel)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
@@ -108,7 +110,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Add.Recheck();
 					try
 					{
-						var newInstance = await instanceManagerClient.CreateOrAttach(new Instance
+						var newInstance = await instanceManagerClient.CreateOrAttach(new InstanceCreateRequest
 						{
 							Name = Name,
 							Path = Path

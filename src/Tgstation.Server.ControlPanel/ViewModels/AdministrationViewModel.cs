@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 
@@ -97,7 +99,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly ConnectionManagerViewModel connectionManagerViewModel;
 
 		readonly Version tgsVersion;
-		Administration model;
+		AdministrationResponse model;
 		string newVersion;
 		string icon;
 		string errorMessage;
@@ -265,7 +267,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}
 					try
 					{
-						await administrationClient.Update(new Administration
+						await administrationClient.Update(new ServerUpdateRequest
 						{
 							NewVersion = Version.Parse(NewVersion)
 						}, cancellationToken).ConfigureAwait(false);

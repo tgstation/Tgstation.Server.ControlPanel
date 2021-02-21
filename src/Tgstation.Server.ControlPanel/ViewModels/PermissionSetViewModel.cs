@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 
@@ -230,13 +232,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IUsersClient usersClient;
 		readonly IUserGroupsClient groupsClient;
 
-		User user;
-		UserGroup group;
+		UserResponse user;
+		UserGroupResponse group;
 
 		InstanceManagerRights newInstanceManagerRights;
 		AdministrationRights newAdministrationRights;
 
-		public PermissionSetViewModel(IUserRightsProvider userRightsProvider, IUsersClient usersClient, User user)
+		public PermissionSetViewModel(IUserRightsProvider userRightsProvider, IUsersClient usersClient, UserResponse user)
 		{
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
 			this.usersClient = usersClient ?? throw new ArgumentNullException(nameof(usersClient));
@@ -248,7 +250,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Save = new EnumCommand<PermissionSetCommand>(PermissionSetCommand.Save, this);
 		}
 
-		public PermissionSetViewModel(IUserRightsProvider userRightsProvider, IUserGroupsClient groupsClient, UserGroup group)
+		public PermissionSetViewModel(IUserRightsProvider userRightsProvider, IUserGroupsClient groupsClient, UserGroupResponse group)
 		{
 			this.userRightsProvider = userRightsProvider ?? throw new ArgumentNullException(nameof(userRightsProvider));
 			this.groupsClient = groupsClient ?? throw new ArgumentNullException(nameof(groupsClient));
@@ -256,6 +258,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			newAdministrationRights = PermissionSet.AdministrationRights.Value;
 			newInstanceManagerRights = PermissionSet.InstanceManagerRights.Value;
+
+			Save = new EnumCommand<PermissionSetCommand>(PermissionSetCommand.Save, this);
 		}
 
 		async Task SaveImpl(CancellationToken cancellationToken)
@@ -269,7 +273,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			if (user != null)
 			{
 				user = await usersClient.Update(
-					new UserUpdate
+					new UserUpdateRequest
 					{
 						Id = user.Id,
 						PermissionSet = permissionSet,
@@ -279,7 +283,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 
 			group = await groupsClient.Update(
-				new UserGroup
+				new UserGroupUpdateRequest
 				{
 					Id = group.Id,
 					PermissionSet = permissionSet,

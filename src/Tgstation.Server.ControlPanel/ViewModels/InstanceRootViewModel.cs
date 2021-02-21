@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 
@@ -33,7 +34,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		readonly PageContextViewModel pageContext;
-		readonly ServerInformation serverInformation;
+		readonly ServerInformationResponse serverInformation;
 		readonly IInstanceManagerClient instanceManagerClient;
 		readonly IUserRightsProvider userRightsProvider;
 		readonly IUserProvider userProvider;
@@ -46,7 +47,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool loading;
 		bool isExpanded;
 
-		public InstanceRootViewModel(PageContextViewModel pageContext, ServerInformation serverInformation, IInstanceManagerClient instanceManagerClient, IUserRightsProvider userRightsProvider, IUserProvider userProvider, IServerJobSink serverJobSink, Octokit.IGitHubClient gitHubClient, string serverAddress)
+		public InstanceRootViewModel(PageContextViewModel pageContext, ServerInformationResponse serverInformation, IInstanceManagerClient instanceManagerClient, IUserRightsProvider userRightsProvider, IUserProvider userProvider, IServerJobSink serverJobSink, Octokit.IGitHubClient gitHubClient, string serverAddress)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));

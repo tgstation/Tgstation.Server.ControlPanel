@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
 
@@ -34,7 +35,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly uint chatBotLimit;
 
 		IReadOnlyList<ITreeNode> children;
-		IReadOnlyList<ChatBot> chatBots;
+		IReadOnlyList<ChatBotResponse> chatBots;
 
 		bool loading;
 		string icon;
@@ -133,14 +134,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public void DirectAdd(ChatBot bot)
+		public void DirectAdd(ChatBotResponse bot)
 		{
 			var newModel = new ChatBotViewModel(pageContext, chatBotsClient, bot, rightsProvider, this);
 			var newChildren = new List<ITreeNode>(Children)
 			{
 				newModel
 			};
-			chatBots = new List<ChatBot>(chatBots)
+			chatBots = new List<ChatBotResponse>(chatBots)
 			{
 				bot
 			};

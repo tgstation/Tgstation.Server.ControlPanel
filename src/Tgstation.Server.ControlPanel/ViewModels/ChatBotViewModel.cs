@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
 
@@ -69,7 +71,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string Enabled => (ChatBot?.Enabled).HasValue ? ChatBot.Enabled.ToString() : "Unknown";
 		public string Provider => (ChatBot?.Provider).HasValue ? ChatBot.Provider.ToString() : "Unknown";
 
-		public ChatBot ChatBot
+		public ChatBotResponse ChatBot
 		{
 			get => chatBot;
 			set
@@ -125,7 +127,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string newConnectionString;
 		string newName;
 
-		ChatBot chatBot;
+		ChatBotResponse chatBot;
 		ushort newChannelLimit;
 		bool refreshing;
 		bool confirmingDelete;
@@ -133,7 +135,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		void OnChannelDelete(ChatChannel model) => Channels = new List<ChatChannelViewModel>(Channels.Where(y => y.Model != model));
 
-		public ChatBotViewModel(PageContextViewModel pageContext, IChatBotsClient chatBotsClient, ChatBot chatBot, IInstanceUserRightsProvider rightsProvider, ChatRootViewModel chatRootViewModel)
+		public ChatBotViewModel(PageContextViewModel pageContext, IChatBotsClient chatBotsClient, ChatBotResponse chatBot, IInstanceUserRightsProvider rightsProvider, ChatRootViewModel chatRootViewModel)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.chatBotsClient = chatBotsClient ?? throw new ArgumentNullException(nameof(chatBotsClient));
@@ -176,7 +178,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					pageContext.ActiveObject = null;
 					break;
 				case ChatBotCommand.Update:
-					var update = new ChatBot
+					var update = new ChatBotUpdateRequest
 					{
 						Id = ChatBot.Id,
 						ConnectionString = CanConnectionString && !string.IsNullOrEmpty(NewConnectionString) && NewConnectionString != ChatBot.ConnectionString ? NewConnectionString : null,

@@ -6,7 +6,9 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
+using Tgstation.Server.Api;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Client;
 using Tgstation.Server.ControlPanel.Models;
 
@@ -163,8 +165,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						if (value)
 						{
-							Username = User.AdminName;
-							Password = User.DefaultAdminPassword;
+							Username = DefaultCredentials.AdminUserName;
+							Password = DefaultCredentials.DefaultAdminUserPassword;
 						}
 						else
 							Password = string.Empty;
@@ -264,7 +266,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			if (connection.Credentials.Password != null && connection.Credentials.Password.Length > 0)
 			{
 				AllowSavingPassword = true;
-				if (connection.Username == User.AdminName && connection.Credentials.Password == User.DefaultAdminPassword)
+				if (connection.Username == DefaultCredentials.AdminUserName && connection.Credentials.Password == DefaultCredentials.DefaultAdminUserPassword)
 					UsingDefaultCredentials = true;
 			}
 		}
@@ -335,7 +337,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			async Task GetServerVersionAndUserPerms()
 			{
-				ServerInformation serverInfo;
+				ServerInformationResponse serverInfo;
 				var userInfoTask = serverClient.Users.Read(cancellationToken);
 				try
 				{
@@ -378,7 +380,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				userLimitNode.RaisePropertyChanged(nameof(Icon));
 
 				List<ITreeNode> newChildren;
-				User user;
+				UserResponse user;
 				try
 				{
 					user = await userInfoTask.ConfigureAwait(false);

@@ -10,6 +10,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 using Tgstation.Server.Client.Components;
@@ -197,10 +199,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					try
 					{
 						var newPath = (parent.Path != "/" ? parent.Path : string.Empty) + '/' + ItemName;
-						ConfigurationFile file;
+						ConfigurationFileResponse file;
 						if (Type == ItemType.Folder)
 						{
-							file = await configurationClient.CreateDirectory(new ConfigurationFile
+							file = await configurationClient.CreateDirectory(new ConfigurationFileRequest
 							{
 								Path = newPath
 							}, cancellationToken).ConfigureAwait(true);
@@ -216,12 +218,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 								stream = new MemoryStream(Encoding.UTF8.GetBytes(ItemText));
 							using (stream)
 							{
-								file = new ConfigurationFile
+								var request = new ConfigurationFileRequest
 								{
 									Path = newPath
 								};
 
-								file = await configurationClient.Write(file, stream, cancellationToken).ConfigureAwait(true);
+								file = await configurationClient.Write(request, stream, cancellationToken).ConfigureAwait(true);
 							}
 						}
 						parent.DirectAdd(file);

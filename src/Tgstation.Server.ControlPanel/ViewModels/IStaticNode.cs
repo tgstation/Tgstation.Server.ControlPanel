@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
@@ -11,6 +11,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		void RemoveChild(IStaticNode child);
 
 		Task RefreshContents(CancellationToken cancellationToken);
-		void DirectAdd(ConfigurationFile file);
+		void DirectAdd(ConfigurationFileResponse file);
 	}
 }

@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
 
@@ -79,7 +81,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public DreamMaker Model
+		public DreamMakerResponse Model
 		{
 			get => model;
 			set
@@ -163,11 +165,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		readonly Dictionary<int, IReadOnlyList<CompileJobViewModel>> jobPages;
 
-		IReadOnlyList<CompileJob> jobIds;
+		IReadOnlyList<CompileJobResponse> jobIds;
 		int selectedPage;
 		int numPages;
 
-		DreamMaker model;
+		DreamMakerResponse model;
 
 		DreamDaemonSecurity? newSecurityLevel; // never actually nullable
 
@@ -255,7 +257,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (!CanRead && !CanGetJobs)
 					return;
 
-				async Task AssignModel() => Model = await (CanRead ? dreamMakerClient.Read(cancellationToken) : Task.FromResult<DreamMaker>(null)).ConfigureAwait(true);
+				async Task AssignModel() => Model = await (CanRead ? dreamMakerClient.Read(cancellationToken) : Task.FromResult<DreamMakerResponse>(null)).ConfigureAwait(true);
 
 				var readTask = AssignModel();
 
@@ -263,9 +265,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					PageSize = 100,
 					RetrieveCount = 500
-				}, cancellationToken) : Task.FromResult<IReadOnlyList<CompileJob>>(null);
+				}, cancellationToken) : Task.FromResult<IReadOnlyList<CompileJobResponse>>(null);
 
-				jobIds = (await jobsTask.ConfigureAwait(true)).OfType<CompileJob>().ToList();
+				jobIds = await jobsTask.ConfigureAwait(true);
 				numPages = (jobIds.Count / JobsPerPage) + (jobIds.Count > JobsPerPage && ((jobIds.Count % JobsPerPage) > 0) ? 1 : 0);
 				this.RaisePropertyChanged(nameof(ViewNumPages));
 				jobPages.Clear();
@@ -290,7 +292,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (jobPages.ContainsKey(selectedPage))
 					return;
 
-				var tasks = new List<Task<CompileJob>>();
+				var tasks = new List<Task<CompileJobResponse>>();
 				var baseIndex = JobsPerPage * selectedPage;
 				var limitIndex = Math.Min(baseIndex + JobsPerPage, jobIds.Count);
 				for (var I = baseIndex; I < limitIndex; ++I)
@@ -367,7 +369,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Refreshing = true;
 					try
 					{
-						var newModel = new DreamMaker();
+						var newModel = new DreamMakerRequest();
 						if (CanDme)
 							if (!string.IsNullOrEmpty(NewDme))
 								newModel.ProjectName = NewDme;

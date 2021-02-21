@@ -11,6 +11,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
 
@@ -129,7 +131,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		int prebuild;
 
 		IReadOnlyList<string> installedVersions;
-		Byond data;
+		ByondResponse data;
 		string icon;
 		string customZipPath;
 		bool refreshing;
@@ -183,7 +185,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			InitialLoad();
 		}
 
-		static string FormatByondVersion(Byond byond) => byond.Version == null ? "None" :
+		static string FormatByondVersion(ByondResponse byond) => byond.Version == null ? "None" :
 			byond.Version.Build > 0
 				? string.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}", byond.Version.Major, byond.Version.Minor, byond.Version.Build)
 				: string.Format(CultureInfo.InvariantCulture, "{0}.{1}", byond.Version.Major, byond.Version.Minor);
@@ -268,10 +270,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						Stream zipStream = null;
 						if (!string.IsNullOrWhiteSpace(ByondZipPath))
 							zipStream = new FileStream(ByondZipPath, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete, 8192, true);
+
+						ByondInstallResponse installResponse;
 						using (zipStream)
 						{
-							data = await byondClient.SetActiveVersion(
-								new Byond
+							installResponse = await byondClient.SetActiveVersion(
+								new ByondVersionRequest
 								{
 									Version = Prebuild == 0 ? new Version(NewMajor, NewMinor) : new Version(NewMajor, NewMinor, Prebuild),
 									UploadCustomZip = zipStream != null,
@@ -280,8 +284,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 								cancellationToken)
 								.ConfigureAwait(true);
 						}
-						if (data.InstallJob != null)
-							jobSink.RegisterJob(data.InstallJob, Load);
+						if (installResponse.InstallJob != null)
+							jobSink.RegisterJob(installResponse.InstallJob, Load);
 						this.RaisePropertyChanged(CurrentVersion);
 					}
 					finally

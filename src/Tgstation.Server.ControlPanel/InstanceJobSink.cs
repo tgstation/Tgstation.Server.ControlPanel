@@ -7,6 +7,7 @@ using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Client;
 using Tgstation.Server.Client.Components;
 
@@ -18,29 +19,29 @@ namespace Tgstation.Server.ControlPanel
 		public Instance Instance { get; }
 		public Task Updated => updated.Task;
 
-		readonly Dictionary<long, Job> trackedJobs;
+		readonly Dictionary<long, JobResponse> trackedJobs;
 		readonly Dictionary<long, Func<CancellationToken, Task>> postActions;
 		readonly CancellationTokenSource cancellationTokenSource;
-		readonly List<Job> newestJobs;
-		readonly Func<User> currentUserProvider;
+		readonly List<JobResponse> newestJobs;
+		readonly Func<UserResponse> currentUserProvider;
 
 		TaskCompletionSource<object> updated;
 
-		public InstanceJobSink(Instance instance, Func<User> currentUserProvider)
+		public InstanceJobSink(Instance instance, Func<UserResponse> currentUserProvider)
 		{
 			Instance = instance;
 			this.currentUserProvider = currentUserProvider ?? throw new ArgumentNullException(nameof(currentUserProvider));
 
-			trackedJobs = new Dictionary<long, Job>();
+			trackedJobs = new Dictionary<long, JobResponse>();
 			cancellationTokenSource = new CancellationTokenSource();
 			updated = new TaskCompletionSource<object>();
-			newestJobs = new List<Job>();
+			newestJobs = new List<JobResponse>();
 			postActions = new Dictionary<long, Func<CancellationToken, Task>>();
 		}
 
-		public IObservable<Job> NewJobs()
+		public IObservable<JobResponse> NewJobs()
 		{
-			IObservable<Job> result;
+			IObservable<JobResponse> result;
 			lock (newestJobs)
 			{
 				result = newestJobs.ToList().ToObservable();
@@ -55,7 +56,7 @@ namespace Tgstation.Server.ControlPanel
 			cancellationTokenSource.Dispose();
 		}
 
-		public void RegisterJob(Job job, Func<CancellationToken, Task> onStopped = null)
+		public void RegisterJob(JobResponse job, Func<CancellationToken, Task> onStopped = null)
 		{
 			if (job == null)
 				throw new ArgumentNullException(nameof(job));
@@ -63,10 +64,10 @@ namespace Tgstation.Server.ControlPanel
 			TaskCompletionSource<object> toComplete;
 			lock (trackedJobs)
 			{
-				if (!trackedJobs.ContainsKey(job.Id))
+				if (!trackedJobs.ContainsKey(job.Id.Value))
 				{
-					trackedJobs.Add(job.Id, job);
-					postActions.Add(job.Id, onStopped);
+					trackedJobs.Add(job.Id.Value, job);
+					postActions.Add(job.Id.Value, onStopped);
 					lock (newestJobs)
 						newestJobs.Add(job);
 				}
@@ -77,15 +78,15 @@ namespace Tgstation.Server.ControlPanel
 			toComplete.SetResult(null);
 		}
 
-		public bool DeregisterJob(Job job, out Func<CancellationToken, Task> postAction)
+		public bool DeregisterJob(JobResponse job, out Func<CancellationToken, Task> postAction)
 		{
 			lock (trackedJobs)
 			{
-				var result = trackedJobs.Remove(job.Id);
+				var result = trackedJobs.Remove(job.Id.Value);
 				if (result)
 				{
-					postAction = postActions[job.Id];
-					postActions.Remove(job.Id);
+					postAction = postActions[job.Id.Value];
+					postActions.Remove(job.Id.Value);
 				}
 				else
 					postAction = null;
@@ -93,10 +94,10 @@ namespace Tgstation.Server.ControlPanel
 			}
 		}
 
-		public bool TracksJob(Job job)
+		public bool TracksJob(JobResponse job)
 		{
 			lock (trackedJobs)
-				return trackedJobs.TryGetValue(job.Id, out job);
+				return trackedJobs.TryGetValue(job.Id.Value, out job);
 		}
 
 		public async Task InitialQuery(IJobsClient jobsClient, CancellationToken cancellationToken)
@@ -107,11 +108,11 @@ namespace Tgstation.Server.ControlPanel
 					RegisterJob(I);
 		}
 
-		public IObservable<Job> UpdateJobs(IJobsClient jobsClient, CancellationToken cancellationToken)
+		public IObservable<JobResponse> UpdateJobs(IJobsClient jobsClient, CancellationToken cancellationToken)
 		{
 			var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, cancellationToken);
 			var tokenToUse = linkedSource.Token;
-			async Task<Job> WrapJobDisconnected(Job job)
+			async Task<JobResponse> WrapJobDisconnected(JobResponse job)
 			{
 				try
 				{
@@ -136,7 +137,7 @@ namespace Tgstation.Server.ControlPanel
 					return null;
 				}
 			}
-			var tasks = new List<Task<Job>>();
+			var tasks = new List<Task<JobResponse>>();
 			lock (trackedJobs)
 				foreach (var I in trackedJobs)
 					tasks.Add(WrapJobDisconnected(I.Value));

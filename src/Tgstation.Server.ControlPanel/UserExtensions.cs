@@ -1,4 +1,5 @@
 ﻿using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 
 namespace Tgstation.Server.ControlPanel
 {
@@ -7,6 +8,6 @@ namespace Tgstation.Server.ControlPanel
 	/// </summary>
 	static class UserExtensions
 	{
-		public static PermissionSet GetPermissionSet(this User user) => user.PermissionSet ?? user.Group.PermissionSet;
+		public static PermissionSet GetPermissionSet(this UserResponse user) => user.PermissionSet ?? user.Group.PermissionSet;
 	}
 }

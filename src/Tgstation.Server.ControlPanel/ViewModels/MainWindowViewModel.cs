@@ -20,6 +20,9 @@ using Octokit.Internal;
 using ReactiveUI;
 using Tgstation.Server.Api;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Internal;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Client;
 using Tgstation.Server.ControlPanel.Models;
 
@@ -333,9 +336,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			if (!string.IsNullOrEmpty(bodyString))
 			{
 				//may contain the password for some things, User models, censor it
-				CensorBodyString<UserUpdate>(x => x.Password, ref bodyString);
-				CensorBodyString<Repository>(x => x.AccessToken, ref bodyString);
-				CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString);
+				CensorBodyString<UserUpdateRequest>(x => x.Password, ref bodyString);
+				CensorBodyString<RepositoryCreateRequest>(x => x.AccessToken, ref bodyString);
+				CensorBodyString<RepositoryUpdateRequest>(x => x.AccessToken, ref bodyString);
+				CensorBodyString<ChatBotCreateRequest>(x => x.ConnectionString, ref bodyString);
+				CensorBodyString<ChatBotUpdateRequest>(x => x.ConnectionString, ref bodyString);
 
 				bodyPart = string.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			}
@@ -367,9 +372,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			var bodyPart = string.Empty;
 			if (!string.IsNullOrEmpty(bodyString))
 			{
-				CensorBodyString<Repository>(x => x.AccessToken, ref bodyString);
-				CensorBodyString<ChatBot>(x => x.ConnectionString, ref bodyString);
-				CensorBodyString<Token>(x => x.Bearer, ref bodyString);
+				CensorBodyString<ChatBotResponse>(x => x.ConnectionString, ref bodyString);
+				CensorBodyString<TokenResponse>(x => x.Bearer, ref bodyString);
 
 				bodyPart = string.Format(CultureInfo.InvariantCulture, " => {0}", bodyString);
 			}

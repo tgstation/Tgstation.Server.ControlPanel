@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 
@@ -33,13 +34,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		bool working;
 
-		readonly LogFile logFile;
+		readonly LogFileResponse logFile;
 		readonly IUserRightsProvider userRightsProvider;
 		readonly IAdministrationClient administrationClient;
 
 		public EnumCommand<DownloadCommand> Download { get; }
 
-		public LogFileViewModel(LogFile logFile, IAdministrationClient administrationClient, IUserRightsProvider userRightsProvider)
+		public LogFileViewModel(LogFileResponse logFile, IAdministrationClient administrationClient, IUserRightsProvider userRightsProvider)
 		{
 			this.logFile = logFile ?? throw new ArgumentNullException(nameof(logFile));
 			this.administrationClient = administrationClient ?? throw new ArgumentNullException(nameof(administrationClient));

@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 
@@ -21,7 +22,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 		public bool IsExpanded { get; set; }
 
-		public User CurrentUser => currentUser.User;
+		public UserResponse CurrentUser => currentUser.User;
 
 		public IReadOnlyList<ITreeNode> Children
 		{
@@ -32,16 +33,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IUsersClient usersClient;
 		readonly PageContextViewModel pageContext;
 		readonly UserViewModel currentUser;
-		readonly ServerInformation serverInformation;
+		readonly ServerInformationResponse serverInformation;
 
 		readonly UserGroupRootViewModel groupsRootViewModel;
 		IReadOnlyList<ITreeNode> children;
-		IReadOnlyList<User> lastUsers;
+		IReadOnlyList<UserResponse> lastUsers;
 		bool loading;
 
 		string icon;
 
-		public UsersRootViewModel(IUsersClient usersClient, IUserGroupsClient groupsClient, ServerInformation serverInformation, PageContextViewModel pageContext, UserViewModel currentUser)
+		public UsersRootViewModel(IUsersClient usersClient, IUserGroupsClient groupsClient, ServerInformationResponse serverInformation, PageContextViewModel pageContext, UserViewModel currentUser)
 		{
 			this.usersClient = usersClient ?? throw new ArgumentNullException(nameof(usersClient));
 			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
@@ -120,14 +121,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public void DirectAdd(User user)
+		public void DirectAdd(UserResponse user)
 		{
 			var newModel = new UserViewModel(usersClient, serverInformation, user, pageContext, currentUser);
 			var newChildren = new List<ITreeNode>(Children)
 			{
 				newModel
 			};
-			lastUsers = new List<User>(lastUsers)
+			lastUsers = new List<UserResponse>(lastUsers)
 			{
 				user
 			};
@@ -137,11 +138,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public Task HandleClick(CancellationToken cancellationToken) => Refresh(cancellationToken);
 
-		public IReadOnlyList<User> GetUsers() => lastUsers;
+		public IReadOnlyList<UserResponse> GetUsers() => lastUsers;
 
-		public IReadOnlyList<UserGroup> GetGroups() => groupsRootViewModel?.GetGroups();
+		public IReadOnlyList<UserGroupResponse> GetGroups() => groupsRootViewModel?.GetGroups();
 
-		public void ForceUpdate(User updatedUser)
+		public void ForceUpdate(UserResponse updatedUser)
 		{
 			if (updatedUser.Id == currentUser.User.Id)
 			{
@@ -149,7 +150,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				return;
 			}
 
-			var updatedLastUsers = new List<User>(lastUsers);
+			var updatedLastUsers = new List<UserResponse>(lastUsers);
 			updatedLastUsers.RemoveAll(x => x.Id == updatedUser.Id);
 			updatedLastUsers.Add(updatedUser);
 

@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client.Components;
 
@@ -42,8 +44,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly InstanceUserRootViewModel instanceUserRootViewModel;
 		readonly IInstancePermissionSetClient instanceUserClient;
 		readonly IInstanceUserRightsProvider rightsProvider;
-		readonly IReadOnlyList<User> users;
-		readonly IReadOnlyList<UserGroup> groups;
+		readonly IReadOnlyList<UserResponse> users;
+		readonly IReadOnlyList<UserGroupResponse> groups;
 
 		bool loading;
 
@@ -95,7 +97,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					Add.Recheck();
 					try
 					{
-						var user = new InstancePermissionSet
+						var user = new InstancePermissionSetRequest
 						{
 							PermissionSetId = IdMode
 								? UserId

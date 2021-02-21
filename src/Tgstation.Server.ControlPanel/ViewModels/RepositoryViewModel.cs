@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Avalonia.Media;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 using Tgstation.Server.Client.Components;
@@ -43,7 +45,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool IsExpanded { get; set; }
 
-		public Repository Repository
+		public RepositoryResponse Repository
 		{
 			get => repository;
 			set
@@ -300,7 +302,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IInstanceUserRightsProvider rightsProvider;
 		readonly Octokit.IGitHubClient gitHubClient;
 
-		Repository repository;
+		RepositoryResponse repository;
 
 		IReadOnlyList<TestMergeViewModel> testMerges;
 
@@ -365,7 +367,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			rightsProvider.OnUpdated += (a, b) => RecheckCommands();
 			RecurseSubmodules = true;
 
-			async void InitialLoad() => await Refresh(null, null, default).ConfigureAwait(false);
+			async void InitialLoad() => await Refresh(null, null, false, default).ConfigureAwait(false);
 			if (CanRunCommand(RepositoryCommand.Refresh))
 				InitialLoad();
 		}
@@ -392,7 +394,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.RaisePropertyChanged(nameof(CanClone));
 		}
 
-		async Task<Job> Refresh(Repository update, bool? cloneOrDelete, CancellationToken cancellationToken)
+		async Task<JobResponse> Refresh(RepositoryUpdateRequest update, RepositoryCreateRequest clone, bool delete, CancellationToken cancellationToken)
 		{
 			Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png";
 			Refreshing = true;
@@ -400,18 +402,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			ErrorMessage = null;
 			CloneAvailable = false;
 			RecheckCommands();
-			Job job = null;
+			JobResponse job = null;
 			try
 			{
 				var oldRepo = Repository;
-				Repository newRepo;
+				RepositoryResponse newRepo;
 				try
 				{
-					if (cloneOrDelete.HasValue)
-						if (cloneOrDelete.Value)
-							newRepo = await repositoryClient.Clone(update, cancellationToken).ConfigureAwait(true);
-						else
-							newRepo = await repositoryClient.Delete(cancellationToken).ConfigureAwait(true);
+					if (clone != null)
+						newRepo = await repositoryClient.Clone(clone, cancellationToken).ConfigureAwait(true);
+					else if (delete)
+						newRepo = await repositoryClient.Delete(cancellationToken).ConfigureAwait(true);
 					else if (update != null)
 						newRepo = await repositoryClient.Update(update, cancellationToken).ConfigureAwait(true);
 					else
@@ -419,7 +420,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 					if (newRepo.ActiveJob != null)
 					{
-						jobSink.RegisterJob(newRepo.ActiveJob, ct => Refresh(null, null, ct));
+						jobSink.RegisterJob(newRepo.ActiveJob, ct => Refresh(null, null, false, ct));
 						job = newRepo.ActiveJob;
 					}
 					if (newRepo.Reference == null)
@@ -739,10 +740,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					pageContext.ActiveObject = null;
 					break;
 				case RepositoryCommand.Refresh:
-					await Refresh(null, null, cancellationToken).ConfigureAwait(true);
+					await Refresh(null, null, false, cancellationToken).ConfigureAwait(true);
 					break;
 				case RepositoryCommand.Update:
-					var update = new Repository
+					var update = new RepositoryUpdateRequest
 					{
 						CheckoutSha = string.IsNullOrEmpty(NewSha) ? null : NewSha,
 						Reference = string.IsNullOrEmpty(NewReference) ? null : NewReference,
@@ -770,7 +771,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							TargetCommitSha = x.TestMerge.TargetCommitSha
 						}).ToList();
 
-					var job = await Refresh(update, null, cancellationToken).ConfigureAwait(true);
+					var job = await Refresh(update, null, false, cancellationToken).ConfigureAwait(true);
 					if (DeployAfter)
 					{
 						// Wait until the job has progress
@@ -789,7 +790,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					break;
 				case RepositoryCommand.Delete:
 					if (confirmingDelete)
-						await Refresh(null, false, cancellationToken).ConfigureAwait(true);
+						await Refresh(null, null, true, cancellationToken).ConfigureAwait(true);
 					else
 					{
 						async void ResetDelete()
@@ -804,7 +805,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					}
 					break;
 				case RepositoryCommand.Clone:
-					var clone = new Repository
+					var clone = new RepositoryCreateRequest
 					{
 						Origin = new Uri(NewOrigin),
 						Reference = string.IsNullOrEmpty(NewReference) ? null : NewReference,
@@ -812,14 +813,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						AccessUser = string.IsNullOrEmpty(NewAccessUser) || !CanAccess ? null : NewAccessUser,
 						RecurseSubmodules = RecurseSubmodules
 					};
-					await Refresh(clone, true, cancellationToken).ConfigureAwait(true);
+					await Refresh(null, clone, false, cancellationToken).ConfigureAwait(true);
 					break;
 				case RepositoryCommand.RemoveCredentials:
-					await Refresh(new Repository
+					await Refresh(new RepositoryUpdateRequest
 					{
 						AccessUser = string.Empty,
 						AccessToken = string.Empty
-					}, null, cancellationToken).ConfigureAwait(true);
+					}, null, false, cancellationToken).ConfigureAwait(true);
 					break;
 				case RepositoryCommand.DirectAddManualPR:
 					await DirectAdd(ManualPR, false).ConfigureAwait(true);

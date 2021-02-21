@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 using Tgstation.Server.Client.Components;
@@ -121,7 +123,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		bool deleteConfirming;
 		bool loading;
 
-		InstancePermissionSet instanceUser;
+		InstancePermissionSetResponse instanceUser;
 
 		public InstanceViewModel(IInstanceManagerClient instanceManagerClient, PageContextViewModel pageContext, Instance instance, IUserRightsProvider userRightsProvider, InstanceRootViewModel instanceRootViewModel, IUserProvider userProvider, IServerJobSink serverJobSink, Octokit.IGitHubClient gitHubClient, string serverAddress)
 		{
@@ -281,7 +283,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public async Task RunCommand(InstanceCommand command, CancellationToken cancellationToken)
 		{
-			async Task Update(Instance newInstance, bool grant)
+			async Task Update(InstanceUpdateRequest newInstance, bool grant)
 			{
 				loading = true;
 				try
@@ -312,7 +314,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						pageContext.ActiveObject = null;
 						break;
 					case InstanceCommand.Save:
-						var newInstance = new Instance
+						var newInstance = new InstanceUpdateRequest
 						{
 							Id = Instance.Id
 						};
@@ -350,7 +352,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						await instanceRootViewModel.Refresh(cancellationToken).ConfigureAwait(true);
 						break;
 					case InstanceCommand.FixPerms:
-						await Update(new Instance
+						await Update(new InstanceUpdateRequest
 						{
 							Id = Instance.Id
 						}, true).ConfigureAwait(true);

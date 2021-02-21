@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Client;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
@@ -70,7 +72,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<AddUserCommand> Add { get; }
 
 		readonly PageContextViewModel pageContext;
-		readonly ServerInformation serverInformation;
+		readonly ServerInformationResponse serverInformation;
 		readonly IUsersClient usersClient;
 		readonly UsersRootViewModel usersRootViewModel;
 
@@ -79,7 +81,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string confirmPassword;
 		string systemIdentifier;
 
-		public AddUserViewModel(PageContextViewModel pageContext, ServerInformation serverInformation, IUsersClient usersClient, UsersRootViewModel usersRootViewModel)
+		public AddUserViewModel(PageContextViewModel pageContext, ServerInformationResponse serverInformation, IUsersClient usersClient, UsersRootViewModel usersRootViewModel)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
 			this.serverInformation = serverInformation ?? throw new ArgumentNullException(nameof(serverInformation));
@@ -118,14 +120,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					pageContext.ActiveObject = null;
 					break;
 				case AddUserCommand.Add:
-					UserUpdate uu;
+					UserCreateRequest uu;
 					if (SystemIdentifier.Length != 0)
-						uu = new UserUpdate
+						uu = new UserCreateRequest
 						{
 							SystemIdentifier = SystemIdentifier
 						};
 					else
-						uu = new UserUpdate
+						uu = new UserCreateRequest
 						{
 							Name = Username,
 							Password = Password

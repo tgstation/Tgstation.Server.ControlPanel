@@ -10,6 +10,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 using Tgstation.Server.Client.Components;
@@ -119,7 +121,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool IsText { get; set; } = true;
 
-		public ConfigurationFile ConfigurationFile
+		public ConfigurationFileResponse ConfigurationFile
 		{
 			get => configurationFile;
 			set
@@ -156,7 +158,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly IInstanceUserRightsProvider rightsProvider;
 		readonly IStaticNode parent;
 
-		ConfigurationFile configurationFile;
+		ConfigurationFileResponse configurationFile;
 
 		string errorMessage;
 		string textBlob;
@@ -200,7 +202,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			};
 		}
 
-		public void DirectLoad(ConfigurationFile file)
+		public void DirectLoad(ConfigurationFileResponse file)
 		{
 			ConfigurationFile = file;
 			Denied = file.AccessDenied ?? false;
@@ -218,7 +220,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			firstLoad = true;
 			try
 			{
-				var fileTuple = await configurationClient.Read(new ConfigurationFile
+				var fileTuple = await configurationClient.Read(new ConfigurationFileRequest
 				{
 					Path = Path
 				}, cancellationToken).ConfigureAwait(true);
@@ -281,7 +283,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				using (data)
 				{
-					var update = new ConfigurationFile
+					var update = new ConfigurationFileRequest
 					{
 						Path = Path,
 						LastReadHash = ConfigurationFile.LastReadHash
@@ -404,6 +406,6 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}
 		}
-		public void DirectAdd(ConfigurationFile file) => throw new NotSupportedException();
+		public void DirectAdd(ConfigurationFileResponse file) => throw new NotSupportedException();
 	}
 }

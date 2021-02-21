@@ -1,6 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 
 namespace Tgstation.Server.ControlPanel.Models
 {
@@ -19,6 +20,6 @@ namespace Tgstation.Server.ControlPanel.Models
 
 		public Credentials Credentials { get; set; }
 
-		public Token LastToken { get; set; }
+		public TokenResponse LastToken { get; set; }
 	}
 }

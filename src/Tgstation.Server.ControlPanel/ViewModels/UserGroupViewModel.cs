@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Request;
+using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
 
@@ -26,7 +28,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool IsExpanded { get; set; }
 
-		public long Id => group.Id;
+		public long Id => group.Id.Value;
 
 		public long UserCount => group.Users.Count;
 
@@ -61,7 +63,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<UserGroupsCommand> Close { get; }
 		public EnumCommand<UserGroupsCommand> Refresh { get; }
 		public EnumCommand<UserGroupsCommand> AddUser { get; }
-		public UserGroup Group
+		public UserGroupResponse Group
 		{
 			get => group;
 			set
@@ -82,11 +84,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		readonly PageContextViewModel pageContext;
 		readonly IUserRightsProvider rightsProvider;
 
-		UserGroup group;
+		UserGroupResponse group;
 		bool loading;
 		string error;
 
-		public UserGroupViewModel(IUserProvider userProvider, IUserGroupsClient groupsClient, IUsersClient usersClient, UserGroup group, PageContextViewModel pageContext, IUserRightsProvider rightsProvider)
+		public UserGroupViewModel(IUserProvider userProvider, IUserGroupsClient groupsClient, IUsersClient usersClient, UserGroupResponse group, PageContextViewModel pageContext, IUserRightsProvider rightsProvider)
 		{
 			this.userProvider = userProvider ?? throw new ArgumentNullException(nameof(userProvider));
 			this.groupsClient = groupsClient ?? throw new ArgumentNullException(nameof(groupsClient));
@@ -163,13 +165,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			};
 		}
 
-		List<User> GetFilteredUsers()
+		List<UserResponse> GetFilteredUsers()
 		{
 			return userProvider
 				.GetUsers()
 				?.Where(x => !Group.Users.Any(y => y.Id == x.Id))
 				.ToList()
-				?? new List<User>();
+				?? new List<UserResponse>();
 		}
 
 		public async Task RunCommand(UserGroupsCommand command, CancellationToken cancellationToken)
@@ -205,7 +207,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				var userToAdd = GetFilteredUsers()[SelectedIndex];
 
-				var updatedUser = await usersClient.Update(new UserUpdate
+				var updatedUser = await usersClient.Update(new UserUpdateRequest
 				{
 					Id = userToAdd.Id,
 					Group = new Api.Models.Internal.UserGroup

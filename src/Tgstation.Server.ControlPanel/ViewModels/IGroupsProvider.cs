@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using Tgstation.Server.Api.Models;
+using Tgstation.Server.Api.Models.Response;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
 	interface IGroupsProvider
 	{
-		IReadOnlyList<UserGroup> GetGroups();
+		IReadOnlyList<UserGroupResponse> GetGroups();
 	}
 }
