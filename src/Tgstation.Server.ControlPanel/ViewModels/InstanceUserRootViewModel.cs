@@ -64,7 +64,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			var actualUser = userProvider
 				.GetUsers()
-				?.Where(x => x.GetPermissionSet().Id == user.PermissionSetId)
+				?.Where(x => x.PermissionSet?.Id == user.PermissionSetId)
 				.FirstOrDefault();
 
 			var actualGroup = userProvider
