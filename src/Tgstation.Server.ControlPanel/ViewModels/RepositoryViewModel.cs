@@ -582,7 +582,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						testMergeViewModel.LoadCommitsAction(await gitHubClient.PullRequest.Commits(Repository.RemoteRepositoryOwner, Repository.RemoteRepositoryName, a.Key).ConfigureAwait(false));
 					}
 
-					return new TestMergeViewModel(a.Value, b.Value, x => modifiedPRList = true, LoadCommits);
+					testMergeViewModel = new TestMergeViewModel(a.Value, b.Value, x => modifiedPRList = true, LoadCommits);
+					return testMergeViewModel;
 				}).Where(x => x != null).ToList();
 				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Bold));
 				tmp.AddRange(enumerable.Where(x => x.FontWeight == FontWeight.Normal));
