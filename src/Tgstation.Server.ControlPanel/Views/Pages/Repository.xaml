@@ -221,7 +221,7 @@
             </StackPanel>
             <StackPanel Orientation="Vertical" Spacing="7" Grid.Column="2">
 							<CheckBox Background="White" Content="Deploy Code After Changes" IsChecked="{Binding DeployAfter, Mode=TwoWay}" IsEnabled="{Binding CanDeploy}"/>
-							<CheckBox Background="White" Content="Update Submodules" IsChecked="{Binding DeployAfter, Mode=TwoWay}" IsEnabled="{Binding UpdateSubmodules}"/>
+							<CheckBox Background="White" Content="Update Submodules" IsChecked="{Binding UpdateSubmodules, Mode=TwoWay}"/>
             </StackPanel>
           </Grid>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" Grid.Row="3"/>
