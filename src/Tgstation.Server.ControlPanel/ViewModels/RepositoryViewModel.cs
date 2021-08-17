@@ -191,6 +191,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref newGitHubDeployments, value);
 		}
 
+		public bool UpdateSubmodules { get; set; } = true;
+
 		public string DeleteText => confirmingDelete ? "Confirm?" : "Delete Repository";
 
 		public bool CanClone => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetOrigin);
@@ -760,7 +762,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						CreateGitHubDeployments = CanShowTMCommitters ? (bool?)NewGitHubDeployments : null,
 
 						CommitterEmail = !string.IsNullOrEmpty(NewCommitterEmail) ? NewCommitterEmail : null,
-						CommitterName = !string.IsNullOrEmpty(NewCommitterName) ? NewCommitterName : null
+						CommitterName = !string.IsNullOrEmpty(NewCommitterName) ? NewCommitterName : null,
+						UpdateSubmodules = UpdateSubmodules,
 					};
 
 					if (modifiedPRList || UpdateHard)

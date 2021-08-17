@@ -433,7 +433,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						tmp = new List<string>(ConsoleContent.Split('\n'));
 					tmp.RemoveAt(0);    //remove info line
 					var clipboard = string.Join(" ", tmp);
-					TextCopy.Clipboard.SetText(clipboard);
+					await TextCopy.ClipboardService.SetTextAsync(clipboard, cancellationToken);
 					break;
 				case MainWindowCommand.AppUpdate:
 					if (!updateInstalled)
