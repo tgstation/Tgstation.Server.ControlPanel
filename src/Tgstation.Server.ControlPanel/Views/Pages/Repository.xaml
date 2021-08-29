@@ -147,6 +147,7 @@
             <StackPanel Orientation="Vertical" Grid.Column="1" Spacing="6">
               <CheckBox Background="White" Content="Post GitHub comment when test merge is deployed" IsChecked="{Binding NewPostTestMergeComment, Mode=TwoWay}" IsEnabled="{Binding CanShowTMCommitters}" Grid.Column="1" Grid.Row="1"/>
               <CheckBox Background="White" Content="Create GitHub Deployment Statuses" IsChecked="{Binding NewGitHubDeployments, Mode=TwoWay}" IsEnabled="{Binding CanShowTMCommitters}" Grid.Column="0" Grid.Row="2"/>
+							<CheckBox Background="White" Content="Update Submodules with Pulls" IsChecked="{Binding UpdateSubmodules, Mode=TwoWay}"/>
             </StackPanel>
           </Grid>
         </StackPanel>
@@ -221,7 +222,6 @@
             </StackPanel>
             <StackPanel Orientation="Vertical" Spacing="7" Grid.Column="2">
 							<CheckBox Background="White" Content="Deploy Code After Changes" IsChecked="{Binding DeployAfter, Mode=TwoWay}" IsEnabled="{Binding CanDeploy}"/>
-							<CheckBox Background="White" Content="Update Submodules" IsChecked="{Binding UpdateSubmodules, Mode=TwoWay}"/>
             </StackPanel>
           </Grid>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0" Grid.Row="3"/>

@@ -114,10 +114,14 @@
               <CheckBox Background="White" IsChecked="{Binding RepoCancelClone, Mode=TwoWay}"/>
               <TextBlock DockPanel.Dock="Right" Text="Cancel Clone Jobs" Margin="5,4,0,0" />
             </DockPanel>
-            <DockPanel Grid.Column="0" Grid.Row="6" Margin="2">
-              <CheckBox Background="White" IsChecked="{Binding RepoCancelUpdate, Mode=TwoWay}"/>
-              <TextBlock DockPanel.Dock="Right" Text="Cancel Update Jobs" Margin="5,4,0,0" />
-            </DockPanel>
+						<DockPanel Grid.Column="0" Grid.Row="6" Margin="2">
+							<CheckBox Background="White" IsChecked="{Binding RepoCancelUpdate, Mode=TwoWay}"/>
+							<TextBlock DockPanel.Dock="Right" Text="Cancel Update Jobs" Margin="5,4,0,0" />
+						</DockPanel>
+						<DockPanel Grid.Column="1" Grid.Row="6" Margin="2">
+							<CheckBox Background="White" IsChecked="{Binding RepoSubmodule, Mode=TwoWay}"/>
+							<TextBlock DockPanel.Dock="Right" Text="Change Submodule Update Settings" Margin="5,4,0,0" />
+						</DockPanel>
           </Grid>
         </StackPanel>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
@@ -163,7 +167,8 @@
             <ColumnDefinition Width="1*"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
+						<RowDefinition Height="1*"/>
+						<RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
@@ -200,6 +205,10 @@
             <CheckBox Background="White" IsChecked="{Binding CompReq, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Change DMAPI Requirement for Deployments" Margin="5,4,0,0" />
           </DockPanel>
+					<DockPanel Grid.Column="0" Grid.Row="4" Margin="2">
+						<CheckBox Background="White" IsChecked="{Binding CompTimeout, Mode=TwoWay}"/>
+						<TextBlock DockPanel.Dock="Right" Text="Change Deployment Timeout" Margin="5,4,0,0" />
+					</DockPanel>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
@@ -210,7 +219,8 @@
             <ColumnDefinition Width="1*"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
+						<RowDefinition Height="1*"/>
+						<RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
@@ -283,6 +293,10 @@
             <CheckBox Background="White" IsChecked="{Binding DDAdditionalParams, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Additional DreamDaemon Params" Margin="5,4,0,0" />
           </DockPanel>
+					<DockPanel Grid.Column="0" Grid.Row="8" Margin="2">
+						<CheckBox Background="White" IsChecked="{Binding DDVisibility, Mode=TwoWay}"/>
+						<TextBlock DockPanel.Dock="Right" Text="Set Visibilty Level" Margin="5,4,0,0" />
+					</DockPanel>
         </Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>

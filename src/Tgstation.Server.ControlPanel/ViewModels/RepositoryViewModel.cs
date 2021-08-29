@@ -191,7 +191,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref newGitHubDeployments, value);
 		}
 
-		public bool UpdateSubmodules { get; set; } = true;
+		public bool UpdateSubmodules { get; set; }
 
 		public string DeleteText => confirmingDelete ? "Confirm?" : "Delete Repository";
 
@@ -200,6 +200,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanSetRef => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetReference) && string.IsNullOrEmpty(NewSha) && !UpdateHard;
 		public bool CanSetSha => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.SetSha) && string.IsNullOrEmpty(NewReference);
 		public bool CanShowTMCommitters => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeTestMergeCommits);
+		public bool CanUpdateSubmodules => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeSubmoduleUpdate);
 		public bool CanChangeCommitter => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeCommitter);
 		public bool CanAccess => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeCredentials);
 		public bool CanAutoUpdate => !Refreshing && rightsProvider.RepositoryRights.HasFlag(RepositoryRights.ChangeAutoUpdateSettings);
@@ -394,6 +395,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.RaisePropertyChanged(nameof(CanUpdate));
 			this.RaisePropertyChanged(nameof(CanDelete));
 			this.RaisePropertyChanged(nameof(CanClone));
+			this.RaisePropertyChanged(nameof(CanUpdateSubmodules));
 		}
 
 		async Task<JobResponse> Refresh(RepositoryUpdateRequest update, RepositoryCreateRequest clone, bool delete, CancellationToken cancellationToken)
@@ -440,6 +442,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					NewCommitterName = string.Empty;
 					NewAccessUser = string.Empty;
 					NewAccessToken = string.Empty;
+					UpdateSubmodules = newRepo.UpdateSubmodules.Value;
 
 					UpdateHard = false;
 					UpdateMerge = false;
@@ -764,7 +767,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 						CommitterEmail = !string.IsNullOrEmpty(NewCommitterEmail) ? NewCommitterEmail : null,
 						CommitterName = !string.IsNullOrEmpty(NewCommitterName) ? NewCommitterName : null,
-						UpdateSubmodules = UpdateSubmodules,
+						UpdateSubmodules = CanUpdateSubmodules ? UpdateSubmodules : null,
 					};
 
 					if (modifiedPRList || UpdateHard)
@@ -815,7 +818,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						Reference = string.IsNullOrEmpty(NewReference) ? null : NewReference,
 						AccessToken = string.IsNullOrEmpty(NewAccessToken) || !CanAccess ? null : NewAccessToken,
 						AccessUser = string.IsNullOrEmpty(NewAccessUser) || !CanAccess ? null : NewAccessUser,
-						RecurseSubmodules = RecurseSubmodules
+						UpdateSubmodules = RecurseSubmodules
 					};
 					await Refresh(null, clone, false, cancellationToken).ConfigureAwait(true);
 					break;

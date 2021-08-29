@@ -55,6 +55,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(HasRevision));
 				this.RaisePropertyChanged(nameof(HasStagedRevision));
 				this.RaisePropertyChanged(nameof(NewAdditionalParams));
+				this.RaisePropertyChanged(nameof(CurrentVisibility));
 				if (model != null)
 				{
 					SoftRestart = model.SoftRestart.Value;
@@ -72,7 +73,24 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string Port => (Model?.CurrentPort ?? Model?.Port)?.ToString(CultureInfo.InvariantCulture) ?? "Unknown";
 		public string Graceful => Model == null || !CanRevision ? "Unknown" : Model.SoftRestart.Value ? "Restart" : Model.SoftShutdown.Value ? "Stop" : "None";
 
-		public string CurrentSecurity => !(Model?.CurrentSecurity ?? Model?.SecurityLevel).HasValue ? "Unknown" : Model.CurrentSecurity == DreamDaemonSecurity.Safe ? "Safe" : Model.CurrentSecurity == DreamDaemonSecurity.Ultrasafe ? "Ultrasafe" : "Trusted";
+		public string CurrentSecurity
+		{
+			get
+			{
+				var currentSecurity = Model?.CurrentSecurity ?? Model?.SecurityLevel;
+				return !currentSecurity.HasValue ? "Unknown" : currentSecurity == DreamDaemonSecurity.Safe ? "Safe" : currentSecurity == DreamDaemonSecurity.Ultrasafe ? "Ultrasafe" : "Trusted";
+			}
+		}
+
+		public string CurrentVisibility 
+		{
+			get
+			{
+				var currentVisibility = Model?.CurrentVisibility ?? Model?.Visibility;
+				var result = !currentVisibility.HasValue ? "Unknown" : currentVisibility == DreamDaemonVisibility.Private ? "Private" : currentVisibility == DreamDaemonVisibility.Public ? "Public" : "Invisible";
+				return result;
+			}
+		}
 		public string StatusString => !(Model?.Status).HasValue ? "Unknown" : Model.Status.ToString();
 
 		public IBrush StatusColour => new SolidColorBrush(!(Model?.Status).HasValue ? Colors.Black :
@@ -134,6 +152,24 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			get => Model?.SecurityLevel == DreamDaemonSecurity.Trusted;
 			set => Model.SecurityLevel = value ? DreamDaemonSecurity.Trusted : null;
+		}
+
+		public bool PublicVis
+		{
+			get => Model?.Visibility == DreamDaemonVisibility.Public;
+			set => Model.Visibility = value ? DreamDaemonVisibility.Public : null;
+		}
+
+		public bool PrivateVis
+		{
+			get => Model?.Visibility == DreamDaemonVisibility.Private;
+			set => Model.Visibility = value ? DreamDaemonVisibility.Private : null;
+		}
+
+		public bool InvisiVis
+		{
+			get => Model?.Visibility == DreamDaemonVisibility.Invisible;
+			set => Model.Visibility = value ? DreamDaemonVisibility.Invisible : null;
 		}
 
 		public uint NewStartupTimeout
@@ -198,6 +234,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanHeartbeat => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetHeartbeatInterval);
 		public bool CanDump => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.CreateDump);
 		public bool CanAdditionalParams => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetAdditionalParameters);
+		public bool CanVisibility => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetVisibility);
 
 		public EnumCommand<DreamDaemonCommand> Close { get; }
 		public EnumCommand<DreamDaemonCommand> Refresh { get; }
@@ -219,6 +256,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		DreamDaemonResponse model;
 
 		DreamDaemonSecurity? initalSecurityLevel;
+		DreamDaemonVisibility? initalVisibility;
 
 		uint newStartupTimeout;
 		uint newHeartbeatSeconds;
@@ -307,6 +345,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				NewAllowWebClient = Model.AllowWebClient ?? false;
 				NewAdditionalParams = Model.AdditionalParameters ?? string.Empty;
 				initalSecurityLevel = Model.SecurityLevel;
+				initalVisibility = Model.Visibility;
 
 				ClearSoft = true;
 				if (CanMetadata)
@@ -353,7 +392,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				DreamDaemonCommand.Start => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Start) && Model?.Status.Value == WatchdogStatus.Offline,
 				DreamDaemonCommand.Stop => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Shutdown) && Model?.Status.Value != WatchdogStatus.Offline,
 				DreamDaemonCommand.Restart => !Refreshing && rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.Restart) && Model?.Status.Value != WatchdogStatus.Offline,
-				DreamDaemonCommand.Update => !Refreshing && (CanAutoStart || CanPort || CanWebClient || CanSecurity || CanSoftRestart || CanSoftStop || CanTimeout || CanTopic || CanAdditionalParams) && NewPrimaryPort != 0,
+				DreamDaemonCommand.Update => !Refreshing && (CanAutoStart || CanPort || CanWebClient || CanSecurity || CanSoftRestart || CanSoftStop || CanTimeout || CanVisibility || CanTopic || CanAdditionalParams) && NewPrimaryPort != 0,
 				DreamDaemonCommand.Dump => !Refreshing && Model?.Status.Value != WatchdogStatus.Offline && CanDump,
 				DreamDaemonCommand.Join => !Refreshing && Model?.Status.Value == WatchdogStatus.Online,
 				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
@@ -415,6 +454,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							TopicRequestTimeout = CanTopic && Model.TopicRequestTimeout != NewTopicTimeout ? (uint?)NewTopicTimeout : null,
 							HeartbeatSeconds = CanHeartbeat && Model.HeartbeatSeconds != NewHeartbeatSeconds ? (uint?)NewHeartbeatSeconds : null,
 							AdditionalParameters = CanAdditionalParams && Model.AdditionalParameters != NewAdditionalParams ? NewAdditionalParams : null,
+							Visibility = CanVisibility && Model.Visibility != initalVisibility ? Model.Visibility : null,
 						};
 
 						if (CanSoftRestart)

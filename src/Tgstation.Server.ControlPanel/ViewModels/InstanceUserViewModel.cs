@@ -165,6 +165,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newRepositoryRights &= ~right;
 			}
 		}
+		public bool RepoSubmodule
+		{
+			get => newRepositoryRights.HasFlag(RepositoryRights.ChangeSubmoduleUpdate);
+			set
+			{
+				var right = RepositoryRights.ChangeSubmoduleUpdate;
+				if (value)
+					newRepositoryRights |= right;
+				else
+					newRepositoryRights &= ~right;
+			}
+		}
 		public bool RepoSha
 		{
 			get => newRepositoryRights.HasFlag(RepositoryRights.SetSha);
@@ -346,6 +358,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					newDreamMakerRights &= ~right;
 			}
 		}
+		public bool CompTimeout
+		{
+			get => newDreamMakerRights.HasFlag(DreamMakerRights.SetTimeout);
+			set
+			{
+				var right = DreamMakerRights.SetTimeout;
+				if (value)
+					newDreamMakerRights |= right;
+				else
+					newDreamMakerRights &= ~right;
+			}
+		}
 		public bool CompVali
 		{
 			get => newDreamMakerRights.HasFlag(DreamMakerRights.SetApiValidationPort);
@@ -425,6 +449,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set
 			{
 				var right = DreamDaemonRights.SetAutoStart;
+				if (value)
+					newDreamDaemonRights |= right;
+				else
+					newDreamDaemonRights &= ~right;
+			}
+		}
+		public bool DDVisibility
+		{
+			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.SetVisibility);
+			set
+			{
+				var right = DreamDaemonRights.SetVisibility;
 				if (value)
 					newDreamDaemonRights |= right;
 				else

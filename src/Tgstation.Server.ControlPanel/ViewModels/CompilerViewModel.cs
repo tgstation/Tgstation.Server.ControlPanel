@@ -101,6 +101,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Update.Recheck();
 			}
 		}
+
+		public int NewTimeout
+		{
+			get => newTimeout ?? ((int?)model.Timeout?.TotalMinutes) ?? 60;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref newTimeout, value);
+				Update.Recheck();
+			}
+		}
 		public string NewDme
 		{
 			get => newDme;
@@ -150,6 +160,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanSecurity => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.SetSecurityLevel);
 		public bool CanSecurityView => !Refreshing && CanSecurity;
 		public bool CanPortView => !Refreshing && CanPort;
+		public bool CanTimeout => rightsProvider.DreamMakerRights.HasFlag(DreamMakerRights.SetTimeout);
 
 		public EnumCommand<CompilerCommand> Close { get; }
 		public EnumCommand<CompilerCommand> Refresh { get; }
@@ -175,6 +186,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		string newDme;
 		int newPort;
+		int? newTimeout;
 
 		bool refreshing;
 		bool apiRequire;
@@ -207,6 +219,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(CanGetJobs));
 				this.RaisePropertyChanged(nameof(CanPort));
 				this.RaisePropertyChanged(nameof(CanDme));
+				this.RaisePropertyChanged(nameof(CanTimeout));
 			};
 
 			jobPages = new Dictionary<int, IReadOnlyList<CompileJobViewModel>>();
@@ -240,6 +253,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			NewDme = string.Empty;
 			NewPort = 0;
+			this.RaiseAndSetIfChanged(ref newTimeout, null);
 			AutoDetectDme = Model?.ProjectName == null;
 			newSecurityLevel = Model?.ApiValidationSecurityLevel ?? DreamDaemonSecurity.Safe;
 			ApiRequire = Model?.RequireDMApiValidation ?? true;
@@ -273,7 +287,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				jobPages.Clear();
 				selectedPage = 0;
 
-				await LoadPage(cancellationToken).ConfigureAwait(true);
+				await LoadPage().ConfigureAwait(true);
 
 				await readTask.ConfigureAwait(true);
 				ResetFields();
@@ -284,7 +298,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		async Task LoadPage(CancellationToken cancellationToken)
+		async Task LoadPage()
 		{
 			Refreshing = true;
 			try
@@ -325,6 +339,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					//either a new dme name is set, or the checkbox is different than the model
 					&& (!string.IsNullOrEmpty(NewDme) || (AutoDetectDme ^ (Model?.ProjectName == null))
 					|| NewPort != 0
+					|| newTimeout.HasValue
 					|| newSecurityLevel != Model?.ApiValidationSecurityLevel
 					|| ApiRequire != (Model?.RequireDMApiValidation ?? true)),
 				CompilerCommand.Compile => !Refreshing && CanCompile,
@@ -356,11 +371,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					break;
 				case CompilerCommand.LastPage:
 					--selectedPage;
-					await LoadPage(cancellationToken).ConfigureAwait(true);
+					await LoadPage().ConfigureAwait(true);
 					break;
 				case CompilerCommand.NextPage:
 					++selectedPage;
-					await LoadPage(cancellationToken).ConfigureAwait(true);
+					await LoadPage().ConfigureAwait(true);
 					break;
 				case CompilerCommand.Refresh:
 					await DoRefresh(cancellationToken).ConfigureAwait(true);
@@ -381,6 +396,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 						if (CanPort && NewPort != 0)
 							newModel.ApiValidationPort = (ushort)NewPort;
+
+						if (CanTimeout && newTimeout.HasValue)
+							newModel.Timeout = TimeSpan.FromMinutes(NewTimeout);
 
 						if (CanSecurity && newSecurityLevel != Model.ApiValidationSecurityLevel)
 							newModel.ApiValidationSecurityLevel = newSecurityLevel;
