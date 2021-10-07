@@ -29,7 +29,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public bool HasProgress => job.Progress.HasValue || Finished;
 
-		public string Description => job.Description;
+		public string Description => job.Stage == null ? job.Description : $"{job.Description}{Environment.NewLine}=> {job.Stage}";
 
 		public string StartedBy => string.Format(CultureInfo.InvariantCulture, "{0} ({1})", job.StartedBy.Name, job.StartedBy.Id);
 		public string StartedAt => job.StartedAt.Value.ToLocalTime().ToString("g");
@@ -67,6 +67,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.RaisePropertyChanged(nameof(HasProgress));
 			this.RaisePropertyChanged(nameof(Background));
 			this.RaisePropertyChanged(nameof(Error));
+			this.RaisePropertyChanged(nameof(Description));
 			this.RaisePropertyChanged(nameof(Title));
 			Remove.Recheck();
 			Cancel.Recheck();
