@@ -62,6 +62,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					SoftStop = model.SoftShutdown.Value;
 				}
 
+				this.RaisePropertyChanged(nameof(SoftRestart));
+				this.RaisePropertyChanged(nameof(SoftStop));
+				this.RaisePropertyChanged(nameof(ClearSoft));
+				this.RaisePropertyChanged(nameof(CanSoftRestart));
+				this.RaisePropertyChanged(nameof(CanSoftStop));
+
 				onRunningChanged(model?.Status != WatchdogStatus.Offline);
 			}
 		}
@@ -310,6 +316,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(CanTimeout));
 					this.RaisePropertyChanged(nameof(CanSoftRestart));
 					this.RaisePropertyChanged(nameof(CanSoftStop));
+					this.RaisePropertyChanged(nameof(SoftRestart));
+					this.RaisePropertyChanged(nameof(SoftStop));
 					this.RaisePropertyChanged(nameof(CanMetadata));
 					this.RaisePropertyChanged(nameof(CanRevision));
 					this.RaisePropertyChanged(nameof(CanAdditionalParams));
