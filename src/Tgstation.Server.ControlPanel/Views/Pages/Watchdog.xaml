@@ -119,15 +119,15 @@
             <ColumnDefinition Width="10*"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="Security Level:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="7" ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
-					<TextBlock Text="Graceful Action:" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="7" />
-					<RadioButton GroupName="DDTrust" Content="Ultrasafe" Grid.Row="1" Grid.Column="1" IsChecked="{Binding Ultrasafe, Mode=TwoWay}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
-					<RadioButton GroupName="DDTrust" Content="Safe" Grid.Row="1" Grid.Column="3" IsChecked="{Binding Safe, Mode=TwoWay}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
-					<RadioButton GroupName="DDTrust" Content="Trusted" Grid.Row="1" Grid.Column="5" IsChecked="{Binding Trusted, Mode=TwoWay}" ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
-					<TextBlock Text="Visibility:" ToolTip.Tip="The visibility level DreamDaemon is launched with." Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7" />
-					<RadioButton GroupName="DDVis" Content="Public" Grid.Row="3" Grid.Column="1" IsChecked="{Binding PublicVis, Mode=TwoWay}" IsEnabled="{Binding CanVisibility}" />
-					<RadioButton GroupName="DDVis" Content="Private" Grid.Row="3" Grid.Column="3" IsChecked="{Binding PrivateVis, Mode=TwoWay}" IsEnabled="{Binding CanVisibility}"/>
-					<RadioButton GroupName="DDVis" Content="Invisible" Grid.Row="3" Grid.Column="5" IsChecked="{Binding InvisiVis, Mode=TwoWay}" IsEnabled="{Binding CanVisibility}"/>
-					<RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="None" Grid.Row="5" Grid.Column="1" IsChecked="{Binding ClearSoft, Mode=TwoWay}" IsEnabled="{Binding Running}"/>
+          <TextBlock Text="Graceful Action:" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="7" />
+          <RadioButton GroupName="DDTrust" Content="Ultrasafe" Grid.Row="1" Grid.Column="1" IsChecked="{Binding Ultrasafe, Mode=TwoWay}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
+          <RadioButton GroupName="DDTrust" Content="Safe" Grid.Row="1" Grid.Column="3" IsChecked="{Binding Safe, Mode=TwoWay}"  ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
+          <RadioButton GroupName="DDTrust" Content="Trusted" Grid.Row="1" Grid.Column="5" IsChecked="{Binding Trusted, Mode=TwoWay}" ToolTip.Tip="Note that the minimum security level specified in deployments can override this setting."/>
+          <TextBlock Text="Visibility:" ToolTip.Tip="The visibility level DreamDaemon is launched with." Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7" />
+          <RadioButton GroupName="DDVis" Content="Public" Grid.Row="3" Grid.Column="1" IsChecked="{Binding PublicVis, Mode=TwoWay}" IsEnabled="{Binding CanVisibility}" />
+          <RadioButton GroupName="DDVis" Content="Private" Grid.Row="3" Grid.Column="3" IsChecked="{Binding PrivateVis, Mode=TwoWay}" IsEnabled="{Binding CanVisibility}"/>
+          <RadioButton GroupName="DDVis" Content="Invisible" Grid.Row="3" Grid.Column="5" IsChecked="{Binding InvisiVis, Mode=TwoWay}" IsEnabled="{Binding CanVisibility}"/>
+          <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="None" Grid.Row="5" Grid.Column="1" IsChecked="{Binding ClearSoft, Mode=TwoWay}" IsEnabled="{Binding Running}"/>
           <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="Restart" Grid.Row="5" Grid.Column="3" IsChecked="{Binding SoftRestart, Mode=TwoWay}" IsEnabled="{Binding Running}" />
           <RadioButton GroupName="GA" ToolTip.Tip="The watchdog action that will be taken when /world/Reboot is called." Content="Shutdown" Grid.Row="5" Grid.Column="5" IsChecked="{Binding SoftStop, Mode=TwoWay}" IsEnabled="{Binding Running}" />
         </Grid>
