@@ -12,7 +12,8 @@ Official management suite for tgstation-server v4
 
 ### Windows
 
-First, ensure you have the .NET Core 5.0 runtime installed. See [here](https://dotnet.microsoft.com/download/dotnet/current/runtime) for download.
+First, ensure you have the ASP .NET Core 5.0.X runtime installed. See [here](https://dotnet.microsoft.com/download/dotnet/5.0) for download.
+
 
 Once that's done, [Click Here](https://github.com/tgstation/Tgstation.Server.ControlPanel/releases/latest) for a download link to the self updating version.
 
@@ -20,16 +21,20 @@ Once that's done, [Click Here](https://github.com/tgstation/Tgstation.Server.Con
 
 To install the latest version of the code
 
-1. Download and install the [Dotnet 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/5.0)
+1. Download and install the [.NET 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/5.0)
 1. Clone this repository
-1. Navigate to `src/Tgstation.Server.ControlPanel.Core`
+1. Navigate to `src/Tgstation.Server.ControlPanel`
 1. Run `dotnet publish -c Release -o <Your chosen installation directory>`
 
 To run the installation
 
 1. Navigate to your chosen installation directory
-2. Run `dotnet Tgstation.Server.ControlPanel.Core.dll`
+2. Run `dotnet Tgstation.Server.ControlPanel.dll`
 
 ## Usage
 
 Please help this project out by contributing to this documentation
+
+## OAuth
+
+To enable OAuth logins with the control panel, set your TGS OAuth configuration `RedirectUrl` property to `http://localhost:<port>` where `<port>` is any free port.
