@@ -95,7 +95,7 @@
           </Grid>
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1"/>
           <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="00,0,0,5"/>
-          <Grid>
+          <Grid Margin="00,0,0,5">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="10*"/> 
               <ColumnDefinition Width="25*"/>
@@ -105,6 +105,18 @@
             </Grid.ColumnDefinitions>
             <Button Content="{Binding ConnectionWord}" Grid.Column="1" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding Connect}"/>
             <Button Content="{Binding DeleteWord}" Grid.Column="3" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding Delete}"/> 
+          </Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="30*"/>
+              <ColumnDefinition Width="5*"/>
+              <ColumnDefinition Width="30*"/>
+              <ColumnDefinition Width="5*"/>
+              <ColumnDefinition Width="30*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Connect with GitHub" Grid.Column="0" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding GitHub}"/>
+            <Button Content="Connect with Discord" Grid.Column="2" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding Discord}"/>
+            <Button Content="Connect with Keycloak" Grid.Column="4" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding Keycloak}"/>
           </Grid>
           <StackPanel Orientation="Vertical" IsVisible="{Binding Errored}" >
             <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>

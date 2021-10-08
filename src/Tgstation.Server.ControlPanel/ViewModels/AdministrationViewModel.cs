@@ -243,7 +243,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						return;
 					}
-					await connectionManagerViewModel.BeginConnect(cancellationToken).ConfigureAwait(true);
+					await connectionManagerViewModel.BeginConnect(null, cancellationToken).ConfigureAwait(true);
 					break;
 				case AdministrationCommand.Refresh:
 					await Refresh(cancellationToken).ConfigureAwait(true);
@@ -276,7 +276,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						return;
 					}
-					await connectionManagerViewModel.BeginConnect(cancellationToken).ConfigureAwait(true);
+					await connectionManagerViewModel.BeginConnect(null, cancellationToken).ConfigureAwait(true);
 					break;
 				case AdministrationCommand.OpenGitHub:
 					ControlPanel.LaunchUrl(GitHubUrl);

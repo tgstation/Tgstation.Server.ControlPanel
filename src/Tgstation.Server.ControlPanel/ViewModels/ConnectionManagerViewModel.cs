@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
+
 using ReactiveUI;
 using Tgstation.Server.Api;
 using Tgstation.Server.Api.Models;
@@ -20,7 +22,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			Connect,
 			Delete,
-			Close
+			Close,
+			Discord,
+			GitHub,
+			Keycloak
 		}
 
 		const string LoadingGif = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png";
@@ -210,6 +215,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<ConnectionManagerCommand> Close { get; }
 		public EnumCommand<ConnectionManagerCommand> Connect { get; }
 		public EnumCommand<ConnectionManagerCommand> Delete { get; }
+		public EnumCommand<ConnectionManagerCommand> GitHub { get; }
+		public EnumCommand<ConnectionManagerCommand> Discord { get; }
+		public EnumCommand<ConnectionManagerCommand> Keycloak { get; }
 
 		readonly Connection connection;
 
@@ -261,6 +269,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Connect = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Connect, this);
 			Close = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Close, this);
 			Delete = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Delete, this);
+			GitHub = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.GitHub, this);
+			Discord = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Discord, this);
+			Keycloak = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Keycloak, this);
 
 			usingHttp = !connection.Url.ToString().StartsWith(HttpsPrefix, StringComparison.OrdinalIgnoreCase);
 			if (connection.Credentials.Password != null && connection.Credentials.Password.Length > 0)
@@ -359,7 +370,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				catch (UnauthorizedException)
 				{
 					//bad token potentially
-					await BeginConnect(cancellationToken).ConfigureAwait(true);
+					await BeginConnect(null, cancellationToken).ConfigureAwait(true);
 					return;
 				}
 				catch
@@ -422,7 +433,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			if (connection.LastToken?.ExpiresAt != null && connection.LastToken.ExpiresAt > DateTimeOffset.Now)
 				return PostConnect(connection, cancellationToken);
 			else if (connection.Valid)
-				return BeginConnect(cancellationToken);
+				return BeginConnect(null, cancellationToken);
 			return Task.CompletedTask;
 		}
 
@@ -498,7 +509,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 
-		public async Task BeginConnect(CancellationToken cancellationToken)
+		public async Task BeginConnect(OAuthProvider? oAuthProvider, CancellationToken cancellationToken)
 		{
 			if (Connecting)
 				throw new InvalidOperationException("Already connecting!");
@@ -507,10 +518,50 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			if (!await HandleConnectException(async () =>
 			 {
-				 serverClient = await serverClientFactory.CreateFromLogin(connection.Url, connection.Username, connection.Credentials.Password, new List<IRequestLogger> { requestLogger }, connection.Timeout, true, cancellationToken).ConfigureAwait(true);
+				 if (!oAuthProvider.HasValue)
+					 serverClient = await serverClientFactory.CreateFromLogin(connection.Url, connection.Username, connection.Credentials.Password, new List<IRequestLogger> { requestLogger }, connection.Timeout, true, cancellationToken).ConfigureAwait(true);
+				 else
+					 serverClient = await AttemptOAuthConnection(oAuthProvider.Value, cancellationToken);
 				 connection.LastToken = serverClient.Token;
 			 }).ConfigureAwait(true))
 				await PostConnect(connection, cancellationToken).ConfigureAwait(true);
+		}
+
+		async Task<IServerClient> AttemptOAuthConnection(OAuthProvider oAuthProvider, CancellationToken cancellationToken)
+		{
+			var serverInfo = await serverClientFactory.GetServerInformation(connection.Url, new List<IRequestLogger> { requestLogger }, connection.Timeout, cancellationToken);
+
+			if(serverInfo?.OAuthProviderInfos.TryGetValue(oAuthProvider, out var providerInfo) != true)
+				throw new NotSupportedException("This server does not support this OAuth provider!");
+
+			Uri targetUrl = null;
+			switch (oAuthProvider)
+			{
+				case OAuthProvider.Discord:
+					targetUrl = new Uri($"https://discord.com/api/oauth2/authorize?response_type=code&client_id={HttpUtility.UrlEncode(providerInfo.ClientId)}&scope=identify&redirect_uri={HttpUtility.UrlEncode(providerInfo.RedirectUri.ToString())}");
+					break;
+				case OAuthProvider.GitHub:
+					targetUrl = new Uri($"https://github.com/login/oauth/authorize?client_id={HttpUtility.UrlEncode(providerInfo.ClientId)}&redirect_uri={HttpUtility.UrlEncode(providerInfo.RedirectUri.ToString())}&allow_signup=false");
+					break;
+				case OAuthProvider.Keycloak:
+					targetUrl = new Uri($"{providerInfo.ServerUrl}/protocol/openid-connect/auth?response_type=code&client_id={HttpUtility.UrlEncode(providerInfo.ClientId)}&scope=openid&redirect_uri={HttpUtility.UrlEncode(providerInfo.RedirectUri.ToString())}&allow_signup=false");
+					break;
+			}
+
+			await using var callbackServer = new OAuthCallbackServer(providerInfo.RedirectUri.Port);
+			await callbackServer.Start(cancellationToken);
+			using var browser = ControlPanel.LaunchUrl(targetUrl.ToString(), false);
+
+			await Task.WhenAny(
+				Task.Delay(TimeSpan.FromMinutes(10), cancellationToken),
+				callbackServer.Response);
+
+			if (!browser.HasExited)
+				browser.Kill();
+
+			var responseCode = await callbackServer.Response;
+
+			return await serverClientFactory.CreateFromOAuth(connection.Url, responseCode, oAuthProvider, new List<IRequestLogger> { requestLogger }, connection.Timeout, cancellationToken);
 		}
 
 		public Task HandleClick(CancellationToken cancellationToken)
@@ -525,6 +576,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				ConnectionManagerCommand.Delete or ConnectionManagerCommand.Close => true,
 				ConnectionManagerCommand.Connect => connection.Valid && !Connecting,
+				ConnectionManagerCommand.Discord or ConnectionManagerCommand.GitHub or ConnectionManagerCommand.Keycloak => connection.Url?.Host != null && !Connecting,
 				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
 			};
 		}
@@ -557,8 +609,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					pageContext.ActiveObject = null;
 					break;
 				case ConnectionManagerCommand.Connect:
-					await BeginConnect(cancellationToken).ConfigureAwait(false);
-					return;
+					await BeginConnect(null, cancellationToken).ConfigureAwait(false);
+					break;
+				case ConnectionManagerCommand.Discord:
+					await BeginConnect(OAuthProvider.Discord, cancellationToken).ConfigureAwait(false);
+					break;
+				case ConnectionManagerCommand.GitHub:
+					await BeginConnect(OAuthProvider.GitHub, cancellationToken).ConfigureAwait(false);
+					break;
+				case ConnectionManagerCommand.Keycloak:
+					await BeginConnect(OAuthProvider.Keycloak, cancellationToken).ConfigureAwait(false);
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");
 			}

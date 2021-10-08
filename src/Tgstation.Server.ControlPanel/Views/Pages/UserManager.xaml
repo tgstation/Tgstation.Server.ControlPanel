@@ -44,7 +44,7 @@
           <TextBlock Text="System Identifier:"/>
           <TextBlock Text="{Binding User.SystemIdentifier}" Margin="5,0,0,0"/>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" IsVisible="{Binding IsGroupedUser}">
+        <StackPanel Orientation="Horizontal" IsVisible="{Binding IsGroupedUser}" IsEnabled="{Binding CanEditRights}">
           <TextBlock Text="Group:"/>
           <TextBlock Text="{Binding User.Group.Name}" Margin="5,0,0,0"/>
         </StackPanel>
@@ -53,6 +53,25 @@
         <StackPanel Orientation="Horizontal">
           <CheckBox Background="White" IsEnabled="{Binding CanEditRights}" IsChecked="{Binding Enabled, Mode=TwoWay}"/>
           <TextBlock DockPanel.Dock="Right" Text="Enabled" Margin="5,4,0,0" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical" IsVisible="{Binding OAuthEnabled}">
+          <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
+          <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
+          <TextBlock Text="OAuth 2.0 Connections:" FontSize="16" Margin="0,0,0,5"/>
+          <ItemsControl Items="{Binding OAuthSettings}" Margin="0,5,5,0">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="400"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Text="{Binding ProviderName}" Grid.Column="0" />
+                  <TextBox Text="{Binding ExternalUserId}" Grid.Column="1" Margin="50,0,0,0" Watermark="(Disabled)"/>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
         </StackPanel>
         <StackPanel Orientation="Vertical" IsVisible="{Binding !IsSystemUser}">
           <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,6 +39,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaiseAndSetIfChanged(ref user, value);
 					this.RaisePropertyChanged(nameof(IsSystemUser));
 					UpdatePermissionSet();
+
+					if (user.OAuthConnections != null && user.Name != "Admin")
+					{
+						var settings = user.OAuthConnections.Select(connection => new OAuthSetting(connection.ExternalUserId, connection.Provider)).ToList();
+						foreach (var providerUserDoesntHave in serverInformation.OAuthProviderInfos.Keys.Where(key => !user.OAuthConnections.Any(x => x.Provider == key)))
+							settings.Add(new OAuthSetting(null, providerUserDoesntHave));
+
+						OAuthSettings = settings.OrderBy(x => x.Provider).ToList();
+					}
+					else
+						OAuthSettings = Array.Empty<OAuthSetting>();
 				}
 			}
 		}
@@ -90,6 +102,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public IReadOnlyList<ITreeNode> Children => null;
 
+		public IReadOnlyList<OAuthSetting> OAuthSettings { get; private set; }
+
 		public bool Enabled
 		{
 			get => enabled;
@@ -103,6 +117,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 
 		public bool IsGroupedUser => User.Group != null;
+
+		public bool OAuthEnabled => serverInformation.OAuthProviderInfos != null && serverInformation.OAuthProviderInfos.Count > 0 && user?.Name != "Admin"; 
 
 		public PermissionSetViewModel PermissionSetViewModel { get; private set; }
 
@@ -244,6 +260,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					};
 					if (NewPassword.Length > 0)
 						update2.Password = NewPassword;
+					if (OAuthEnabled)
+						update2.OAuthConnections = new List<OAuthConnection>(
+							OAuthSettings
+								.Where(x => !String.IsNullOrWhiteSpace(x.ExternalUserId))
+								.Select(setting => new OAuthConnection
+								{
+									ExternalUserId = setting.ExternalUserId.Trim(),
+									Provider = setting.Provider,
+								}));
 					await RunRequest(async () => User = await usersClient.Update(update2, cancellationToken).ConfigureAwait(false)).ConfigureAwait(true);
 					UpdatePermissionSet();
 					break;
