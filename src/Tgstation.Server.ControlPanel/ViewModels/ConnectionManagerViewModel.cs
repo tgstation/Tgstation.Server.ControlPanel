@@ -25,7 +25,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Close,
 			Discord,
 			GitHub,
-			Keycloak
+			Keycloak,
+			TGForums,
 		}
 
 		const string LoadingGif = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png";
@@ -218,6 +219,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<ConnectionManagerCommand> GitHub { get; }
 		public EnumCommand<ConnectionManagerCommand> Discord { get; }
 		public EnumCommand<ConnectionManagerCommand> Keycloak { get; }
+		public EnumCommand<ConnectionManagerCommand> TGForums { get; }
 
 		readonly Connection connection;
 
@@ -272,6 +274,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			GitHub = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.GitHub, this);
 			Discord = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Discord, this);
 			Keycloak = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.Keycloak, this);
+			TGForums = new EnumCommand<ConnectionManagerCommand>(ConnectionManagerCommand.TGForums, this);
 
 			usingHttp = !connection.Url.ToString().StartsWith(HttpsPrefix, StringComparison.OrdinalIgnoreCase);
 			if (connection.Credentials.Password != null && connection.Credentials.Password.Length > 0)
@@ -546,6 +549,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				case OAuthProvider.Keycloak:
 					targetUrl = new Uri($"{providerInfo.ServerUrl}/protocol/openid-connect/auth?response_type=code&client_id={HttpUtility.UrlEncode(providerInfo.ClientId)}&scope=openid&redirect_uri={HttpUtility.UrlEncode(providerInfo.RedirectUri.ToString())}&allow_signup=false");
 					break;
+				case OAuthProvider.TGForums:
+					targetUrl = new Uri($"https://tgstation13.org/phpBB/app.php/tgapi/oauth/auth?response_type=code&client_id={HttpUtility.UrlEncode(providerInfo.ClientId)}&redirect_uri={HttpUtility.UrlEncode(providerInfo.RedirectUri.ToString())}&scope=user");
+					break;
 			}
 
 			await using var callbackServer = new OAuthCallbackServer(providerInfo.RedirectUri.Port);
@@ -576,7 +582,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				ConnectionManagerCommand.Delete or ConnectionManagerCommand.Close => true,
 				ConnectionManagerCommand.Connect => connection.Valid && !Connecting,
-				ConnectionManagerCommand.Discord or ConnectionManagerCommand.GitHub or ConnectionManagerCommand.Keycloak => connection.Url?.Host != null && !Connecting,
+				ConnectionManagerCommand.Discord or ConnectionManagerCommand.GitHub or ConnectionManagerCommand.Keycloak or ConnectionManagerCommand.TGForums => connection.Url?.Host != null && !Connecting,
 				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
 			};
 		}
@@ -619,6 +625,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					break;
 				case ConnectionManagerCommand.Keycloak:
 					await BeginConnect(OAuthProvider.Keycloak, cancellationToken).ConfigureAwait(false);
+					break;
+				case ConnectionManagerCommand.TGForums:
+					await BeginConnect(OAuthProvider.TGForums, cancellationToken).ConfigureAwait(false);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!");

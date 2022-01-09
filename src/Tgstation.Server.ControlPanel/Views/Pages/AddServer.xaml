@@ -38,7 +38,7 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="400"/>
+              <ColumnDefinition Width="500"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Server Address:" Margin="0,5,0,0" Grid.Column="0" Grid.Row="0"/>
             <TextBox Grid.Column="1" Grid.Row="0" Margin="50,0,0,5" Text="{Binding ServerAddress, Mode=TwoWay}" />
@@ -113,10 +113,13 @@
               <ColumnDefinition Width="30*"/>
               <ColumnDefinition Width="5*"/>
               <ColumnDefinition Width="30*"/>
+              <ColumnDefinition Width="5*"/>
+              <ColumnDefinition Width="30*"/>
             </Grid.ColumnDefinitions>
             <Button Content="Connect with GitHub" Grid.Column="0" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding GitHub}"/>
             <Button Content="Connect with Discord" Grid.Column="2" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding Discord}"/>
             <Button Content="Connect with Keycloak" Grid.Column="4" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding Keycloak}"/>
+            <Button Content="Connect with /tg/station 13 Forums" Grid.Column="6" Background="#CFD6E5" BorderBrush="#ADADAD" Command="{Binding TGForums}"/>
           </Grid>
           <StackPanel Orientation="Vertical" IsVisible="{Binding Errored}" >
             <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
