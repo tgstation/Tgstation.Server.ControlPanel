@@ -442,7 +442,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					NewCommitterName = string.Empty;
 					NewAccessUser = string.Empty;
 					NewAccessToken = string.Empty;
-					UpdateSubmodules = newRepo.UpdateSubmodules.Value;
+					UpdateSubmodules = newRepo.UpdateSubmodules ?? true;
 
 					UpdateHard = false;
 					UpdateMerge = false;
