@@ -283,7 +283,7 @@
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="6" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding DDDump, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Create Process Dumps" Margin="5,4,0,0" />
+            <TextBlock DockPanel.Dock="Right" Text="Create Process Dumps + Set auto dump on heartbeat fail" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="7" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding DDTopicTimeout, Mode=TwoWay}"/>

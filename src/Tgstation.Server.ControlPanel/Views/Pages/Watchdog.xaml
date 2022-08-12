@@ -72,8 +72,9 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="400"/>
-			<ColumnDefinition Width="400"/>
-		  </Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="400"/>
+          </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -96,7 +97,7 @@
           <NumericUpDown Minimum="1" Value="{Binding NewStartupTimeout}" Grid.Column="1" Grid.Row="5" IsEnabled="{Binding CanTimeout}" />
           <TextBlock Text="Heartbeat Seconds (0 disables):" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Margin="0,5,5,0" Grid.Column="0" Grid.Row="7"/>
           <NumericUpDown Minimum="0" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Value="{Binding NewHeartbeatSeconds}" Grid.Column="1" Grid.Row="7" IsEnabled="{Binding CanHeartbeat}" />
-          <CheckBox Content="Dump process on heartbeat fail" Margin="0,5,5,0" Grid.Column="2" Grid.Row="7" IsChecked="{Binding NewDumpOnHeartbeatRestart}" IsEnabled="{Binding CanHeartbeatRestart}" Background="White" ToolTip.Tip="If heartbeats are enabled, ticking this box will automatically create a process dump if the server is restarted due to missing heartbeats. This may be useful for diagnosing faults." />
+          <CheckBox Content="Dump process on heartbeat fail" Margin="0,5,5,0" Grid.Column="3" Grid.Row="7" IsChecked="{Binding NewDumpOnHeartbeatRestart}" IsEnabled="{Binding CanHeartbeatRestart}" Background="White" ToolTip.Tip="If heartbeats are enabled, ticking this box will automatically create a process dump if the server is restarted due to missing heartbeats. This may be useful for diagnosing faults." />
 		  <TextBlock Text="Timeout For Sending BYOND Topics (Milliseconds):" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations." Margin="0,5,5,0" Grid.Column="0" Grid.Row="9"/>
 		  <NumericUpDown Minimum="1" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations.." Value="{Binding NewTopicTimeout}" Grid.Column="1" Grid.Row="9" IsEnabled="{Binding CanTopic}" />
           <TextBlock Grid.Column="0" Text="Additional Params:" Grid.Row="11"/>
