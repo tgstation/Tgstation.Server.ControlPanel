@@ -293,11 +293,15 @@
             <CheckBox Background="White" IsChecked="{Binding DDAdditionalParams, Mode=TwoWay}"/>
             <TextBlock DockPanel.Dock="Right" Text="Set Additional DreamDaemon Params" Margin="5,4,0,0" />
           </DockPanel>
-					<DockPanel Grid.Column="0" Grid.Row="8" Margin="2">
-						<CheckBox Background="White" IsChecked="{Binding DDVisibility, Mode=TwoWay}"/>
-						<TextBlock DockPanel.Dock="Right" Text="Set Visibilty Level" Margin="5,4,0,0" />
-					</DockPanel>
-        </Grid>
+		  <DockPanel Grid.Column="0" Grid.Row="8" Margin="2">
+			<CheckBox Background="White" IsChecked="{Binding DDVisibility, Mode=TwoWay}"/>
+			<TextBlock DockPanel.Dock="Right" Text="Set Visibilty Level" Margin="5,4,0,0" />
+		  </DockPanel>
+		  <DockPanel Grid.Column="1" Grid.Row="8" Margin="2">
+			<CheckBox Background="White" IsChecked="{Binding DDAutoProfile, Mode=TwoWay}"/>
+			<TextBlock DockPanel.Dock="Right" Text="Set Automatic Profiler" Margin="5,4,0,0" />
+		  </DockPanel>
+		</Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>
         <Rectangle HorizontalAlignment="Stretch" Fill="#FFFFFF" Height="1" Margin="0,0,0,5"/>
         <TextBlock Text="Chat Bot Rights:" FontSize="16"/>

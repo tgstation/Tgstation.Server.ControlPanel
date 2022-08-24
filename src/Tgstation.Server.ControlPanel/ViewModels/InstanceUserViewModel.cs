@@ -628,6 +628,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public bool DDAutoProfile
+		{
+			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.SetProfiler);
+			set
+			{
+				var right = DreamDaemonRights.SetProfiler;
+				if (value)
+					newDreamDaemonRights |= right;
+				else
+					newDreamDaemonRights &= ~right;
+			}
+		}
+
 		public bool ChatEnable
 		{
 			get => newChatBotRights.HasFlag(ChatBotRights.WriteEnabled);
@@ -923,6 +936,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(DDTerm));
 				this.RaisePropertyChanged(nameof(DDStart));
 				this.RaisePropertyChanged(nameof(DDTime));
+				this.RaisePropertyChanged(nameof(DDAutoProfile));
 
 				this.RaisePropertyChanged(nameof(ChatEnable));
 				this.RaisePropertyChanged(nameof(ChatProvider));
