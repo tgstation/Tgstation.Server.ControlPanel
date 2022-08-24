@@ -530,6 +530,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		async Task<IServerClient> AttemptOAuthConnection(OAuthProvider oAuthProvider, CancellationToken cancellationToken)
 		{
 			var serverInfo = await serverClientFactory.GetServerInformation(connection.Url, new List<IRequestLogger> { requestLogger }, connection.Timeout, cancellationToken);
+			var providerInfo = null
 
 			if(serverInfo?.OAuthProviderInfos.TryGetValue(oAuthProvider, out var providerInfo) != true)
 				throw new NotSupportedException("This server does not support this OAuth provider!");
