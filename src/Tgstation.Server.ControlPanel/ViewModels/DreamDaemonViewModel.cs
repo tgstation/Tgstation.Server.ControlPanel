@@ -223,6 +223,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref newAutoStart, value);
 		}
 
+		public bool NewDumpOnHeartbeatRestart
+		{
+			get => newDumpOnHeartbeatRestart;
+			set => this.RaiseAndSetIfChanged(ref newDumpOnHeartbeatRestart, value);
+		}
+
+		public bool NewAutoProfile
+		{
+			get => newAutoProfile;
+			set => this.RaiseAndSetIfChanged(ref newAutoProfile, value);
+		}
+
 		public bool HasRevision => CanRevision && Model?.ActiveCompileJob != null;
 		public bool HasStagedRevision => HasRevision && Model.StagedCompileJob != null;
 
@@ -241,6 +253,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanDump => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.CreateDump);
 		public bool CanAdditionalParams => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetAdditionalParameters);
 		public bool CanVisibility => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetVisibility);
+		public bool CanHeartbeatRestart => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.CreateDump);
+		public bool CanAutoProfile => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetProfiler);
 
 		public EnumCommand<DreamDaemonCommand> Close { get; }
 		public EnumCommand<DreamDaemonCommand> Refresh { get; }
@@ -271,6 +285,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		ushort newPrimaryPort;
 		bool newAutoStart;
 		bool newAllowWebClient;
+		bool newDumpOnHeartbeatRestart;
+		bool newAutoProfile;
 
 		bool refreshing;
 
@@ -351,6 +367,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				NewPrimaryPort = Model.Port ?? 0;
 				NewAutoStart = Model.AutoStart ?? false;
 				NewAllowWebClient = Model.AllowWebClient ?? false;
+				NewDumpOnHeartbeatRestart = Model.DumpOnHeartbeatRestart ?? false;
+				NewAutoProfile = Model.StartProfiler ?? false;
 				NewAdditionalParams = Model.AdditionalParameters ?? string.Empty;
 				initalSecurityLevel = Model.SecurityLevel;
 				initalVisibility = Model.Visibility;
@@ -463,6 +481,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							HeartbeatSeconds = CanHeartbeat && Model.HeartbeatSeconds != NewHeartbeatSeconds ? (uint?)NewHeartbeatSeconds : null,
 							AdditionalParameters = CanAdditionalParams && Model.AdditionalParameters != NewAdditionalParams ? NewAdditionalParams : null,
 							Visibility = CanVisibility && Model.Visibility != initalVisibility ? Model.Visibility : null,
+							DumpOnHeartbeatRestart = CanHeartbeatRestart && Model.DumpOnHeartbeatRestart != NewDumpOnHeartbeatRestart ? (bool?)NewDumpOnHeartbeatRestart : null,
+							StartProfiler = CanAutoProfile && Model.StartProfiler != NewAutoProfile ? (bool?)NewAutoProfile : null,
 						};
 
 						if (CanSoftRestart)
