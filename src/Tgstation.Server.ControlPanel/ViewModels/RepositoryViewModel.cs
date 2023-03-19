@@ -672,6 +672,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					string.Empty,
 					false,
 					null,
+					null,
+					null,
 					null);
 				DigestPR(manualPr, null);
 			}

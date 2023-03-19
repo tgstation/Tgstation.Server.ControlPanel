@@ -6,13 +6,13 @@
 
 [![forthebadge](http://forthebadge.com/images/badges/made-with-c-sharp.svg)](http://forthebadge.com) [![forthebadge](http://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](http://forthebadge.com)
 
-Official management suite for tgstation-server v4
+Official management suite for tgstation-server
 
 ## Installing
 
 ### Windows
 
-First, ensure you have the ASP .NET Core 5.0.X runtime installed. See [here](https://dotnet.microsoft.com/download/dotnet/5.0) for download.
+First, ensure you have the ASP .NET Core 6.0.X runtime installed. See [here](https://dotnet.microsoft.com/download/dotnet/6.0) for download.
 
 
 Once that's done, [Click Here](https://github.com/tgstation/Tgstation.Server.ControlPanel/releases/latest) for a download link to the self updating version.
@@ -21,7 +21,7 @@ Once that's done, [Click Here](https://github.com/tgstation/Tgstation.Server.Con
 
 To install the latest version of the code
 
-1. Download and install the [.NET 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/5.0)
+1. Download and install the [.NET 6.0 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
 1. Clone this repository
 1. Navigate to `src/Tgstation.Server.ControlPanel`
 1. Run `dotnet publish -c Release -o <Your chosen installation directory>`

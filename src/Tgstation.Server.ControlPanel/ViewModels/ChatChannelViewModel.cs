@@ -54,17 +54,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string IrcChannelName
 		{
-			get => Model.IrcChannel?.Split(';').First();
+			get => Model.ChannelData?.Split(';').First();
 			set
 			{
 				if (!IsIrc)
 					return;
 
-				var key = Model.IrcChannel?.Split(';').Skip(1).LastOrDefault();
-				Model.IrcChannel = value;
+				var key = Model.ChannelData?.Split(';').Skip(1).LastOrDefault();
+				Model.ChannelData = value;
 				if (!string.IsNullOrWhiteSpace(key))
-					Model.IrcChannel += ';' + key;
-				BadForm = string.IsNullOrEmpty(Model.IrcChannel) || Model.IrcChannel[0] != '#';
+					Model.ChannelData += ';' + key;
+				BadForm = string.IsNullOrEmpty(Model.ChannelData) || Model.ChannelData[0] != '#';
 				Modified = true;
 				onEdit();
 			}
@@ -72,14 +72,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string IrcChannelKey
 		{
-			get => Model.IrcChannel?.Split(';').Skip(1).FirstOrDefault();
+			get => Model.ChannelData?.Split(';').Skip(1).FirstOrDefault();
 			set
 			{
 				if (!IsIrc)
 					return;
-				Model.IrcChannel = Model.IrcChannel?.Split(';').First() ?? string.Empty;
+				Model.ChannelData = Model.ChannelData?.Split(';').First() ?? string.Empty;
 				if (!string.IsNullOrWhiteSpace(value))
-					Model.IrcChannel += $";{value}";
+					Model.ChannelData += $";{value}";
 				Modified = true;
 				onEdit();
 			}
@@ -100,14 +100,14 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		}
 		public string DiscordChannelId
 		{
-			get => Model.DiscordChannelId.ToString();
+			get => Model.ChannelData;
 			set
 			{
 				if (!IsDiscord)
 					return;
 				if (ulong.TryParse(value, out var result))
 				{
-					Model.DiscordChannelId = result;
+					Model.ChannelData = value;
 					BadForm = false;
 					Modified = true;
 					onEdit();

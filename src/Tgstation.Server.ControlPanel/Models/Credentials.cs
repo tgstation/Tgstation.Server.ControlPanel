@@ -42,7 +42,7 @@ namespace Tgstation.Server.ControlPanel.Models
 			try
 			{
 				byte[] bentropy = new byte[20];
-				using (var rng = new RNGCryptoServiceProvider())
+				using (var rng = RandomNumberGenerator.Create())
 					rng.GetBytes(bentropy);
 
 				CipherText = ProtectedData.Protect(clearTextBytes, bentropy, DataProtectionScope.CurrentUser);
