@@ -88,6 +88,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <TextBlock Text="Public Game Port:" Grid.Row="0" Grid.Column="0"/>
           <NumericUpDown Minimum="1" Maximum="65535"  IsEnabled="{Binding CanPort}" Value="{Binding NewPrimaryPort}" Grid.Row="0" Grid.Column="1"/>
@@ -103,6 +107,7 @@
           <NumericUpDown Minimum="1" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations.." Value="{Binding NewTopicTimeout}" Grid.Column="1" Grid.Row="9" IsEnabled="{Binding CanTopic}" />
           <TextBlock Grid.Column="0" Text="Additional Params:" Grid.Row="11"/>
           <TextBox Text="{Binding NewAdditionalParams}" IsEnabled="{Binding CanAdditionalParams}" Margin="5,0,0,0" Grid.Column="1" Grid.Row="11"/>
+          <CheckBox Content="Write DreamDaemon Output to File" Grid.Column="0" Grid.Row="13" IsChecked="{Binding NewLogOutput}" IsEnabled="{Binding CanLogOutput}" Background="White"/>
         </Grid>
         <Grid Margin="0,5,0,0">
           <Grid.RowDefinitions>

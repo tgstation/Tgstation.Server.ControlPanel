@@ -67,6 +67,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				this.RaisePropertyChanged(nameof(ClearSoft));
 				this.RaisePropertyChanged(nameof(CanSoftRestart));
 				this.RaisePropertyChanged(nameof(CanSoftStop));
+				this.RaisePropertyChanged(nameof(LogOutput));
 
 				onRunningChanged(model?.Status != WatchdogStatus.Offline);
 			}
@@ -76,6 +77,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string StopWord => confirmingShutdown ? "Confirm?" : "Stop Server";
 
 		public string WebClient => (Model?.CurrentAllowWebclient ?? Model?.AllowWebClient)?.ToString(CultureInfo.InvariantCulture) ?? "Unknown";
+
 		public string Port => (Model?.CurrentPort ?? Model?.Port)?.ToString(CultureInfo.InvariantCulture) ?? "Unknown";
 		public string Graceful => Model == null || !CanRevision ? "Unknown" : Model.SoftRestart.Value ? "Restart" : Model.SoftShutdown.Value ? "Stop" : "None";
 
@@ -125,6 +127,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool Running => Model.Status == WatchdogStatus.Online;
 
 		public bool SoftRestart
+		{
+			get => softRestart;
+			set => this.RaiseAndSetIfChanged(ref softRestart, value);
+		}
+
+		public bool LogOutput
 		{
 			get => softRestart;
 			set => this.RaiseAndSetIfChanged(ref softRestart, value);
@@ -217,6 +225,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref newAllowWebClient, value);
 		}
 
+		public bool NewLogOutput
+		{
+			get => newLogOutput;
+			set => this.RaiseAndSetIfChanged(ref newLogOutput, value);
+		}
+
 		public bool NewAutoStart
 		{
 			get => newAutoStart;
@@ -243,6 +257,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanAutoStart => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetAutoStart);
 		public bool CanSecurity => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetSecurity);
 		public bool CanWebClient => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetWebClient);
+		public bool CanLogOutput => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetLogOutput);
 		public bool CanTimeout => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetStartupTimeout);
 		public bool CanTopic => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetTopicTimeout);
 		public bool CanSoftRestart => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SoftRestart);
@@ -285,6 +300,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		ushort newPrimaryPort;
 		bool newAutoStart;
 		bool newAllowWebClient;
+		bool newLogOutput;
 		bool newDumpOnHeartbeatRestart;
 		bool newAutoProfile;
 
@@ -329,6 +345,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(CanAutoStart));
 					this.RaisePropertyChanged(nameof(CanSecurity));
 					this.RaisePropertyChanged(nameof(CanWebClient));
+					this.RaisePropertyChanged(nameof(CanLogOutput));
 					this.RaisePropertyChanged(nameof(CanTimeout));
 					this.RaisePropertyChanged(nameof(CanSoftRestart));
 					this.RaisePropertyChanged(nameof(CanSoftStop));
@@ -367,6 +384,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				NewPrimaryPort = Model.Port ?? 0;
 				NewAutoStart = Model.AutoStart ?? false;
 				NewAllowWebClient = Model.AllowWebClient ?? false;
+				NewLogOutput = Model.LogOutput ?? false;
 				NewDumpOnHeartbeatRestart = Model.DumpOnHeartbeatRestart ?? false;
 				NewAutoProfile = Model.StartProfiler ?? false;
 				NewAdditionalParams = Model.AdditionalParameters ?? string.Empty;
@@ -473,6 +491,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						var newModel = new DreamDaemonRequest
 						{
 							AllowWebClient = CanWebClient && Model.AllowWebClient != NewAllowWebClient ? (bool?)NewAllowWebClient : null,
+							LogOutput = CanLogOutput && Model.LogOutput != NewLogOutput ? (bool)NewLogOutput : null,
 							AutoStart = CanAutoStart && Model.AutoStart != NewAutoStart ? (bool?)NewAutoStart : null,
 							Port = CanPort && NewPrimaryPort != Model.Port ? (ushort?)NewPrimaryPort : null,
 							SecurityLevel = CanSecurity && Model.SecurityLevel != initalSecurityLevel ? Model.SecurityLevel : null,
