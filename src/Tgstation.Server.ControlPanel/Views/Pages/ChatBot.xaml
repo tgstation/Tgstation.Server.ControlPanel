@@ -93,6 +93,7 @@
                 <CheckBox IsChecked="{Binding IsAdminChannel}" Content="Can use admin commands" Margin="0,5,0,0" />
                 <CheckBox IsChecked="{Binding IsWatchdogChannel}" Content="Receives watchdog messages" Margin="0,5,0,0" />
                 <CheckBox IsChecked="{Binding IsUpdatesChannel}" Content="Receives deployment messages" Margin="0,5,0,0" />
+                <CheckBox IsChecked="{Binding IsSystemChannel}" Content="Receives TGS system messages" Margin="0,5,0,0" />
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width ="*"/>

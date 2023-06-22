@@ -14,6 +14,7 @@
         <RowDefinition Height="1*"/>
         <RowDefinition Height="1*"/>
         <RowDefinition Height="1*"/>
+        <RowDefinition Height="1*"/>
       </Grid.RowDefinitions>
       <DockPanel Grid.Column="0" Grid.Row="0" Margin="2">
         <CheckBox Background="White" IsChecked="{Binding PermissionSetViewModel.AdminWriteUsers, Mode=TwoWay}"/>
@@ -38,6 +39,10 @@
       <DockPanel Grid.Column="1" Grid.Row="2" Margin="2">
         <CheckBox Background="White" IsChecked="{Binding PermissionSetViewModel.AdminLogs, Mode=TwoWay}"/>
         <TextBlock DockPanel.Dock="Right" Text="Download Server Logs" Margin="5,4,0,0" />
+      </DockPanel>
+      <DockPanel Grid.Column="0" Grid.Row="3" Margin="2">
+        <CheckBox Background="White" IsChecked="{Binding PermissionSetViewModel.AdminUpload, Mode=TwoWay}"/>
+        <TextBlock DockPanel.Dock="Right" Text="Upload Custom Server Update Package" Margin="5,4,0,0" />
       </DockPanel>
     </Grid>
     <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>

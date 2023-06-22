@@ -577,12 +577,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public bool DDHeart
+		public bool DDHealth
 		{
-			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.SetHeartbeatInterval);
+			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.SetHealthCheckInterval);
 			set
 			{
-				var right = DreamDaemonRights.SetHeartbeatInterval;
+				var right = DreamDaemonRights.SetHealthCheckInterval;
 				if (value)
 					newDreamDaemonRights |= right;
 				else
@@ -647,6 +647,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set
 			{
 				var right = DreamDaemonRights.SetLogOutput;
+				if (value)
+					newDreamDaemonRights |= right;
+				else
+					newDreamDaemonRights &= ~right;
+			}
+		}
+
+		public bool DDMapThreads
+		{
+			get => newDreamDaemonRights.HasFlag(DreamDaemonRights.SetMapThreads);
+			set
+			{
+				var right = DreamDaemonRights.SetMapThreads;
 				if (value)
 					newDreamDaemonRights |= right;
 				else

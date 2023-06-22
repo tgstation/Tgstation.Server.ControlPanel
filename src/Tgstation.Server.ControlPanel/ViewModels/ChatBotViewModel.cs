@@ -245,7 +245,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						IsAdminChannel = false,
 						IsUpdatesChannel = false,
-						IsWatchdogChannel = false
+						IsWatchdogChannel = false,
+						IsSystemChannel = false,
 					};
 					Channels = new List<ChatChannelViewModel>(Channels)
 					{

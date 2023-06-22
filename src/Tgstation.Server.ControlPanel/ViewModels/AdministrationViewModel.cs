@@ -1,15 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Avalonia.Controls.ApplicationLifetimes;
+
+
+using Avalonia.Controls;
+
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Models.Request;
 using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Api.Rights;
 using Tgstation.Server.Client;
+using Avalonia;
+using Avalonia.Controls.Shapes;
+using System.IO;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
@@ -26,7 +35,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Restart,
 			Update,
 			OpenGitHub,
-			Refresh
+			Refresh,
+			Upload,
 		}
 
 		public string Title => model?.LatestVersion > tgsVersion && userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.ChangeVersion) ? "Administration (Update Available)" : "Administration";
@@ -43,6 +53,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public string RestartText { get; set; }
 		public string UpdateText { get; set; }
 
+		public string UploadText { get; set; }
+
 		public string LatestVersionString => model?.LatestVersion?.ToString() ?? "Unknown";
 		public string GitHubUrl => model?.TrackedRepositoryUrl.ToString() ?? "Unknown";
 
@@ -53,7 +65,11 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref newVersion, value);
 				Update.Recheck();
+				Upload.Recheck();
+				this.uploadClickIndex = 0;
+				this.UploadText = uploadPreamble[0];
 				this.UpdateText = InitialUpdateText;
+				this.RaisePropertyChanged(nameof(UploadText));
 				this.RaisePropertyChanged(nameof(UpdateText));
 			}
 		}
@@ -85,6 +101,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public EnumCommand<AdministrationCommand> Restart { get; }
 		public EnumCommand<AdministrationCommand> RefreshCmd { get; }
 		public EnumCommand<AdministrationCommand> Update { get; }
+		public EnumCommand<AdministrationCommand> Upload { get; }
 		public EnumCommand<AdministrationCommand> OpenGitHub { get; }
 
 		public List<LogFileViewModel> LogFiles
@@ -110,6 +127,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		string readReleaseNotes;
 		bool refreshing;
 
+		static readonly string[] uploadPreamble = new[]
+		{
+			"Upload Update Package",
+			"Do you understand what you're doing?",
+			"Did you get a certified update package?",
+			"An invalid zip can brick your server",
+			"The version set above must be correct",
+			"An incorrect version can brick your server",
+			"Final Confirmation",
+		};
+
+		uint uploadClickIndex;
+
 		public AdministrationViewModel(PageContextViewModel pageContext, IAdministrationClient administrationClient, IUserRightsProvider userRightsProvider, ConnectionManagerViewModel connectionManagerViewModel, Version tgsVersion)
 		{
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
@@ -122,17 +152,20 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 			UpdateText = InitialUpdateText;
 			RestartText = InitialRestartText;
+			UploadText = uploadPreamble[uploadClickIndex];
 
 			Close = new EnumCommand<AdministrationCommand>(AdministrationCommand.Close, this);
 			Restart = new EnumCommand<AdministrationCommand>(AdministrationCommand.Restart, this);
 			Update = new EnumCommand<AdministrationCommand>(AdministrationCommand.Update, this);
 			OpenGitHub = new EnumCommand<AdministrationCommand>(AdministrationCommand.OpenGitHub, this);
 			RefreshCmd = new EnumCommand<AdministrationCommand>(AdministrationCommand.Refresh, this);
+			Upload = new EnumCommand<AdministrationCommand>(AdministrationCommand.Upload, this);
 
 			userRightsProvider.OnUpdated += (a, b) =>
 			{
 				Restart.Recheck();
 				Update.Recheck();
+				Upload.Recheck();
 				RecheckIcon();
 			};
 			RecheckIcon();
@@ -146,6 +179,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Refreshing = true;
 			Icon = "resm:Tgstation.Server.ControlPanel.Assets.hourglass.png";
 			ErrorMessage = null;
+
 			try
 			{
 				var modelTask = administrationClient.Read(cancellationToken);
@@ -165,9 +199,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				using (DelayChangeNotifications())
 				{
 					Refreshing = false;
+					uploadClickIndex = 0;
+					UploadText = uploadPreamble[uploadClickIndex];
 					RecheckIcon();
-					if (NewVersion == null)
-						NewVersion = model?.LatestVersion?.ToString();
+					NewVersion ??= model?.LatestVersion?.ToString();
 					this.RaisePropertyChanged(nameof(GitHubUrl));
 					this.RaisePropertyChanged(nameof(LatestVersionString));
 					this.RaisePropertyChanged(nameof(Title));
@@ -197,6 +232,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				AdministrationCommand.Close => true,
 				AdministrationCommand.Refresh => !Refreshing,
 				AdministrationCommand.Restart => userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.RestartHost),
+				AdministrationCommand.Upload => Version.TryParse(NewVersion, out var _) && userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.UploadVersion),
 				AdministrationCommand.Update => Version.TryParse(NewVersion, out var _) && userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.ChangeVersion),
 				AdministrationCommand.OpenGitHub => model?.TrackedRepositoryUrl != null,
 				_ => throw new ArgumentOutOfRangeException(nameof(command), command, "Invalid command!"),
@@ -205,7 +241,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public async Task RunCommand(AdministrationCommand command, CancellationToken cancellationToken)
 		{
-			async void UnsetConfirm(bool restart)
+			async void UnsetConfirm(bool restart, uint? upload)
 			{
 				await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(false);
 				if (restart)
@@ -213,6 +249,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					confirmingRestart = false;
 					RestartText = InitialRestartText;
 					this.RaisePropertyChanged(nameof(RestartText));
+				}
+				else if (upload.HasValue)
+				{
+					if (uploadClickIndex == upload)
+					{
+						uploadClickIndex = 0;
+						UploadText = uploadPreamble[0];
+						this.RaisePropertyChanged(nameof(UploadText));
+					}
 				}
 				else
 				{
@@ -232,7 +277,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						confirmingRestart = true;
 						RestartText = ConfirmText;
 						this.RaisePropertyChanged(nameof(RestartText));
-						UnsetConfirm(true);
+						UnsetConfirm(true, null);
 						break;
 					}
 					try
@@ -244,6 +289,70 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						return;
 					}
 					await connectionManagerViewModel.BeginConnect(null, cancellationToken).ConfigureAwait(true);
+					break;
+				case AdministrationCommand.Upload:
+					if(++uploadClickIndex == uploadPreamble.Length)
+					{
+						uploadClickIndex = 0;
+						UploadText = uploadPreamble[uploadClickIndex];
+
+						this.RaisePropertyChanged(nameof(UploadText));
+
+						var versionUsed = Version.Parse(NewVersion);
+
+						if (!(Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime2))
+							return;
+
+						var ofd = new OpenFileDialog
+						{
+							Title = $"Select TGS Update Package for v{versionUsed}",
+							InitialFileName = "ServerUpdatePackage.zip",
+							AllowMultiple = false,
+							Filters = new List<FileDialogFilter>
+							{
+								new FileDialogFilter
+								{
+									Extensions = new List<string>
+									{
+										"*.zip"
+									},
+									Name = $"TGS Update Package v{versionUsed}",
+								}
+							},
+						};
+
+						var uploadPath = (await ofd.ShowAsync(lifetime2.MainWindow).ConfigureAwait(true))[0];
+						await using var zipStream = new FileStream(
+							uploadPath,
+							FileMode.Open,
+							FileAccess.Read,
+							FileShare.Read | FileShare.Delete,
+							4096,
+							FileOptions.Asynchronous | FileOptions.SequentialScan);
+						try
+						{
+							await administrationClient.Update(new ServerUpdateRequest
+							{
+								NewVersion = Version.Parse(NewVersion),
+								UploadZip = true,
+							}, 
+							zipStream,
+							cancellationToken).ConfigureAwait(false);
+						}
+						catch (ClientException)
+						{
+							return;
+						}
+
+						await connectionManagerViewModel.BeginConnect(null, cancellationToken).ConfigureAwait(true);
+					}
+					else
+					{
+						UploadText = uploadPreamble[uploadClickIndex];
+						this.RaisePropertyChanged(nameof(UploadText));
+						UnsetConfirm(false, uploadClickIndex);
+					}
+
 					break;
 				case AdministrationCommand.Refresh:
 					await Refresh(cancellationToken).ConfigureAwait(true);
@@ -262,7 +371,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						confirmingUpdate = true;
 						UpdateText = ConfirmText;
 						this.RaisePropertyChanged(nameof(UpdateText));
-						UnsetConfirm(false);
+						UnsetConfirm(false, null);
 						break;
 					}
 					try
@@ -270,7 +379,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						await administrationClient.Update(new ServerUpdateRequest
 						{
 							NewVersion = Version.Parse(NewVersion)
-						}, cancellationToken).ConfigureAwait(false);
+						}, null, cancellationToken).ConfigureAwait(false);
 					}
 					catch (ClientException)
 					{

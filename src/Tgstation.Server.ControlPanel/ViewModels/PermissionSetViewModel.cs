@@ -225,6 +225,19 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public bool AdminUpload
+		{
+			get => newAdministrationRights.HasFlag(AdministrationRights.UploadVersion);
+			set
+			{
+				var right = AdministrationRights.UploadVersion;
+				if (value)
+					newAdministrationRights |= right;
+				else
+					newAdministrationRights &= ~right;
+			}
+		}
+
 		public PermissionSet PermissionSet => user?.PermissionSet ?? group.PermissionSet;
 		bool CanEditRights => userRightsProvider.AdministrationRights.HasFlag(AdministrationRights.WriteUsers);
 

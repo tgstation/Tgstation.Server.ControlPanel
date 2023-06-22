@@ -52,6 +52,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
+		public bool IsSystemChannel
+		{
+			get => Model.IsSystemChannel.Value;
+			set
+			{
+				Model.IsSystemChannel = value;
+				Modified = true;
+				onEdit();
+			}
+		}
+
 		public string IrcChannelName
 		{
 			get => Model.ChannelData?.Split(';').First();

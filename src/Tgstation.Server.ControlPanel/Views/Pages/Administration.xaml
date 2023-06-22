@@ -67,10 +67,13 @@
             <ColumnDefinition Width="15*"/>
             <ColumnDefinition Width="5*"/>
             <ColumnDefinition Width="15*"/>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="15*"/>
             <ColumnDefinition Width="25*"/>
           </Grid.ColumnDefinitions>
           <Button Grid.Column="1" Content="{Binding UpdateText}" Command="{Binding Update}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
           <Button Grid.Column="3" Content="{Binding RestartText}" Command="{Binding Restart}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
+          <Button Grid.Column="5" Content="{Binding UploadText}" Command="{Binding Upload}" Background="#CFD6E5" BorderBrush="#ADADAD"/>
         </Grid>
       </Grid>
       <StackPanel IsVisible="{Binding CanGetLogs}">

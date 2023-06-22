@@ -279,12 +279,12 @@
             <TextBlock DockPanel.Dock="Right" Text="Set Startup Timeout Period" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="6" Margin="2">
-            <CheckBox Background="White" IsChecked="{Binding DDHeart, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Set Heartbeat Interval" Margin="5,4,0,0" />
+            <CheckBox Background="White" IsChecked="{Binding DDHealth, Mode=TwoWay}"/>
+            <TextBlock DockPanel.Dock="Right" Text="Set Health Check Interval" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="1" Grid.Row="6" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding DDDump, Mode=TwoWay}"/>
-            <TextBlock DockPanel.Dock="Right" Text="Create Process Dumps + Set auto dump on heartbeat fail" Margin="5,4,0,0" />
+            <TextBlock DockPanel.Dock="Right" Text="Create Process Dumps + Set auto dump on health check fail" Margin="5,4,0,0" />
           </DockPanel>
           <DockPanel Grid.Column="0" Grid.Row="7" Margin="2">
             <CheckBox Background="White" IsChecked="{Binding DDTopicTimeout, Mode=TwoWay}"/>
@@ -305,6 +305,10 @@
 		  <DockPanel Grid.Column="0" Grid.Row="9" Margin="2">
 			<CheckBox Background="White" IsChecked="{Binding DDLogOutput, Mode=TwoWay}"/>
 			<TextBlock DockPanel.Dock="Right" Text="Set Log Output" Margin="5,4,0,0" />
+		  </DockPanel>
+		  <DockPanel Grid.Column="1" Grid.Row="9" Margin="2">
+			<CheckBox Background="White" IsChecked="{Binding DDMapThreads, Mode=TwoWay}"/>
+			<TextBlock DockPanel.Dock="Right" Text="Set Map Threads" Margin="5,4,0,0" />
 		  </DockPanel>
 		</Grid>
         <Rectangle HorizontalAlignment="Stretch" Fill="#A0A0A0" Height="1" Margin="0,5,0,0"/>

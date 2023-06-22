@@ -92,6 +92,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <TextBlock Text="Public Game Port:" Grid.Row="0" Grid.Column="0"/>
           <NumericUpDown Minimum="1" Maximum="65535"  IsEnabled="{Binding CanPort}" Value="{Binding NewPrimaryPort}" Grid.Row="0" Grid.Column="1"/>
@@ -100,14 +102,16 @@
 		  <CheckBox Content="Automatically Start Profiler" Margin="0,5,5,0" Grid.Column="3" Grid.Row="3" IsChecked="{Binding NewAutoProfile}" IsEnabled="{Binding CanAutoProfile}" Background="White" />
 		  <TextBlock Text="Launch Inactivity Timeout Period (seconds):" Margin="0,5,5,0" Grid.Column="0" Grid.Row="5"/>
           <NumericUpDown Minimum="1" Value="{Binding NewStartupTimeout}" Grid.Column="1" Grid.Row="5" IsEnabled="{Binding CanTimeout}" />
-          <TextBlock Text="Heartbeat Seconds (0 disables):" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Margin="0,5,5,0" Grid.Column="0" Grid.Row="7"/>
-          <NumericUpDown Minimum="0" ToolTip.Tip="Heartbeats are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Value="{Binding NewHeartbeatSeconds}" Grid.Column="1" Grid.Row="7" IsEnabled="{Binding CanHeartbeat}" />
-          <CheckBox Content="Dump process on heartbeat fail" Margin="0,5,5,0" Grid.Column="3" Grid.Row="7" IsChecked="{Binding NewDumpOnHeartbeatRestart}" IsEnabled="{Binding CanHeartbeatRestart}" Background="White" ToolTip.Tip="If heartbeats are enabled, ticking this box will automatically create a process dump if the server is restarted due to missing heartbeats. This may be useful for diagnosing faults." />
+          <TextBlock Text="Health Check Seconds (0 disables):" ToolTip.Tip="Health checks are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Margin="0,5,5,0" Grid.Column="0" Grid.Row="7"/>
+          <NumericUpDown Minimum="0" ToolTip.Tip="Health checks are TGS checking on DD's status via /world/Topic. If 4 are missed, an automatic restart will occur." Value="{Binding NewHealthCheckSeconds}" Grid.Column="1" Grid.Row="7" IsEnabled="{Binding CanHealthCheck}" />
+          <CheckBox Content="Dump process on health check fail" Margin="0,5,5,0" Grid.Column="3" Grid.Row="7" IsChecked="{Binding NewDumpOnHealthCheckRestart}" IsEnabled="{Binding CanHealthCheckRestart}" Background="White" ToolTip.Tip="If health checks are enabled, ticking this box will automatically create a process dump if the server is restarted due to missing health checks. This may be useful for diagnosing faults." />
 		  <TextBlock Text="Timeout For Sending BYOND Topics (Milliseconds):" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations." Margin="0,5,5,0" Grid.Column="0" Grid.Row="9"/>
-          <NumericUpDown Minimum="1" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations.." Value="{Binding NewTopicTimeout}" Grid.Column="1" Grid.Row="9" IsEnabled="{Binding CanTopic}" />
+          <NumericUpDown Minimum="1" ToolTip.Tip="TGS communicates to DreamDaemon via invoking /world/Topic with forged packets. This is the timeout for all of those operations." Value="{Binding NewTopicTimeout}" Grid.Column="1" Grid.Row="9" IsEnabled="{Binding CanTopic}" />
           <TextBlock Grid.Column="0" Text="Additional Params:" Grid.Row="11"/>
           <TextBox Text="{Binding NewAdditionalParams}" IsEnabled="{Binding CanAdditionalParams}" Margin="5,0,0,0" Grid.Column="1" Grid.Row="11"/>
           <CheckBox Content="Write DreamDaemon Output to File" Grid.Column="0" Grid.Row="13" IsChecked="{Binding NewLogOutput}" IsEnabled="{Binding CanLogOutput}" Background="White"/>
+			<TextBlock Text="Map Thread Count (0 for default):" ToolTip.Tip="Value passed as the '-map-threads' DreamDaemon argument in supported BYOND versions" Margin="0,5,5,0" Grid.Column="0" Grid.Row="15"/>
+			<NumericUpDown Minimum="0" ToolTip.Tip="Value passed as the '-map-threads' DreamDaemon argument in supported BYOND versions" Value="{Binding NewMapThreads}" Grid.Column="1" Grid.Row="15" IsEnabled="{Binding CanMapThreads}" />
         </Grid>
         <Grid Margin="0,5,0,0">
           <Grid.RowDefinitions>

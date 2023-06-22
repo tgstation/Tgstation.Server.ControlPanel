@@ -192,10 +192,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref newStartupTimeout, value);
 		}
 
-		public uint NewHeartbeatSeconds
+		public uint NewHealthCheckSeconds
 		{
-			get => newHeartbeatSeconds;
-			set => this.RaiseAndSetIfChanged(ref newHeartbeatSeconds, value);
+			get => newHealthCheckSeconds;
+			set => this.RaiseAndSetIfChanged(ref newHealthCheckSeconds, value);
 		}
 
 		public string NewAdditionalParams
@@ -231,16 +231,22 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			set => this.RaiseAndSetIfChanged(ref newLogOutput, value);
 		}
 
+		public uint NewMapThreads
+		{
+			get => newMapThreads;
+			set => this.RaiseAndSetIfChanged(ref newMapThreads, value);
+		}
+
 		public bool NewAutoStart
 		{
 			get => newAutoStart;
 			set => this.RaiseAndSetIfChanged(ref newAutoStart, value);
 		}
 
-		public bool NewDumpOnHeartbeatRestart
+		public bool NewDumpOnHealthCheckRestart
 		{
-			get => newDumpOnHeartbeatRestart;
-			set => this.RaiseAndSetIfChanged(ref newDumpOnHeartbeatRestart, value);
+			get => newDumpOnHealthCheckRestart;
+			set => this.RaiseAndSetIfChanged(ref newDumpOnHealthCheckRestart, value);
 		}
 
 		public bool NewAutoProfile
@@ -258,17 +264,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public bool CanSecurity => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetSecurity);
 		public bool CanWebClient => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetWebClient);
 		public bool CanLogOutput => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetLogOutput);
+		public bool CanMapThreads => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetMapThreads);
 		public bool CanTimeout => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetStartupTimeout);
 		public bool CanTopic => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetTopicTimeout);
 		public bool CanSoftRestart => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SoftRestart);
 		public bool CanSoftStop => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SoftShutdown);
 		public bool CanMetadata => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.ReadMetadata);
 		public bool CanRevision => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.ReadRevision);
-		public bool CanHeartbeat => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetHeartbeatInterval);
+		public bool CanHealthCheck => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetHealthCheckInterval);
 		public bool CanDump => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.CreateDump);
 		public bool CanAdditionalParams => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetAdditionalParameters);
 		public bool CanVisibility => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetVisibility);
-		public bool CanHeartbeatRestart => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.CreateDump);
+		public bool CanHealthCheckRestart => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.CreateDump);
 		public bool CanAutoProfile => rightsProvider.DreamDaemonRights.HasFlag(DreamDaemonRights.SetProfiler);
 
 		public EnumCommand<DreamDaemonCommand> Close { get; }
@@ -294,14 +301,15 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		DreamDaemonVisibility? initalVisibility;
 
 		uint newStartupTimeout;
-		uint newHeartbeatSeconds;
+		uint newHealthCheckSeconds;
 		string newAdditionalParams;
 		uint newTopicTimeout;
 		ushort newPrimaryPort;
 		bool newAutoStart;
 		bool newAllowWebClient;
 		bool newLogOutput;
-		bool newDumpOnHeartbeatRestart;
+		uint newMapThreads;
+		bool newDumpOnHealthCheckRestart;
 		bool newAutoProfile;
 
 		bool refreshing;
@@ -355,7 +363,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					this.RaisePropertyChanged(nameof(CanRevision));
 					this.RaisePropertyChanged(nameof(CanAdditionalParams));
 					this.RaisePropertyChanged(nameof(CanDump));
-					this.RaisePropertyChanged(nameof(CanHeartbeat));
+					this.RaisePropertyChanged(nameof(CanHealthCheck));
 				}
 			};
 
@@ -380,12 +388,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				Model = model;
 				NewStartupTimeout = Model.StartupTimeout ?? 0;
 				NewTopicTimeout = Model.TopicRequestTimeout ?? 0;
-				NewHeartbeatSeconds = Model.HeartbeatSeconds ?? 0;
+				NewHealthCheckSeconds = Model.HealthCheckSeconds ?? 0;
 				NewPrimaryPort = Model.Port ?? 0;
 				NewAutoStart = Model.AutoStart ?? false;
 				NewAllowWebClient = Model.AllowWebClient ?? false;
 				NewLogOutput = Model.LogOutput ?? false;
-				NewDumpOnHeartbeatRestart = Model.DumpOnHeartbeatRestart ?? false;
+				NewMapThreads = Model.MapThreads ?? 0;
+				NewDumpOnHealthCheckRestart = Model.DumpOnHealthCheckRestart ?? false;
 				NewAutoProfile = Model.StartProfiler ?? false;
 				NewAdditionalParams = Model.AdditionalParameters ?? string.Empty;
 				initalSecurityLevel = Model.SecurityLevel;
@@ -492,15 +501,16 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						{
 							AllowWebClient = CanWebClient && Model.AllowWebClient != NewAllowWebClient ? (bool?)NewAllowWebClient : null,
 							LogOutput = CanLogOutput && Model.LogOutput != NewLogOutput ? (bool)NewLogOutput : null,
+							MapThreads = CanMapThreads && Model.MapThreads != NewMapThreads ? NewMapThreads : null,
 							AutoStart = CanAutoStart && Model.AutoStart != NewAutoStart ? (bool?)NewAutoStart : null,
 							Port = CanPort && NewPrimaryPort != Model.Port ? (ushort?)NewPrimaryPort : null,
 							SecurityLevel = CanSecurity && Model.SecurityLevel != initalSecurityLevel ? Model.SecurityLevel : null,
 							StartupTimeout = CanTimeout && Model.StartupTimeout != NewStartupTimeout ? (uint?)NewStartupTimeout : null,
 							TopicRequestTimeout = CanTopic && Model.TopicRequestTimeout != NewTopicTimeout ? (uint?)NewTopicTimeout : null,
-							HeartbeatSeconds = CanHeartbeat && Model.HeartbeatSeconds != NewHeartbeatSeconds ? (uint?)NewHeartbeatSeconds : null,
+							HealthCheckSeconds = CanHealthCheck && Model.HealthCheckSeconds != NewHealthCheckSeconds ? (uint?)NewHealthCheckSeconds : null,
 							AdditionalParameters = CanAdditionalParams && Model.AdditionalParameters != NewAdditionalParams ? NewAdditionalParams : null,
 							Visibility = CanVisibility && Model.Visibility != initalVisibility ? Model.Visibility : null,
-							DumpOnHeartbeatRestart = CanHeartbeatRestart && Model.DumpOnHeartbeatRestart != NewDumpOnHeartbeatRestart ? (bool?)NewDumpOnHeartbeatRestart : null,
+							DumpOnHealthCheckRestart = CanHealthCheckRestart && Model.DumpOnHealthCheckRestart != NewDumpOnHealthCheckRestart ? (bool?)NewDumpOnHealthCheckRestart : null,
 							StartProfiler = CanAutoProfile && Model.StartProfiler != NewAutoProfile ? (bool?)NewAutoProfile : null,
 						};
 
