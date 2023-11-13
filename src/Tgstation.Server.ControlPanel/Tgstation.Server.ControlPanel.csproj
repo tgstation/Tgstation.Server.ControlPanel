@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>4.2.0</Version>
+    <Version>4.3.0</Version>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
