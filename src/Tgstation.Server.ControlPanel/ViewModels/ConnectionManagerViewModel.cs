@@ -237,6 +237,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		IReadOnlyList<ITreeNode> children;
 
 		IServerClient serverClient;
+		TaskCompletionSource<Tuple<IServerClient, ServerInformationResponse>> serverClientSink;
 
 		DateTimeOffset? startedConnectingAt;
 
@@ -263,7 +264,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			this.requestLogger = requestLogger ?? throw new ArgumentNullException(nameof(requestLogger));
 			this.onDelete = onDelete ?? throw new ArgumentNullException(nameof(onDelete));
 			this.pageContext = pageContext ?? throw new ArgumentNullException(nameof(pageContext));
-			this.jobSink = jobSink?.GetServerSink(() => serverClient, () => connection.JobRequeryRate, () => Title, () => userVM?.User) ?? throw new ArgumentNullException(nameof(jobSink));
+			this.serverClientSink = new TaskCompletionSource<Tuple<IServerClient, ServerInformationResponse>>();
+			this.jobSink = jobSink?.GetServerSink(() => serverClientSink.Task, () => connection.JobRequeryRate, () => Title, () => userVM?.User) ?? throw new ArgumentNullException(nameof(jobSink));
 			this.gitHubClientFactory = gitHubClientFactory ?? throw new ArgumentNullException(nameof(gitHubClientFactory));
 			this.setGitHubToken = setGitHubToken ?? throw new ArgumentNullException(nameof(setGitHubToken));
 			this.getGitHubToken = getGitHubToken ?? throw new ArgumentNullException(nameof(getGitHubToken));
@@ -288,7 +290,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		public async ValueTask DisposeAsync()
 		{
 			Children = null;
-			jobSink.Dispose();
+			await jobSink.DisposeAsync();
 			await Disconnect();
 		}
 
@@ -357,6 +359,8 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				try
 				{
 					serverInfo = await serverClient.ServerInformation(cancellationToken).ConfigureAwait(false);
+					var oldTcs = Interlocked.Exchange(ref serverClientSink, new TaskCompletionSource<Tuple<IServerClient, ServerInformationResponse>>());
+					oldTcs.SetResult(Tuple.Create(serverClient, serverInfo));
 
 					versionNode.Title = string.Format(CultureInfo.InvariantCulture, "{0}: {1}", versionNode.Title, serverInfo.Version);
 					apiVersionNode.Title = string.Format(CultureInfo.InvariantCulture, "{0}: {1}", apiVersionNode.Title, serverInfo.ApiVersion);

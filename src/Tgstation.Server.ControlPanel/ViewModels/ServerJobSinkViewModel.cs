@@ -5,7 +5,12 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+
+using Microsoft.AspNetCore.SignalR.Client;
+
 using ReactiveUI;
+
+using Tgstation.Server.Api.Hubs;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Models.Response;
 using Tgstation.Server.Client;
@@ -13,7 +18,7 @@ using Tgstation.Server.Client.Components;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	public sealed class ServerJobSinkViewModel : ViewModelBase, IServerJobSink, IDisposable
+	public sealed class ServerJobSinkViewModel : ViewModelBase, IServerJobSink, IAsyncDisposable, IJobsHub
 	{
 		public IReadOnlyList<JobViewModel> Jobs
 		{
@@ -23,7 +28,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		public string ServerName => nameProvider();
 
-		readonly Func<IServerClient> clientProvider;
+		readonly Func<Task<Tuple<IServerClient, ServerInformationResponse>>> clientProvider;
 		readonly Func<TimeSpan> requeryRateProvider;
 		readonly Func<string> nameProvider;
 
@@ -42,7 +47,9 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 
 		IReadOnlyList<JobViewModel> jobs;
 
-		public ServerJobSinkViewModel(Func<IServerClient> clientProvider, Func<TimeSpan> requeryRateProvider, Func<string> nameProvider, Func<UserResponse> currentUserProvider, Action onDisposed)
+		IServerClient currentClient;
+
+		public ServerJobSinkViewModel(Func<Task<Tuple<IServerClient, ServerInformationResponse>>> clientProvider, Func<TimeSpan> requeryRateProvider, Func<string> nameProvider, Func<UserResponse> currentUserProvider, Action onDisposed)
 		{
 			this.clientProvider = clientProvider ?? throw new ArgumentNullException(nameof(clientProvider));
 			this.requeryRateProvider = requeryRateProvider ?? throw new ArgumentNullException(nameof(requeryRateProvider));
@@ -60,10 +67,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			updateTask = Task.Run(UpdateLoop);
 		}
 
-		public void Dispose()
+		public async ValueTask DisposeAsync()
 		{
 			cancellationTokenSource.Cancel();
-			updateTask.GetAwaiter().GetResult();
+			await updateTask;
 			cancellationTokenSource.Dispose();
 			onDisposed();
 			foreach (var I in instanceSinks)
@@ -82,6 +89,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					instanceSinks.Add(instanceClient.Metadata.Id.Value, sink);
 				}
 			}
+
 			if (instanceClient.Metadata.Online == true)
 			{
 				await sink.InitialQuery(instanceClient.Jobs, cancellationToken).ConfigureAwait(false);
@@ -95,7 +103,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			return sink;
 		}
 
-		public IObservable<JobResponse> UpdateJobs(IServerClient client, CancellationToken cancellationToken)
+		IObservable<JobResponse> UpdateJobs(IServerClient client, CancellationToken cancellationToken)
 		{
 			var observables = new List<IObservable<JobResponse>>();
 			lock (instanceSinks)
@@ -130,7 +138,12 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 							instanceId = I.Key;
 
 			if (!instanceId.HasValue)
-				return;
+			{
+				instanceId = job.InstanceId;
+
+				if (!instanceId.HasValue)
+					return;
+			}
 
 			var client = serverClient.Instances.CreateClient(new InstanceResponse
 			{
@@ -179,7 +192,44 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			var cancellationToken = cancellationTokenSource.Token;
 
+			Task connectionLifetime = Task.CompletedTask;
+			IAsyncDisposable currentConnection = null;
+			Task<Tuple<IServerClient, ServerInformationResponse>> newestServerClient = clientProvider();
 			while (!cancellationToken.IsCancellationRequested)
+			{
+				try
+				{
+					var (localCurrentClient, serverInfo) = await newestServerClient.WaitAsync(cancellationToken);
+					currentClient = localCurrentClient;
+
+					if (currentConnection != null)
+						await currentConnection.DisposeAsync();
+
+					if (serverInfo.ApiVersion.Major < 9 || (serverInfo.ApiVersion.Major == 9 && serverInfo.ApiVersion.Minor < 13))
+					{
+						newestServerClient = LegacyLoop(currentClient);
+					}
+					else
+					{
+						currentConnection = await currentClient.SubscribeToJobUpdates(
+							this,
+							cancellationToken: cancellationToken);
+						newestServerClient = clientProvider();
+					}
+				}
+				catch { }
+			}
+
+			if (currentConnection != null)
+				await currentConnection.DisposeAsync();
+		}
+
+		async Task<Tuple<IServerClient, ServerInformationResponse>> LegacyLoop(IServerClient serverClient)
+		{
+			var cancellationToken = cancellationTokenSource.Token;
+
+			Task<Tuple<IServerClient, ServerInformationResponse>> newestServerClient = clientProvider();
+			while (!newestServerClient.IsCompleted && !cancellationToken.IsCancellationRequested)
 			{
 				Task oldDelayTask = null;
 				try
@@ -198,8 +248,10 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 						instanceUpdates = tasks.Count > 0 ? (Task)Task.WhenAny(tasks) : new TaskCompletionSource<object>().Task;
 					}
 
-					await Task.WhenAny(updates, instanceUpdates, delay).ConfigureAwait(false);
-					var serverClient = clientProvider();
+					await Task.WhenAny(updates, instanceUpdates, delay, newestServerClient).ConfigureAwait(false);
+					if (newestServerClient.IsCompleted)
+						break;
+
 					var timedOut = delay.IsCompleted;
 					if (!timedOut)
 						oldDelayTask = delay;
@@ -222,8 +274,18 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				catch { }
 			}
 
+			if (cancellationToken.IsCancellationRequested)
+				return null;
+
+			return await newestServerClient;
 		}
 
 		public void NameUpdate() => this.RaisePropertyChanged(nameof(ServerName));
+
+		public Task ReceiveJobUpdate(JobResponse job, CancellationToken cancellationToken)
+		{
+			NewJobs(); // prevent the sinks from filling up
+			return UpdateJobList(job, currentClient);
+		}
 	}
 }

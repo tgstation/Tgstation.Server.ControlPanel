@@ -5,7 +5,7 @@ using Tgstation.Server.Client.Components;
 
 namespace Tgstation.Server.ControlPanel
 {
-	public interface IServerJobSink : IDisposable
+	public interface IServerJobSink : IAsyncDisposable
 	{
 		Task<IInstanceJobSink> GetSinkForInstance(IInstanceClient instanceClient, CancellationToken cancellationToken);
 		void NameUpdate();

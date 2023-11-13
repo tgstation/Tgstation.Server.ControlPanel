@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+
 using ReactiveUI;
 using Tgstation.Server.Api.Models;
 using Tgstation.Server.Api.Models.Response;
@@ -8,7 +10,7 @@ using Tgstation.Server.Client;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	public sealed class JobManagerViewModel : ViewModelBase, IJobSink, IDisposable
+	public sealed class JobManagerViewModel : ViewModelBase, IJobSink, IAsyncDisposable
 	{
 		public List<ServerJobSinkViewModel> Sinks
 		{
@@ -23,13 +25,13 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			Sinks = new List<ServerJobSinkViewModel>();
 		}
 
-		public void Dispose()
+		public async ValueTask DisposeAsync()
 		{
 			while (jobSinks.Count > 0)
-				jobSinks[0].Dispose();
+				await jobSinks[0].DisposeAsync();
 		}
 
-		public IServerJobSink GetServerSink(Func<IServerClient> clientProvider, Func<TimeSpan> timeSpanProvider, Func<string> nameProvider, Func<UserResponse> getCurrentUser)
+		public IServerJobSink GetServerSink(Func<Task<Tuple<IServerClient, ServerInformationResponse>>> clientProvider, Func<TimeSpan> timeSpanProvider, Func<string> nameProvider, Func<UserResponse> getCurrentUser)
 		{
 			ServerJobSinkViewModel sink = null;
 			sink = new ServerJobSinkViewModel(clientProvider, timeSpanProvider, nameProvider, getCurrentUser, () =>
