@@ -319,7 +319,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			bodyString = workingBodyString;
 		}
 
-		public async Task LogRequest(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
+		public async ValueTask LogRequest(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
 		{
 			var instancePart = string.Empty;
 			if (requestMessage.Headers.TryGetValues("Instance", out var values))
@@ -348,7 +348,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			AddToConsole($"{requestMessage.Method} {requestMessage.RequestUri}{instancePart}{bodyPart}");
 		}
 
-		public async Task LogResponse(HttpResponseMessage responseMessage, CancellationToken cancellationToken)
+		public async ValueTask LogResponse(HttpResponseMessage responseMessage, CancellationToken cancellationToken)
 		{
 			var requestMessage = responseMessage.RequestMessage;
 			var instancePart = string.Empty;

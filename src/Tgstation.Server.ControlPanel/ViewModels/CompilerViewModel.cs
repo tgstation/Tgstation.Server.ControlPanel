@@ -271,7 +271,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				if (!CanRead && !CanGetJobs)
 					return;
 
-				async Task AssignModel() => Model = await (CanRead ? dreamMakerClient.Read(cancellationToken) : Task.FromResult<DreamMakerResponse>(null)).ConfigureAwait(true);
+				async ValueTask AssignModel() => Model = await (CanRead ? dreamMakerClient.Read(cancellationToken) : ValueTask.FromResult<DreamMakerResponse>(null)).ConfigureAwait(true);
 
 				var readTask = AssignModel();
 
@@ -279,7 +279,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 				{
 					PageSize = 100,
 					RetrieveCount = 500
-				}, cancellationToken) : Task.FromResult<IReadOnlyList<CompileJobResponse>>(null);
+				}, cancellationToken) : ValueTask.FromResult<List<CompileJobResponse>>(null);
 
 				jobIds = await jobsTask.ConfigureAwait(true);
 				numPages = (jobIds.Count / JobsPerPage) + (jobIds.Count > JobsPerPage && ((jobIds.Count % JobsPerPage) > 0) ? 1 : 0);

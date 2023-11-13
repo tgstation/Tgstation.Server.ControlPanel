@@ -16,7 +16,7 @@ using Tgstation.Server.ControlPanel.Models;
 
 namespace Tgstation.Server.ControlPanel.ViewModels
 {
-	public sealed class ConnectionManagerViewModel : ViewModelBase, ICommandReceiver<ConnectionManagerViewModel.ConnectionManagerCommand>, ITreeNode, IDisposable
+	public sealed class ConnectionManagerViewModel : ViewModelBase, ICommandReceiver<ConnectionManagerViewModel.ConnectionManagerCommand>, ITreeNode, IAsyncDisposable
 	{
 		public enum ConnectionManagerCommand
 		{
@@ -285,16 +285,17 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 			}
 		}
 
-		public void Dispose()
+		public async ValueTask DisposeAsync()
 		{
 			Children = null;
 			jobSink.Dispose();
-			Disconnect();
+			await Disconnect();
 		}
 
-		void Disconnect()
+		async ValueTask Disconnect()
 		{
-			serverClient?.Dispose();
+			if (serverClient != null)
+				await serverClient.DisposeAsync();
 			userVM = null;
 			this.RaisePropertyChanged(nameof(Title));
 			serverClient = null;
@@ -516,7 +517,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 		{
 			if (Connecting)
 				throw new InvalidOperationException("Already connecting!");
-			Disconnect();
+			await Disconnect();
 			Children = null;
 
 			if (!await HandleConnectException(async () =>
@@ -596,7 +597,7 @@ namespace Tgstation.Server.ControlPanel.ViewModels
 					{
 						pageContext.ActiveObject = null;
 						onDelete();
-						Dispose();
+						await DisposeAsync();
 					}
 					else
 					{
