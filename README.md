@@ -1,3 +1,5 @@
+# ARCHIVED: @Cyberboss does not have the bandwidth to maintain two separate clients. Please prefer https://github.com/tgstation/tgstation-server-webpanel which will eventually get a downloadable electron release for desktop use.
+
 # Tgstation.Server.ControlPanel
 
 [![GitHub license](https://img.shields.io/github/license/tgstation/Tgstation.Server.ControlPanel.svg)](https://github.com/tgstation/Tgstation.Server.ControlPanel/blob/master/LICENSE) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/tgstation/Tgstation.Server.ControlPanel.svg)](http://isitmaintained.com/project/tgstation/Tgstation.Server.ControlPanel "Average time to resolve an issue")
